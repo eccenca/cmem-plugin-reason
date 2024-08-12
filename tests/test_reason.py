@@ -80,7 +80,6 @@ def tests(_setup: None) -> None:  # noqa: C901
         ).execute(None, context=TestExecutionContext())
 
         result = get_remote_graph(REASON_RESULT_GRAPH_IRI)
-        result.serialize(f"temp/{reasoner}.ttl", format="turtle")
         test = Graph().parse(Path(__path__[0]) / f"test_{reasoner}.ttl", format="turtle")
         if to_isomorphic(result) != to_isomorphic(test):
             err_list.append(reasoner)
@@ -101,7 +100,7 @@ def tests(_setup: None) -> None:  # noqa: C901
             val_errors += 'EntityPath "markdown" output error. '
 
         if next(iter(result.entities)).values[2][0] != "Full,DL,EL,QL,RL":  # type: ignore[union-attr]
-            val_errors += 'EntityPath "valid_profile" output error. '
+            val_errors += 'EntityPath "valid_profiles" output error. '
 
         if md_test != get_resource(PROJECT_ID, MD_FILENAME).decode():
             val_errors += "Markdown file error. "
