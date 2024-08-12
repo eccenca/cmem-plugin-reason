@@ -11,7 +11,6 @@ import validators.url
 from cmem.cmempy.dp.proxy.graph import get
 from cmem_plugin_base.dataintegration.context import ExecutionContext, ExecutionReport
 from cmem_plugin_base.dataintegration.description import Icon, Plugin, PluginParameter
-from cmem_plugin_base.dataintegration.entity import EntityPath, EntitySchema
 from cmem_plugin_base.dataintegration.parameter.choice import ChoiceParameterType
 from cmem_plugin_base.dataintegration.parameter.graph import GraphParameterType
 from cmem_plugin_base.dataintegration.plugins import WorkflowPlugin
@@ -270,13 +269,6 @@ class ReasonPlugin(WorkflowPlugin):
 
         self.input_ports = FixedNumberOfInputs([])
         self.output_port = None
-
-    def generate_input_schema(self) -> EntitySchema:
-        """Generate the output schema."""
-        return EntitySchema(
-            type_uri="validate",
-            paths=[EntityPath("profile"), EntityPath("ontology")],
-        )
 
     def get_graphs(self, graphs: dict, context: ExecutionContext) -> None:
         """Get graphs from CMEM"""
