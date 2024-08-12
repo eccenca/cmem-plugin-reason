@@ -102,7 +102,8 @@ Maximum heap size for the Java virtual machine in the DI container running the r
 # Validate
 
 The plugin outputs the explanation as text in Markdown format on the path "markdown",
-the ontology IRI on the path "ontology", and (if enabled) the valid OWL2 profiles in the path "profile".
+the ontology IRI on the path "ontology_graph_iri", and (if enabled) the valid OWL2 profiles on the path "valid_profiles" as 
+a comma-separated string.
 
 ## Options
 
