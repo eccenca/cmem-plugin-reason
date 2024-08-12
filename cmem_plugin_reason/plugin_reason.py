@@ -250,6 +250,14 @@ class ReasonPlugin(WorkflowPlugin):
             errors += 'Invalid value for parameter "Reasoner". '
         if True not in self.axioms.values():
             errors += "No axiom generator selected. "
+        if (
+            input_profiles
+            and valid_profiles
+            and not set(valid_profiles.lower().split(",")).issubset(
+                ["full", "dl", "el", "ql", "rl"]
+            )
+        ):
+            errors += "Invalid value for valid profiles input. "
         if max_ram_percentage not in range(1, 101):
             errors += 'Invalid value for parameter "Maximum RAM Percentage". '
         if errors:
