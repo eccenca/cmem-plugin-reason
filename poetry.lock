@@ -317,6 +317,17 @@ files = [
 ]
 
 [[package]]
+name = "inflection"
+version = "0.5.1"
+description = "A port of Ruby on Rails inflector to Python"
+optional = false
+python-versions = ">=3.5"
+files = [
+    {file = "inflection-0.5.1-py2.py3-none-any.whl", hash = "sha256:f38b2b640938a4f35ade69ac3d053042959b62a0f1076a5bbaa1b9526605a8a2"},
+    {file = "inflection-0.5.1.tar.gz", hash = "sha256:1a29730d366e996aaacffb2f1f1cb9593dc38e2ddd30c91250c6dde09ea9b417"},
+]
+
+[[package]]
 name = "iniconfig"
 version = "2.0.0"
 description = "brain-dead simple config-ini parsing"
@@ -1080,13 +1091,13 @@ files = [
 
 [[package]]
 name = "textual"
-version = "0.75.1"
+version = "0.76.0"
 description = "Modern Text User Interface framework"
 optional = false
 python-versions = "<4.0.0,>=3.8.1"
 files = [
-    {file = "textual-0.75.1-py3-none-any.whl", hash = "sha256:7edb1196753feae79890daa2287bc3180ebba2cbf63f59f2a160991325b020f2"},
-    {file = "textual-0.75.1.tar.gz", hash = "sha256:3f0b53fe6119aa64853c7e60ced4d4e16fb23c83dee1e0fd19eddb3f2639c02e"},
+    {file = "textual-0.76.0-py3-none-any.whl", hash = "sha256:e2035609c889dba507d34a5d7b333f1c8c53a29fb170962cb92101507663517a"},
+    {file = "textual-0.76.0.tar.gz", hash = "sha256:b12e8879d591090c0901b5cb8121d086e28e677353b368292d3865ec99b83b70"},
 ]
 
 [package.dependencies]
@@ -1156,4 +1167,4 @@ crypto-eth-addresses = ["eth-hash[pycryptodome] (>=0.7.0)"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "91185650bb2b1c410b5d4927d0bac77b10393064c5052e199219c82385fbfda5"
+content-hash = "4df369a43e71446c9cbc562df56387e5f6607d84851c42188d3799874a8848bf"

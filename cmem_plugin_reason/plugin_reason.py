@@ -19,6 +19,7 @@ from cmem_plugin_base.dataintegration.plugins import WorkflowPlugin
 from cmem_plugin_base.dataintegration.ports import FixedNumberOfInputs, FixedSchemaPort
 from cmem_plugin_base.dataintegration.types import BoolParameterType
 from cmem_plugin_base.dataintegration.utils import setup_cmempy_user_access
+from inflection import underscore
 from urllib3.exceptions import InsecureRequestWarning
 
 from cmem_plugin_reason.utils import (
@@ -245,20 +246,7 @@ class ReasonPlugin(WorkflowPlugin):
             errors += 'Invalid value for parameter "Maximum RAM Percentage". '
         if errors:
             raise ValueError(errors[:-1])
-        self.sub_class = sub_class
-        self.equivalent_class = equivalent_class
-        self.disjoint_classes = disjoint_classes
-        self.data_property_characteristic = data_property_characteristic
-        self.equivalent_data_properties = equivalent_data_properties
-        self.sub_data_property = sub_data_property
-        self.class_assertion = class_assertion
-        self.property_assertion = property_assertion
-        self.equivalent_object_property = equivalent_object_property
-        self.inverse_object_properties = inverse_object_properties
-        self.object_property_characteristic = object_property_characteristic
-        self.sub_object_property = sub_object_property
-        self.object_property_range = object_property_range
-        self.object_property_domain = object_property_domain
+
         self.data_graph_iri = data_graph_iri
         self.ontology_graph_iri = ontology_graph_iri
         self.output_graph_iri = output_graph_iri
@@ -266,6 +254,9 @@ class ReasonPlugin(WorkflowPlugin):
         self.validate_profile = validate_profile
         self.input_profiles = input_profiles
         self.max_ram_percentage = max_ram_percentage
+
+        for k, v in self.axioms.items():
+            self.__dict__[underscore(k)] = v
 
         if validate_profile and input_profiles:
             self.input_ports = FixedNumberOfInputs([FixedSchemaPort(self.generate_input_schema())])

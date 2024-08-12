@@ -144,13 +144,11 @@ class ValidatePlugin(WorkflowPlugin):
         """Reason"""
         data_location = f"{self.temp}/{graphs[self.ontology_graph_iri]}"
         utctime = str(datetime.fromtimestamp(int(time()), tz=UTC))[:-6].replace(" ", "T") + "Z"
-
         cmd = (
             f'explain --input "{data_location}" '
             f"--reasoner {self.reasoner} -M inconsistency "
             f'--explanation "{self.temp}/{self.md_filename}"'
         )
-
         if self.output_graph_iri:
             cmd += (
                 f' annotate --ontology-iri "{self.output_graph_iri}" '
@@ -161,7 +159,6 @@ class ValidatePlugin(WorkflowPlugin):
                 f'--typed-annotation dc:created "{utctime}" xsd:dateTime '
                 f'--output "{self.temp}/output.ttl"'
             )
-
         response = robot(cmd, self.max_ram_percentage)
         if response.returncode != 0:
             if response.stdout:
