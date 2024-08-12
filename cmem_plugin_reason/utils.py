@@ -230,7 +230,7 @@ def post_profiles(plugin: WorkflowPlugin, valid_profiles: list) -> None:
         query = f"""
             INSERT DATA {{
                 GRAPH <{plugin.output_graph_iri}> {{
-                    <{plugin.ontology_graph_iri}>
+                    <{plugin.ontology_graph_iri}> a <http://www.w3.org/2002/07/owl#Ontology> ;
                         <https://vocab.eccenca.com/plugin/reason/profile> "{profiles}" .
                 }}
             }}

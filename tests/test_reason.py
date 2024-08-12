@@ -77,9 +77,10 @@ def tests(_setup: None) -> None:  # noqa: C901
             class_assertion=True,
             property_assertion=True,
             validate_profile=True,
-        ).execute((), context=TestExecutionContext())
+        ).execute(None, context=TestExecutionContext())
 
         result = get_remote_graph(REASON_RESULT_GRAPH_IRI)
+        result.serialize(f"temp/{reasoner}.ttl", format="turtle")
         test = Graph().parse(Path(__path__[0]) / f"test_{reasoner}.ttl", format="turtle")
         if to_isomorphic(result) != to_isomorphic(test):
             err_list.append(reasoner)
@@ -91,7 +92,7 @@ def tests(_setup: None) -> None:  # noqa: C901
             output_graph_iri=OUTPUT_GRAPH_IRI,
             validate_profile=True,
             md_filename=MD_FILENAME,
-        ).execute((), context=TestExecutionContext(PROJECT_ID))
+        ).execute(None, context=TestExecutionContext(PROJECT_ID))
 
         val_errors = ""
         md_test = (Path(__path__[0]) / "test_validate.md").read_text()
@@ -99,8 +100,8 @@ def tests(_setup: None) -> None:  # noqa: C901
         if next(iter(result.entities)).values[0][0] != md_test:  # type: ignore[union-attr]
             val_errors += 'EntityPath "markdown" output error. '
 
-        if next(iter(result.entities)).values[2] != ["Full", "DL", "EL", "QL", "RL"]:  # type: ignore[union-attr]
-            val_errors += 'EntityPath "profile" output error. '
+        if next(iter(result.entities)).values[2][0] != "Full,DL,EL,QL,RL":  # type: ignore[union-attr]
+            val_errors += 'EntityPath "valid_profile" output error. '
 
         if md_test != get_resource(PROJECT_ID, MD_FILENAME).decode():
             val_errors += "Markdown file error. "

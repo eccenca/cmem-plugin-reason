@@ -88,10 +88,8 @@ Validate the input ontology against OWL profiles (DL, EL, QL, RL, and Full). The
 
 ### Process valid OWL profiles from input
 
-If enabled along with the "Validate OWL2 profiles" parameter, the list of valid profiles is taken from the plugin input, 
-without validating the ontology against the profiles in the plugin. The inputs need to include the entity paths "profile"
-for the valid profiles, and "ontology" for the ontology IRI, the latter overriding the setting in the "Reason" plugin.
-If the "Validate OWL2 profiles" parameter is enabled in the "Validate" plugin, it can be directly connected to the input
+If enabled along with the "Validate OWL2 profiles" parameter, the ontology IRI and list of valid profiles is taken from the config port input, 
+without validating the ontology against the profiles in the plugin. If the "Validate OWL2 profiles" parameter is enabled in the "Validate" plugin, it can be directly connected to the input
 of the "Reason" plugin.
 
 

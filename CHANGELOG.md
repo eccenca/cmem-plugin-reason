@@ -23,6 +23,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 The ontology IRI on the input overrides the plugin setting.
 - update execution report
 - Output graph IRI selectable from existing graphs
+- When "input_profiles" is enabled the ontology IRI and list of valid OWL2 profiles is now taken from the config port.
+The list of valid profiles is a comma-separated string (e.g. "Full,DL")
 
 ## [1.0.0beta4] 2024-07-12
 

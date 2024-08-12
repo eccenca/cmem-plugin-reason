@@ -127,9 +127,9 @@ class ValidatePlugin(WorkflowPlugin):
 
     def generate_output_schema(self) -> EntitySchema:
         """Generate the output schema."""
-        paths = [EntityPath("markdown"), EntityPath("ontology")]
+        paths = [EntityPath("markdown"), EntityPath("ontology_graph_iri")]
         if self.validate_profile:
-            paths.append(EntityPath("profile"))
+            paths.append(EntityPath("valid_profiles"))
         return EntitySchema(type_uri="validate", paths=paths)
 
     def get_graphs(self, graphs: dict, context: ExecutionContext) -> None:
@@ -191,7 +191,7 @@ class ValidatePlugin(WorkflowPlugin):
         """Make entities"""
         values = [[text], [self.ontology_graph_iri]]
         if self.validate_profile:
-            values.append(valid_profiles)
+            values.append([",".join(valid_profiles)])
         entities = [
             Entity(
                 uri="https://eccenca.com/plugin_validateontology/result",
@@ -246,7 +246,7 @@ class ValidatePlugin(WorkflowPlugin):
 
         return self.make_entities(text, valid_profiles)
 
-    def execute(self, inputs: tuple, context: ExecutionContext) -> Entities:  # noqa: ARG002
+    def execute(self, inputs: None, context: ExecutionContext) -> Entities:  # noqa: ARG002
         """Remove temp files on error"""
         context.report.update(
             ExecutionReport(
