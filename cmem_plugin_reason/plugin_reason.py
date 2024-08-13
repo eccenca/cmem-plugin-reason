@@ -9,6 +9,7 @@ from warnings import simplefilter
 
 import validators.url
 from cmem.cmempy.dp.proxy.graph import get
+from cmem.cmempy.dp.proxy.update import post
 from cmem_plugin_base.dataintegration.context import ExecutionContext, ExecutionReport
 from cmem_plugin_base.dataintegration.description import Icon, Plugin, PluginParameter
 from cmem_plugin_base.dataintegration.parameter.choice import ChoiceParameterType
@@ -25,6 +26,7 @@ from cmem_plugin_reason.utils import (
     MAX_RAM_PERCENTAGE_PARAMETER,
     ONTOLOGY_GRAPH_IRI_PARAMETER,
     OUTPUT_GRAPH_IRI_PARAMETER,
+    REASON_DOC,
     REASONERS,
     VALIDATE_PROFILES_PARAMETER,
     create_xml_catalog_file,
@@ -45,9 +47,7 @@ simplefilter("ignore", category=InsecureRequestWarning)
     label="Reason",
     icon=Icon(file_name="fluent--brain-circuit-24-regular.svg", package=__package__),
     description="Performs OWL reasoning.",
-    documentation="""A task performing OWL reasoning. With an OWL ontology and a data graph as input
-    the reasoning result is written to a specified graph. The following reasoners are supported:
-    ELK, Expression Materializing Reasoner, HermiT, JFact, Structural Reasoner and Whelk.""",
+    documentation=REASON_DOC,
     parameters=[
         ONTOLOGY_GRAPH_IRI_PARAMETER,
         OUTPUT_GRAPH_IRI_PARAMETER,
@@ -182,6 +182,22 @@ simplefilter("ignore", category=InsecureRequestWarning)
             advanced=True,
         ),
         PluginParameter(
+            param_type=BoolParameterType(),
+            name="import_ontology",
+            label="Add ontology graph import to result graph.",
+            description="""Add the triple <output_graph_iri> owl:imports <ontology_graph_iri> to the
+            output graph.""",
+            default_value=True,
+        ),
+        PluginParameter(
+            param_type=BoolParameterType(),
+            name="import_result",
+            label="Add result graph import to ontology graph.",
+            description="""Add the triple <ontology_graph_iri> owl:imports <output_graph_iri> to the
+            ontology graph.""",
+            default_value=False,
+        ),
+        PluginParameter(
             param_type=StringParameterType(),
             name="valid_profiles",
             label="Valid OWL2 profiles",
@@ -215,6 +231,8 @@ class ReasonPlugin(WorkflowPlugin):
         sub_data_property: bool = False,
         sub_object_property: bool = False,
         validate_profile: bool = False,
+        import_ontology: bool = True,
+        import_result: bool = False,
         input_profiles: bool = False,
         max_ram_percentage: int = MAX_RAM_PERCENTAGE_DEFAULT,
         valid_profiles: str = "",
@@ -250,6 +268,11 @@ class ReasonPlugin(WorkflowPlugin):
             errors += 'Invalid value for parameter "Reasoner". '
         if True not in self.axioms.values():
             errors += "No axiom generator selected. "
+        if import_result and import_ontology:
+            errors += (
+                'Enable only one of "Add result graph import to ontology graph" and "Add '
+                'ontology graph import to result graph". '
+            )
         if (
             input_profiles
             and valid_profiles
@@ -268,6 +291,8 @@ class ReasonPlugin(WorkflowPlugin):
         self.output_graph_iri = output_graph_iri
         self.reasoner = reasoner
         self.validate_profile = validate_profile
+        self.import_ontology = import_ontology
+        self.import_result = import_result
         self.input_profiles = input_profiles
         self.max_ram_percentage = max_ram_percentage
         self.valid_profiles = valid_profiles
@@ -285,25 +310,20 @@ class ReasonPlugin(WorkflowPlugin):
             with (Path(self.temp) / filename).open("w", encoding="utf-8") as file:
                 setup_cmempy_user_access(context.user)
                 for line in get(iri).text.splitlines():
-                    if line != (
-                        f"<{iri}> <http://www.w3.org/2002/07/owl#imports> "
-                        f"<{self.output_graph_iri}> ."
+                    if not line.endswith(
+                        f"<http://www.w3.org/2002/07/owl#imports> <{self.output_graph_iri}> ."
                     ):
                         file.write(line + "\n")
-                if iri == self.data_graph_iri:
-                    file.write(
-                        f"<{iri}> <http://www.w3.org/2002/07/owl#imports> "
-                        f"<{self.ontology_graph_iri}> ."
-                    )
 
     def reason(self, graphs: dict) -> None:
         """Reason"""
         axioms = " ".join(k for k, v in self.axioms.items() if v)
         data_location = f"{self.temp}/{graphs[self.data_graph_iri]}"
+        ontology_location = f"{self.temp}/{graphs[self.ontology_graph_iri]}"
         utctime = str(datetime.fromtimestamp(int(time()), tz=UTC))[:-6].replace(" ", "T") + "Z"
         cmd = (
-            f'reason --input "{data_location}" '
-            f"--reasoner {self.reasoner} "
+            f'merge --input "{data_location}" --input "{ontology_location}" '
+            f"reason --reasoner {self.reasoner} "
             f'--axiom-generators "{axioms}" '
             f"--include-indirect true "
             f"--exclude-duplicate-axioms true "
@@ -321,8 +341,10 @@ class ReasonPlugin(WorkflowPlugin):
             f'--link-annotation dc:source "{self.data_graph_iri}" '
             f'--link-annotation dc:source "{self.ontology_graph_iri}" '
             f'--typed-annotation dc:created "{utctime}" xsd:dateTime '
-            f'--output "{self.temp}/result.ttl"'
         )
+        if self.import_ontology:
+            cmd += f'--link-annotation owl:imports "{self.ontology_graph_iri}" '
+        cmd += f'--output "{self.temp}/result.ttl"'
         response = robot(cmd, self.max_ram_percentage)
         if response.returncode != 0:
             if response.stdout:
@@ -330,6 +352,18 @@ class ReasonPlugin(WorkflowPlugin):
             if response.stderr:
                 raise OSError(response.stderr.decode())
             raise OSError("ROBOT error")
+
+    def add_result_import(self) -> None:
+        """Add result graph import to ontology graph"""
+        query = f"""
+            INSERT DATA {{
+                GRAPH <{self.ontology_graph_iri}> {{
+                    <{self.ontology_graph_iri}> <http://www.w3.org/2002/07/owl#imports>
+                        <{self.output_graph_iri}>
+                }}
+            }}
+        """
+        post(query=query)
 
     def _execute(self, context: ExecutionContext) -> None:
         """`Execute plugin"""
@@ -349,6 +383,9 @@ class ReasonPlugin(WorkflowPlugin):
                 valid_profiles = validate_profiles(self, graphs)
             post_profiles(self, valid_profiles)
         post_provenance(self, get_provenance(self, context))
+        if self.import_result:
+            setup_cmempy_user_access(context.user)
+            self.add_result_import()
 
         context.report.update(
             ExecutionReport(

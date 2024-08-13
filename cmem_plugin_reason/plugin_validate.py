@@ -27,6 +27,7 @@ from cmem_plugin_reason.utils import (
     ONTOLOGY_GRAPH_IRI_PARAMETER,
     OUTPUT_GRAPH_IRI_PARAMETER,
     REASONERS,
+    VALIDATE_DOC,
     VALIDATE_PROFILES_PARAMETER,
     create_xml_catalog_file,
     get_graphs_tree,
@@ -45,11 +46,7 @@ simplefilter("ignore", category=InsecureRequestWarning)
 @Plugin(
     label="Validate OWL consistency",
     description="Validates the consistency of an OWL ontology.",
-    documentation="""A task validating the consistency of an OWL ontology and generating an
-    explanation if inconsistencies are found. The explanation can be written to the project as a
-    Markdown file and/or to a specified graph. The Markdown string is also provided as an output
-    entity using the path "text". The following reasoners are supported: ELK, Expression
-    Materializing Reasoner, HermiT, JFact, Structural Reasoner and Whelk.""",
+    documentation=VALIDATE_DOC,
     icon=Icon(file_name="file-icons--owl.svg", package=__package__),
     parameters=[
         ONTOLOGY_GRAPH_IRI_PARAMETER,
@@ -78,6 +75,15 @@ simplefilter("ignore", category=InsecureRequestWarning)
             "not output entities.",
             default_value=False,
         ),
+        PluginParameter(
+            param_type=BoolParameterType(),
+            name="output_entities",
+            label="Output entities",
+            description="""Output entities. The plugin outputs the explanation as text in Markdown
+            format on the path "markdown", the ontology IRI on the path "ontology_graph_iri", and,
+            if enabled, the valid OWL2 profiles on the path "valid_profiles".""",
+            default_value=False,
+        ),
     ],
 )
 class ValidatePlugin(WorkflowPlugin):
@@ -90,6 +96,7 @@ class ValidatePlugin(WorkflowPlugin):
         output_graph_iri: str = "",
         md_filename: str = "",
         validate_profile: bool = False,
+        output_entities: bool = False,
         stop_at_inconsistencies: bool = False,
         max_ram_percentage: int = MAX_RAM_PERCENTAGE_DEFAULT,
     ) -> None:
@@ -104,6 +111,8 @@ class ValidatePlugin(WorkflowPlugin):
             errors += 'Invalid value for parameter "Reasoner". '
         if md_filename and not is_valid_filename(md_filename):
             errors += 'Invalid filename for parameter "Output filename". '
+        if not output_graph_iri and not md_filename and not output_entities:
+            errors += "No output selected. "
         if max_ram_percentage not in range(1, 101):
             errors += 'Invalid value for parameter "Maximum RAM Percentage". '
         if errors:
@@ -119,14 +128,18 @@ class ValidatePlugin(WorkflowPlugin):
             self.md_filename = "mdfile.md"
             self.write_md = False
         self.validate_profile = validate_profile
+        self.output_entities = output_entities
         self.max_ram_percentage = max_ram_percentage
 
         self.input_ports = FixedNumberOfInputs([])
-        self.schema = self.generate_output_schema()
-        self.output_port = FixedSchemaPort(self.schema)
+        if self.output_entities:
+            self.schema = self.generate_output_schema()
+            self.output_port = FixedSchemaPort(self.schema)
+        else:
+            self.output_port = None
 
-    def generate_output_schema(self) -> EntitySchema:
-        """Generate the output schema."""
+    def generate_output_schema(self) -> EntitySchema | None:
+        """Generate output entity schema."""
         paths = [EntityPath("markdown"), EntityPath("ontology_graph_iri")]
         if self.validate_profile:
             paths.append(EntityPath("valid_profiles"))
@@ -243,8 +256,8 @@ class ValidatePlugin(WorkflowPlugin):
                     entity_count=1,
                 )
             )
-
-        return self.make_entities(text, valid_profiles)
+        if self.output_entities:
+            return self.make_entities(text, valid_profiles)
 
     def execute(self, inputs: None, context: ExecutionContext) -> Entities:  # noqa: ARG002
         """Remove temp files on error"""

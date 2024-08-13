@@ -1,0 +1,72 @@
+A task performing OWL reasoning. With an OWL ontology and a data graph as input the reasoning result is written to a specified graph.
+    
+## Options
+
+### Data graph IRI
+
+The IRI of the input data graph. The graph IRI is selected from a list of graphs of types `di:Dataset`, `void:Dataset`
+and `owl:Ontology`.
+
+### Ontology graph IRI
+
+The IRI of the input ontology graph. The graph IRI is selected from a list of graphs of type`owl:Ontology`.
+
+### Result graph IRI
+
+The IRI of the output graph for the reasoning result.
+
+⚠️ Existing graphs will be overwritten.
+
+### Reasoner
+
+The following reasoner options are supported: 
+- [ELK](https://code.google.com/p/elk-reasoner/) (elk)
+- [Expression Materializing Reasoner](http://static.javadoc.io/org.geneontology/expression-materializing-reasoner/0.1.3/org/geneontology/reasoner/ExpressionMaterializingReasoner.html) (emr)
+- [HermiT](http://www.hermit-reasoner.com/) (hermit)
+- [JFact](http://jfact.sourceforge.net/) (jfact)
+- [Structural Reasoner](http://owlcs.github.io/owlapi/apidocs_4/org/semanticweb/owlapi/reasoner/structural/StructuralReasoner.html) (structural)
+- [Whelk](https://github.com/balhoff/whelk) (whelk)
+
+### Generated Axioms
+
+By default, the reason operation will only assert inferred subclass axioms. The plugin provides the following 
+parameters to include inferred axiom generators:
+
+#### Class axiom generators
+-  SubClass
+- EquivalentClass
+- DisjointClasses
+
+#### Data property axiom generators
+- DataPropertyCharacteristic
+- EquivalentDataProperties
+- SubDataProperty
+
+#### Individual axiom generators
+- ClassAssertion
+- PropertyAssertion
+
+#### Object property axiom generators
+- EquivalentObjectProperty
+- InverseObjectProperties
+- ObjectPropertyCharacteristic
+- SubObjectProperty
+- ObjectPropertyRange
+- ObjectPropertyDomain
+
+### Validate OWL2 profiles
+
+Validate the input ontology against OWL profiles (DL, EL, QL, RL, and Full). The ontology is annotated in the output graph. 
+
+### Process valid OWL profiles from input
+
+If enabled along with the "Validate OWL2 profiles" parameter, the ontology IRI and list of valid profiles is taken from the config port input, 
+without validating the ontology against the profiles in the plugin. If the "Validate OWL2 profiles" parameter is enabled in the "Validate" plugin, it can be directly connected to the input
+of the "Reason" plugin.
+
+
+### Maximum RAM Percentage
+
+Maximum heap size for the Java virtual machine in the DI container running the reasoning process.
+
+⚠️ Setting the percentage too high may result in an out of memory error.
