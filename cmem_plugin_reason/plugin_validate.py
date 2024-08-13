@@ -89,7 +89,7 @@ simplefilter("ignore", category=InsecureRequestWarning)
 class ValidatePlugin(WorkflowPlugin):
     """Validate plugin"""
 
-    def __init__(  # noqa: PLR0913
+    def __init__(  # noqa: PLR0913 C901
         self,
         ontology_graph_iri: str = "",
         reasoner: str = "elk",
@@ -213,7 +213,7 @@ class ValidatePlugin(WorkflowPlugin):
         ]
         return Entities(entities=entities, schema=self.schema)
 
-    def _execute(self, context: ExecutionContext) -> Entities:
+    def _execute(self, context: ExecutionContext) -> Entities | None:
         """Run the workflow operator."""
         setup_cmempy_user_access(context.user)
         graphs = get_graphs_tree((self.ontology_graph_iri, self.output_graph_iri))
@@ -258,8 +258,9 @@ class ValidatePlugin(WorkflowPlugin):
             )
         if self.output_entities:
             return self.make_entities(text, valid_profiles)
+        return None
 
-    def execute(self, inputs: None, context: ExecutionContext) -> Entities:  # noqa: ARG002
+    def execute(self, inputs: None, context: ExecutionContext) -> Entities | None:  # noqa: ARG002
         """Remove temp files on error"""
         context.report.update(
             ExecutionReport(

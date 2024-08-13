@@ -210,7 +210,7 @@ simplefilter("ignore", category=InsecureRequestWarning)
 class ReasonPlugin(WorkflowPlugin):
     """Reason plugin"""
 
-    def __init__(  # noqa: PLR0913, C901
+    def __init__(  # noqa: PLR0913 C901
         self,
         data_graph_iri: str = "",
         ontology_graph_iri: str = "",
@@ -314,16 +314,20 @@ class ReasonPlugin(WorkflowPlugin):
                         f"<http://www.w3.org/2002/07/owl#imports> <{self.output_graph_iri}> ."
                     ):
                         file.write(line + "\n")
+                    if iri == self.data_graph_iri:
+                        file.write(
+                            f"\n<{iri}> "
+                            f"<http://www.w3.org/2002/07/owl#imports> <{self.ontology_graph_iri}> ."
+                        )
 
     def reason(self, graphs: dict) -> None:
         """Reason"""
         axioms = " ".join(k for k, v in self.axioms.items() if v)
         data_location = f"{self.temp}/{graphs[self.data_graph_iri]}"
-        ontology_location = f"{self.temp}/{graphs[self.ontology_graph_iri]}"
         utctime = str(datetime.fromtimestamp(int(time()), tz=UTC))[:-6].replace(" ", "T") + "Z"
         cmd = (
-            f'merge --input "{data_location}" --input "{ontology_location}" '
-            f"reason --reasoner {self.reasoner} "
+            f'reason --input "{data_location}" '
+            f"--reasoner {self.reasoner} "
             f'--axiom-generators "{axioms}" '
             f"--include-indirect true "
             f"--exclude-duplicate-axioms true "
@@ -341,10 +345,8 @@ class ReasonPlugin(WorkflowPlugin):
             f'--link-annotation dc:source "{self.data_graph_iri}" '
             f'--link-annotation dc:source "{self.ontology_graph_iri}" '
             f'--typed-annotation dc:created "{utctime}" xsd:dateTime '
+            f'--output "{self.temp}/result.ttl"'
         )
-        if self.import_ontology:
-            cmd += f'--link-annotation owl:imports "{self.ontology_graph_iri}" '
-        cmd += f'--output "{self.temp}/result.ttl"'
         response = robot(cmd, self.max_ram_percentage)
         if response.returncode != 0:
             if response.stdout:
@@ -360,6 +362,18 @@ class ReasonPlugin(WorkflowPlugin):
                 GRAPH <{self.ontology_graph_iri}> {{
                     <{self.ontology_graph_iri}> <http://www.w3.org/2002/07/owl#imports>
                         <{self.output_graph_iri}>
+                }}
+            }}
+        """
+        post(query=query)
+
+    def remove_ontology_import(self) -> None:
+        """Add result graph import to ontology graph"""
+        query = f"""
+            DELETE DATA {{
+                GRAPH <{self.output_graph_iri}> {{
+                    <{self.output_graph_iri}> <http://www.w3.org/2002/07/owl#imports>
+                        <{self.ontology_graph_iri}>
                 }}
             }}
         """
@@ -383,9 +397,13 @@ class ReasonPlugin(WorkflowPlugin):
                 valid_profiles = validate_profiles(self, graphs)
             post_profiles(self, valid_profiles)
         post_provenance(self, get_provenance(self, context))
-        if self.import_result:
+
+        if self.import_result or not self.import_ontology:
             setup_cmempy_user_access(context.user)
-            self.add_result_import()
+            if self.import_result:
+                self.add_result_import()
+            if not self.import_ontology:
+                self.remove_ontology_import()
 
         context.report.update(
             ExecutionReport(
