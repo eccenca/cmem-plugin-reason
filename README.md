@@ -84,14 +84,24 @@ parameters to include inferred axiom generators:
 
 ### Validate OWL2 profiles
 
-Validate the input ontology against OWL profiles (DL, EL, QL, RL, and Full). The ontology is annotated in the output graph. 
+Validate the input ontology against OWL profiles (DL, EL, QL, RL, and Full) and annotate the result graph. 
 
 ### Process valid OWL profiles from input
 
-If enabled along with the "Validate OWL2 profiles" parameter, the ontology IRI and list of valid profiles is taken from the config port input, 
-without validating the ontology against the profiles in the plugin. If the "Validate OWL2 profiles" parameter is enabled in the "Validate" plugin, it can be directly connected to the input
-of the "Reason" plugin.
+If enabled along with the "Validate OWL2 profiles" parameter, the valid profiles and ontology IRI is taken from the
+config port input (parameters "valid_profiles" and "ontology_graph_iri") instead of from running the validation in the 
+plugin. The valid profiles input is a comma-separated string (e.g. "Full,DL").the ontology IRI and list of valid
+profiles is taken from the config port input, without validating the ontology against the profiles in the plugin. If the
+"Validate OWL2 profiles" parameter is enabled in the "Validate" plugin, it can be directly connected to the input of the
+"Reason" plugin.
 
+### Add ontology graph import to result graph
+
+Add the triple `<output_graph_iri> owl:imports <ontology_graph_iri>` to the output graph.
+
+### Add result graph import to ontology graph
+
+Add the triple `<ontology_graph_iri> owl:imports <output_graph_iri>` to the ontology graph
 
 ### Maximum RAM Percentage
 
@@ -146,9 +156,12 @@ Raise an error if inconsistencies are found. If enabled, the plugin does not out
 
 ### Validate OWL2 profiles
 
-Validate the input ontology against OWL profiles (DL, EL, QL, RL, and Full). The valid profiles are added to the output 
-Markdown file and the ontology is annotated in the output graph. The plugin outputs the profiles with path "profile",
-and the ontology IRI with path "ontology".
+Validate the input ontology against OWL profiles (DL, EL, QL, RL, and Full) and annotate the result graph.
+
+### Output entities
+
+Output entities. The plugin outputs the explanation as text in Markdown format on the path "markdown", the ontology IRI
+on the path "ontology_graph_iri", and, if enabled, the valid OWL2 profiles on the path "valid_profiles
 
 ### Maximum RAM Percentage
 

@@ -43,12 +43,15 @@ Raise an error if inconsistencies are found. If enabled, the plugin does not out
 
 ### Validate OWL2 profiles
 
-Validate the input ontology against OWL profiles (DL, EL, QL, RL, and Full). The valid profiles are added to the output 
-Markdown file and the ontology is annotated in the output graph. The plugin outputs the profiles with path "valid_profiles",
-and the ontology IRI with path "ontology_graph_iri".
+Validate the input ontology against OWL profiles (DL, EL, QL, RL, and Full) and annotate the result graph.
+
+### Output entities
+
+Output entities. The plugin outputs the explanation as text in Markdown format on the path "markdown", the ontology IRI
+on the path "ontology_graph_iri", and, if enabled, the valid OWL2 profiles on the path "valid_profiles
 
 ### Maximum RAM Percentage
 
 Maximum heap size for the Java virtual machine in the DI container running the reasoning process.
 
-⚠️ Setting the percentage too high may result in an out of memory error.
+:warning: Setting the percentage too high may result in an out of memory error.

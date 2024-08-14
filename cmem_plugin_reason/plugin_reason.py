@@ -174,10 +174,10 @@ simplefilter("ignore", category=InsecureRequestWarning)
             param_type=BoolParameterType(),
             name="input_profiles",
             label="Process valid OWL profiles from input",
-            description="""If the "validate OWL profiles" parameter is enabled, the valid profiles
-            and ontology IRI is taken from the config port input (parameters "valid_profiles" and
-            "ontology_graph_iri") instead of from running the validation in the plugin. The valid
-            profiles input is a comma-separated string (e.g. "Full,DL").""",
+            description="""If enabled along with the "Validate OWL2 profiles" parameter, the valid
+            profiles and ontology IRI is taken from the config port input (parameters
+            "valid_profiles" and "ontology_graph_iri") instead of from running the validation in the
+            plugin. The valid profiles input is a comma-separated string (e.g. "Full,DL").""",
             default_value=False,
             advanced=True,
         ),
@@ -316,7 +316,7 @@ class ReasonPlugin(WorkflowPlugin):
                         file.write(line + "\n")
                     if iri == self.data_graph_iri:
                         file.write(
-                            f"\n<{iri}> "
+                            f"<{iri}> "
                             f"<http://www.w3.org/2002/07/owl#imports> <{self.ontology_graph_iri}> ."
                         )
 
@@ -368,7 +368,7 @@ class ReasonPlugin(WorkflowPlugin):
         post(query=query)
 
     def remove_ontology_import(self) -> None:
-        """Add result graph import to ontology graph"""
+        """remove ontology graph import from output graph"""
         query = f"""
             DELETE DATA {{
                 GRAPH <{self.output_graph_iri}> {{
