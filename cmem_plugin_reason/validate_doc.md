@@ -54,4 +54,4 @@ on the path "ontology_graph_iri", and, if enabled, the valid OWL2 profiles on th
 
 Maximum heap size for the Java virtual machine in the DI container running the reasoning process.
 
-:warning: Setting the percentage too high may result in an out of memory error.
+⚠️ Setting the percentage too high may result in an out of memory error.

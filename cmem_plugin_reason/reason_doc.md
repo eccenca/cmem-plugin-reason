@@ -76,4 +76,4 @@ Add the triple `<ontology_graph_iri> owl:imports <output_graph_iri>` to the onto
 
 Maximum heap size for the Java virtual machine in the DI container running the reasoning process.
 
-:warning: Setting the percentage too high may result in an out of memory error.
+⚠️ Setting the percentage too high may result in an out of memory error.
