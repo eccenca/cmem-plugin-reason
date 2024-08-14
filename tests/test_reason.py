@@ -90,6 +90,7 @@ def tests(_setup: None) -> None:  # noqa: C901
         result = ValidatePlugin(
             ontology_graph_iri=VALIDATE_ONTOLOGY_GRAPH_IRI,
             output_graph_iri=OUTPUT_GRAPH_IRI,
+            reasoner="elk",
             validate_profile=True,
             md_filename=MD_FILENAME,
             output_entities=True,

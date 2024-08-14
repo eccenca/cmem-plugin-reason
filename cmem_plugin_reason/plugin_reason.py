@@ -5,7 +5,6 @@ from os import environ
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from time import time
-from warnings import simplefilter
 
 import validators.url
 from cmem.cmempy.dp.proxy.graph import get
@@ -19,13 +18,11 @@ from cmem_plugin_base.dataintegration.ports import FixedNumberOfInputs
 from cmem_plugin_base.dataintegration.types import BoolParameterType, StringParameterType
 from cmem_plugin_base.dataintegration.utils import setup_cmempy_user_access
 from inflection import underscore
-from urllib3.exceptions import InsecureRequestWarning
 
 from cmem_plugin_reason.utils import (
     MAX_RAM_PERCENTAGE_DEFAULT,
     MAX_RAM_PERCENTAGE_PARAMETER,
     ONTOLOGY_GRAPH_IRI_PARAMETER,
-    OUTPUT_GRAPH_IRI_PARAMETER,
     REASON_DOC,
     REASONERS,
     VALIDATE_PROFILES_PARAMETER,
@@ -40,7 +37,6 @@ from cmem_plugin_reason.utils import (
 )
 
 environ["SSL_VERIFY"] = "false"
-simplefilter("ignore", category=InsecureRequestWarning)
 
 
 @Plugin(
@@ -50,15 +46,27 @@ simplefilter("ignore", category=InsecureRequestWarning)
     documentation=REASON_DOC,
     parameters=[
         ONTOLOGY_GRAPH_IRI_PARAMETER,
-        OUTPUT_GRAPH_IRI_PARAMETER,
         VALIDATE_PROFILES_PARAMETER,
         MAX_RAM_PERCENTAGE_PARAMETER,
+        PluginParameter(
+            param_type=GraphParameterType(
+                allow_only_autocompleted_values=False,
+                classes=[
+                    "https://vocab.eccenca.com/di/Dataset",
+                    "http://rdfs.org/ns/void#Dataset",
+                    "http://www.w3.org/2002/07/owl#Ontology",
+                ],
+            ),
+            name="output_graph_iri",
+            label="Output graph IRI",
+            description="""The IRI of the output graph for the inconsistency validation. ⚠️ Existing
+            graphs will be overwritten.""",
+        ),
         PluginParameter(
             param_type=ChoiceParameterType(REASONERS),
             name="reasoner",
             label="Reasoner",
             description="Reasoner option. Additionally, select axiom generators below.",
-            default_value="",
         ),
         PluginParameter(
             param_type=GraphParameterType(
@@ -212,10 +220,10 @@ class ReasonPlugin(WorkflowPlugin):
 
     def __init__(  # noqa: PLR0913 C901
         self,
-        data_graph_iri: str = "",
-        ontology_graph_iri: str = "",
-        output_graph_iri: str = "",
-        reasoner: str = "",
+        data_graph_iri: str,
+        ontology_graph_iri: str,
+        output_graph_iri: str,
+        reasoner: str,
         class_assertion: bool = False,
         data_property_characteristic: bool = False,
         disjoint_classes: bool = False,
@@ -260,9 +268,9 @@ class ReasonPlugin(WorkflowPlugin):
             errors += 'Invalid IRI for parameter "Ontology graph IRI". '
         if not validators.url(output_graph_iri):
             errors += 'Invalid IRI for parameter "Result graph IRI". '
-        if output_graph_iri and output_graph_iri == data_graph_iri:
+        if output_graph_iri == data_graph_iri:
             errors += "Result graph IRI cannot be the same as the data graph IRI. "
-        if output_graph_iri and output_graph_iri == ontology_graph_iri:
+        if output_graph_iri == ontology_graph_iri:
             errors += "Result graph IRI cannot be the same as the ontology graph IRI. "
         if reasoner not in REASONERS:
             errors += 'Invalid value for parameter "Reasoner". '

@@ -5,7 +5,6 @@ from os import environ
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from time import time
-from warnings import simplefilter
 
 import validators.url
 from cmem.cmempy.dp.proxy.graph import get
@@ -14,18 +13,17 @@ from cmem_plugin_base.dataintegration.context import ExecutionContext, Execution
 from cmem_plugin_base.dataintegration.description import Icon, Plugin, PluginParameter
 from cmem_plugin_base.dataintegration.entity import Entities, Entity, EntityPath, EntitySchema
 from cmem_plugin_base.dataintegration.parameter.choice import ChoiceParameterType
+from cmem_plugin_base.dataintegration.parameter.graph import GraphParameterType
 from cmem_plugin_base.dataintegration.plugins import WorkflowPlugin
 from cmem_plugin_base.dataintegration.ports import FixedNumberOfInputs, FixedSchemaPort
 from cmem_plugin_base.dataintegration.types import BoolParameterType, StringParameterType
 from cmem_plugin_base.dataintegration.utils import setup_cmempy_user_access
 from pathvalidate import is_valid_filename
-from urllib3.exceptions import InsecureRequestWarning
 
 from cmem_plugin_reason.utils import (
     MAX_RAM_PERCENTAGE_DEFAULT,
     MAX_RAM_PERCENTAGE_PARAMETER,
     ONTOLOGY_GRAPH_IRI_PARAMETER,
-    OUTPUT_GRAPH_IRI_PARAMETER,
     REASONERS,
     VALIDATE_DOC,
     VALIDATE_PROFILES_PARAMETER,
@@ -40,7 +38,6 @@ from cmem_plugin_reason.utils import (
 )
 
 environ["SSL_VERIFY"] = "false"
-simplefilter("ignore", category=InsecureRequestWarning)
 
 
 @Plugin(
@@ -52,13 +49,26 @@ simplefilter("ignore", category=InsecureRequestWarning)
         ONTOLOGY_GRAPH_IRI_PARAMETER,
         MAX_RAM_PERCENTAGE_PARAMETER,
         VALIDATE_PROFILES_PARAMETER,
-        OUTPUT_GRAPH_IRI_PARAMETER,
+        PluginParameter(
+            param_type=GraphParameterType(
+                allow_only_autocompleted_values=False,
+                classes=[
+                    "https://vocab.eccenca.com/di/Dataset",
+                    "http://rdfs.org/ns/void#Dataset",
+                    "http://www.w3.org/2002/07/owl#Ontology",
+                ],
+            ),
+            name="output_graph_iri",
+            label="Output graph IRI",
+            description="""The IRI of the output graph for the inconsistency validation. ⚠️ Existing
+            graphs will be overwritten.""",
+            default_value="",
+        ),
         PluginParameter(
             param_type=ChoiceParameterType(REASONERS),
             name="reasoner",
             label="Reasoner",
             description="Reasoner option.",
-            default_value="",
         ),
         PluginParameter(
             param_type=StringParameterType(),
@@ -66,6 +76,7 @@ simplefilter("ignore", category=InsecureRequestWarning)
             label="Output filename",
             description="The filename of the Markdown file with the explanation of "
             "inconsistencies.⚠️ Existing files will be overwritten.",
+            default_value="",
         ),
         PluginParameter(
             param_type=BoolParameterType(),
@@ -91,8 +102,8 @@ class ValidatePlugin(WorkflowPlugin):
 
     def __init__(  # noqa: PLR0913 C901
         self,
-        ontology_graph_iri: str = "",
-        reasoner: str = "elk",
+        ontology_graph_iri: str,
+        reasoner: str,
         output_graph_iri: str = "",
         md_filename: str = "",
         validate_profile: bool = False,
@@ -268,5 +279,6 @@ class ValidatePlugin(WorkflowPlugin):
                 operation_desc="ontologies validated.",
             )
         )
+
         with TemporaryDirectory() as self.temp:
             return self._execute(context)
