@@ -1,7 +1,6 @@
 """Ontology consistency validation workflow plugin module"""
 
 from datetime import UTC, datetime
-from os import environ
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from time import time
@@ -36,8 +35,6 @@ from cmem_plugin_reason.utils import (
     send_result,
     validate_profiles,
 )
-
-environ["SSL_VERIFY"] = "false"
 
 
 @Plugin(
@@ -279,6 +276,5 @@ class ValidatePlugin(WorkflowPlugin):
                 operation_desc="ontologies validated.",
             )
         )
-
         with TemporaryDirectory() as self.temp:
             return self._execute(context)
