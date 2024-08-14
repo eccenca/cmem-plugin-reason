@@ -368,7 +368,7 @@ class ReasonPlugin(WorkflowPlugin):
         post(query=query)
 
     def remove_ontology_import(self) -> None:
-        """remove ontology graph import from output graph"""
+        """Remove ontology graph import from output graph"""
         query = f"""
             DELETE DATA {{
                 GRAPH <{self.output_graph_iri}> {{

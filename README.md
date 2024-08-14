@@ -90,10 +90,7 @@ Validate the input ontology against OWL profiles (DL, EL, QL, RL, and Full) and 
 
 If enabled along with the "Validate OWL2 profiles" parameter, the valid profiles and ontology IRI is taken from the
 config port input (parameters "valid_profiles" and "ontology_graph_iri") instead of from running the validation in the 
-plugin. The valid profiles input is a comma-separated string (e.g. "Full,DL").the ontology IRI and list of valid
-profiles is taken from the config port input, without validating the ontology against the profiles in the plugin. If the
-"Validate OWL2 profiles" parameter is enabled in the "Validate" plugin, it can be directly connected to the input of the
-"Reason" plugin.
+plugin. The valid profiles input is a comma-separated string (e.g. "Full,DL").
 
 ### Add ontology graph import to result graph
 
