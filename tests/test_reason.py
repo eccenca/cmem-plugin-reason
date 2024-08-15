@@ -12,6 +12,7 @@ from rdflib.compare import to_isomorphic
 
 from cmem_plugin_reason.plugin_reason import ReasonPlugin
 from cmem_plugin_reason.plugin_validate import ValidatePlugin
+from cmem_plugin_reason.utils import REASONERS
 from tests.utils import TestExecutionContext, needs_cmem
 
 from . import __path__
@@ -96,15 +97,22 @@ def tests(_setup: None) -> None:  # noqa: C901
             output_entities=True,
         ).execute(None, context=TestExecutionContext(PROJECT_ID))
 
-        val_errors = ""
         md_test = (Path(__path__[0]) / "test_validate.md").read_text()
+        paths = [p.path for p in result.schema.paths]  # type: ignore[union-attr]
+        val_errors = ""
 
-        if next(iter(result.entities)).values[0][0] != md_test:  # type: ignore[union-attr]
+        if next(iter(result.entities)).values[paths.index("markdown")][0] != md_test:  # type: ignore[union-attr]
             val_errors += 'EntityPath "markdown" output error. '
-
-        if next(iter(result.entities)).values[2][0] != "Full,DL,EL,QL,RL":  # type: ignore[union-attr]
+        if (
+            next(iter(result.entities)).values[paths.index("ontology_graph_iri")][0]  # type: ignore[union-attr]
+            != VALIDATE_ONTOLOGY_GRAPH_IRI
+        ):
+            val_errors += 'EntityPath "ontology_graph_iri" output error. '
+        if (
+            next(iter(result.entities)).values[paths.index("valid_profiles")][0]  # type: ignore[union-attr]
+            != "Full,DL,EL,QL,RL"
+        ):
             val_errors += 'EntityPath "valid_profiles" output error. '
-
         if md_test != get_resource(PROJECT_ID, MD_FILENAME).decode():
             val_errors += "Markdown file error. "
 
@@ -118,8 +126,7 @@ def tests(_setup: None) -> None:  # noqa: C901
         return errors
 
     errors_list: list[str] = []
-    reasoners = ["elk", "emr", "hermit", "jfact", "structural", "whelk"]
-    for reasoner in reasoners:
+    for reasoner in REASONERS:
         errors_list = test_reasoner(reasoner, errors_list)
 
     errors = ""
