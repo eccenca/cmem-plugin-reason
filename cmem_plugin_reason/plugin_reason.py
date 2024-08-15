@@ -1,29 +1,28 @@
 """Reasoning workflow plugin module"""
 
-from collections.abc import Sequence
 from datetime import UTC, datetime
-from os import environ
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from time import time
-from warnings import simplefilter
 
 import validators.url
 from cmem.cmempy.dp.proxy.graph import get
-from cmem_plugin_base.dataintegration.context import ExecutionContext
+from cmem.cmempy.dp.proxy.update import post
+from cmem_plugin_base.dataintegration.context import ExecutionContext, ExecutionReport
 from cmem_plugin_base.dataintegration.description import Icon, Plugin, PluginParameter
-from cmem_plugin_base.dataintegration.entity import Entities
+from cmem_plugin_base.dataintegration.parameter.choice import ChoiceParameterType
 from cmem_plugin_base.dataintegration.parameter.graph import GraphParameterType
 from cmem_plugin_base.dataintegration.plugins import WorkflowPlugin
+from cmem_plugin_base.dataintegration.ports import FixedNumberOfInputs
 from cmem_plugin_base.dataintegration.types import BoolParameterType, StringParameterType
 from cmem_plugin_base.dataintegration.utils import setup_cmempy_user_access
-from urllib3.exceptions import InsecureRequestWarning
+from inflection import underscore
 
 from cmem_plugin_reason.utils import (
     MAX_RAM_PERCENTAGE_DEFAULT,
     MAX_RAM_PERCENTAGE_PARAMETER,
     ONTOLOGY_GRAPH_IRI_PARAMETER,
-    REASONER_PARAMETER,
+    REASON_DOC,
     REASONERS,
     VALIDATE_PROFILES_PARAMETER,
     create_xml_catalog_file,
@@ -36,22 +35,36 @@ from cmem_plugin_reason.utils import (
     validate_profiles,
 )
 
-environ["SSL_VERIFY"] = "false"
-simplefilter("ignore", category=InsecureRequestWarning)
-
 
 @Plugin(
     label="Reason",
     icon=Icon(file_name="fluent--brain-circuit-24-regular.svg", package=__package__),
     description="Performs OWL reasoning.",
-    documentation="""A task performing OWL reasoning. With an OWL ontology and a data graph as input
-    the reasoning result is written to a specified graph. The following reasoners are supported:
-    ELK, Expression Materializing Reasoner, HermiT, JFact, Structural Reasoner and Whelk.""",
+    documentation=REASON_DOC,
     parameters=[
-        REASONER_PARAMETER,
         ONTOLOGY_GRAPH_IRI_PARAMETER,
         VALIDATE_PROFILES_PARAMETER,
         MAX_RAM_PERCENTAGE_PARAMETER,
+        PluginParameter(
+            param_type=GraphParameterType(
+                allow_only_autocompleted_values=False,
+                classes=[
+                    "https://vocab.eccenca.com/di/Dataset",
+                    "http://rdfs.org/ns/void#Dataset",
+                    "http://www.w3.org/2002/07/owl#Ontology",
+                ],
+            ),
+            name="output_graph_iri",
+            label="Output graph IRI",
+            description="""The IRI of the output graph for the inconsistency validation. ⚠️ Existing
+            graphs will be overwritten.""",
+        ),
+        PluginParameter(
+            param_type=ChoiceParameterType(REASONERS),
+            name="reasoner",
+            label="Reasoner",
+            description="Reasoner option. Additionally, select axiom generators below.",
+        ),
         PluginParameter(
             param_type=GraphParameterType(
                 classes=[
@@ -63,13 +76,6 @@ simplefilter("ignore", category=InsecureRequestWarning)
             name="data_graph_iri",
             label="Data graph IRI",
             description="The IRI of the input data graph.",
-        ),
-        PluginParameter(
-            param_type=StringParameterType(),
-            name="output_graph_iri",
-            label="Result graph IRI",
-            description="The IRI of the output graph for the reasoning result. ⚠️ Existing graphs "
-            "will be overwritten.",
         ),
         PluginParameter(
             param_type=BoolParameterType(),
@@ -117,7 +123,7 @@ simplefilter("ignore", category=InsecureRequestWarning)
             param_type=BoolParameterType(),
             name="class_assertion",
             label="ClassAssertion",
-            description="Generated Axioms",
+            description="",
             default_value=False,
         ),
         PluginParameter(
@@ -173,23 +179,48 @@ simplefilter("ignore", category=InsecureRequestWarning)
             param_type=BoolParameterType(),
             name="input_profiles",
             label="Process valid OWL profiles from input",
-            description="""If the "validate OWL profiles" parameter is enabled, take values from the
-            input (paths "profile" and "ontology") instead of running the validation in the plugin.
-            """,
+            description="""If enabled along with the "Validate OWL2 profiles" parameter, the valid
+            profiles and ontology IRI is taken from the config port input (parameters
+            "valid_profiles" and "ontology_graph_iri") instead of from running the validation in the
+            plugin. The valid profiles input is a comma-separated string (e.g. "Full,DL").""",
             default_value=False,
             advanced=True,
+        ),
+        PluginParameter(
+            param_type=BoolParameterType(),
+            name="import_ontology",
+            label="Add ontology graph import to result graph.",
+            description="""Add the triple <output_graph_iri> owl:imports <ontology_graph_iri> to the
+            output graph.""",
+            default_value=True,
+        ),
+        PluginParameter(
+            param_type=BoolParameterType(),
+            name="import_result",
+            label="Add result graph import to ontology graph.",
+            description="""Add the triple <ontology_graph_iri> owl:imports <output_graph_iri> to the
+            ontology graph.""",
+            default_value=False,
+        ),
+        PluginParameter(
+            param_type=StringParameterType(),
+            name="valid_profiles",
+            label="Valid OWL2 profiles",
+            description="Valid OWL2 profiles for the processed ontology.",
+            default_value="",
+            visible=False,
         ),
     ],
 )
 class ReasonPlugin(WorkflowPlugin):
     """Reason plugin"""
 
-    def __init__(  # noqa: PLR0913
+    def __init__(  # noqa: PLR0913 C901
         self,
-        data_graph_iri: str = "",
-        ontology_graph_iri: str = "",
-        output_graph_iri: str = "",
-        reasoner: str = "elk",
+        data_graph_iri: str,
+        ontology_graph_iri: str,
+        output_graph_iri: str,
+        reasoner: str,
         class_assertion: bool = False,
         data_property_characteristic: bool = False,
         disjoint_classes: bool = False,
@@ -205,8 +236,11 @@ class ReasonPlugin(WorkflowPlugin):
         sub_data_property: bool = False,
         sub_object_property: bool = False,
         validate_profile: bool = False,
+        import_ontology: bool = True,
+        import_result: bool = False,
         input_profiles: bool = False,
         max_ram_percentage: int = MAX_RAM_PERCENTAGE_DEFAULT,
+        valid_profiles: str = "",
     ) -> None:
         self.axioms = {
             "SubClass": sub_class,
@@ -231,52 +265,65 @@ class ReasonPlugin(WorkflowPlugin):
             errors += 'Invalid IRI for parameter "Ontology graph IRI". '
         if not validators.url(output_graph_iri):
             errors += 'Invalid IRI for parameter "Result graph IRI". '
-        if output_graph_iri and output_graph_iri == data_graph_iri:
+        if output_graph_iri == data_graph_iri:
             errors += "Result graph IRI cannot be the same as the data graph IRI. "
-        if output_graph_iri and output_graph_iri == ontology_graph_iri:
+        if output_graph_iri == ontology_graph_iri:
             errors += "Result graph IRI cannot be the same as the ontology graph IRI. "
         if reasoner not in REASONERS:
             errors += 'Invalid value for parameter "Reasoner". '
         if True not in self.axioms.values():
             errors += "No axiom generator selected. "
+        if import_result and import_ontology:
+            errors += (
+                'Enable only one of "Add result graph import to ontology graph" and "Add '
+                'ontology graph import to result graph". '
+            )
+        if (
+            input_profiles
+            and valid_profiles
+            and not set(valid_profiles.lower().split(",")).issubset(
+                ["full", "dl", "el", "ql", "rl"]
+            )
+        ):
+            errors += "Invalid value for valid profiles input. "
         if max_ram_percentage not in range(1, 101):
             errors += 'Invalid value for parameter "Maximum RAM Percentage". '
         if errors:
             raise ValueError(errors[:-1])
-        self.sub_class = sub_class
-        self.equivalent_class = equivalent_class
-        self.disjoint_classes = disjoint_classes
-        self.data_property_characteristic = data_property_characteristic
-        self.equivalent_data_properties = equivalent_data_properties
-        self.sub_data_property = sub_data_property
-        self.class_assertion = class_assertion
-        self.property_assertion = property_assertion
-        self.equivalent_object_property = equivalent_object_property
-        self.inverse_object_properties = inverse_object_properties
-        self.object_property_characteristic = object_property_characteristic
-        self.sub_object_property = sub_object_property
-        self.object_property_range = object_property_range
-        self.object_property_domain = object_property_domain
+
         self.data_graph_iri = data_graph_iri
         self.ontology_graph_iri = ontology_graph_iri
         self.output_graph_iri = output_graph_iri
         self.reasoner = reasoner
         self.validate_profile = validate_profile
+        self.import_ontology = import_ontology
+        self.import_result = import_result
         self.input_profiles = input_profiles
         self.max_ram_percentage = max_ram_percentage
+        self.valid_profiles = valid_profiles
+
+        for k, v in self.axioms.items():
+            self.__dict__[underscore(k)] = v
+
+        self.input_ports = FixedNumberOfInputs([])
+        self.output_port = None
 
     def get_graphs(self, graphs: dict, context: ExecutionContext) -> None:
         """Get graphs from CMEM"""
-        for graph in graphs:
-            self.log.info(f"Fetching graph {graph}.")
-            with (Path(self.temp) / graphs[graph]).open("w", encoding="utf-8") as file:
+        for iri, filename in graphs.items():
+            self.log.info(f"Fetching graph {iri}.")
+            with (Path(self.temp) / filename).open("w", encoding="utf-8") as file:
                 setup_cmempy_user_access(context.user)
-                file.write(get(graph).text)
-                if graph == self.data_graph_iri:
-                    file.write(
-                        f"\n<{graph}> "
-                        f"<http://www.w3.org/2002/07/owl#imports> <{self.ontology_graph_iri}> ."
-                    )
+                for line in get(iri).text.splitlines():
+                    if not line.endswith(
+                        f"<http://www.w3.org/2002/07/owl#imports> <{self.output_graph_iri}> ."
+                    ):
+                        file.write(line + "\n")
+                    if iri == self.data_graph_iri:
+                        file.write(
+                            f"<{iri}> "
+                            f"<http://www.w3.org/2002/07/owl#imports> <{self.ontology_graph_iri}> ."
+                        )
 
     def reason(self, graphs: dict) -> None:
         """Reason"""
@@ -284,9 +331,8 @@ class ReasonPlugin(WorkflowPlugin):
         data_location = f"{self.temp}/{graphs[self.data_graph_iri]}"
         utctime = str(datetime.fromtimestamp(int(time()), tz=UTC))[:-6].replace(" ", "T") + "Z"
         cmd = (
-            f'merge --input "{data_location}" '
-            "--collapse-import-closure false "
-            f"reason --reasoner {self.reasoner} "
+            f'reason --input "{data_location}" '
+            f"--reasoner {self.reasoner} "
             f'--axiom-generators "{axioms}" '
             f"--include-indirect true "
             f"--exclude-duplicate-axioms true "
@@ -314,44 +360,71 @@ class ReasonPlugin(WorkflowPlugin):
                 raise OSError(response.stderr.decode())
             raise OSError("ROBOT error")
 
-    def post_valid_profiles(self, inputs: Sequence[Entities], graphs: dict) -> None:
-        """Post valid profiles. Optionally get valid profiles from input."""
-        if self.input_profiles:
-            values = next(inputs[0].entities).values
-            paths = [p.path for p in inputs[0].schema.paths]
-            validated_ontology = values[paths.index("ontology")][0]
-            valid_profiles = values[paths.index("profile")]
-            if validated_ontology != self.ontology_graph_iri:
-                raise ValueError(
-                    "The ontology IRI validated with Validate differs from the input ontology IRI."
-                )
-        else:
-            valid_profiles = validate_profiles(self, graphs)
-        post_profiles(self, valid_profiles)
+    def add_result_import(self) -> None:
+        """Add result graph import to ontology graph"""
+        query = f"""
+            INSERT DATA {{
+                GRAPH <{self.ontology_graph_iri}> {{
+                    <{self.ontology_graph_iri}> <http://www.w3.org/2002/07/owl#imports>
+                        <{self.output_graph_iri}>
+                }}
+            }}
+        """
+        post(query=query)
 
-    def _execute(self, inputs: Sequence[Entities], context: ExecutionContext) -> None:
+    def remove_ontology_import(self) -> None:
+        """Remove ontology graph import from output graph"""
+        query = f"""
+            DELETE DATA {{
+                GRAPH <{self.output_graph_iri}> {{
+                    <{self.output_graph_iri}> <http://www.w3.org/2002/07/owl#imports>
+                        <{self.ontology_graph_iri}>
+                }}
+            }}
+        """
+        post(query=query)
+
+    def _execute(self, context: ExecutionContext) -> None:
         """`Execute plugin"""
-        if self.input_profiles:
-            if not inputs:
-                raise OSError(
-                    'Input entities needed if "Process valid OWL profiles from input" is enabled'
-                )
-            paths = [p.path for p in inputs[0].schema.paths]
-            if "profile" not in paths or "ontology" not in paths:
-                raise ValueError("Invalid input for processing OWL profiles")
-
         setup_cmempy_user_access(context.user)
-        graphs = get_graphs_tree((self.data_graph_iri, self.ontology_graph_iri))
+        graphs = get_graphs_tree(
+            (self.data_graph_iri, self.ontology_graph_iri, self.output_graph_iri)
+        )
         self.get_graphs(graphs, context)
         create_xml_catalog_file(self.temp, graphs)
         self.reason(graphs)
         setup_cmempy_user_access(context.user)
         send_result(self.output_graph_iri, Path(self.temp) / "result.ttl")
         if self.validate_profile:
-            self.post_valid_profiles(inputs, graphs)
+            if self.input_profiles:
+                valid_profiles = self.valid_profiles.split(",")
+            else:
+                valid_profiles = validate_profiles(self, graphs)
+            post_profiles(self, valid_profiles)
         post_provenance(self, get_provenance(self, context))
 
-    def execute(self, inputs: Sequence[Entities], context: ExecutionContext) -> None:
-        """Remove temp files on error"""
+        if self.import_result or not self.import_ontology:
+            setup_cmempy_user_access(context.user)
+            if self.import_result:
+                self.add_result_import()
+            if not self.import_ontology:
+                self.remove_ontology_import()
+
+        context.report.update(
+            ExecutionReport(
+                operation="reason",
+                operation_desc="ontology and data graph processed.",
+                entity_count=1,
+            )
+        )
+
+    def execute(self, inputs: None, context: ExecutionContext) -> None:  # noqa: ARG002
+        """Validate input, execute plugin with temporary directory"""
+        context.report.update(
+            ExecutionReport(
+                operation="reason",
+                operation_desc="ontologies and data graphs processed.",
+            )
+        )
         with TemporaryDirectory() as self.temp:
-            self._execute(inputs, context)
+            self._execute(context)
