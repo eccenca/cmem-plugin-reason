@@ -101,7 +101,7 @@ from cmem_plugin_reason.utils import (
             name="mode",
             label="Mode",
             description="""Mode "inconsistency" generates an explanation for an inconsistent
-            ontology.\nMode "unsatisfiability" generates explanations for many unsatisfiable classes
+            ontology. Mode "unsatisfiability" generates explanations for many unsatisfiable classes
             at once.""",
             default_value="inconsistency",
         ),
