@@ -7,6 +7,7 @@ import pytest
 from cmem.cmempy.dp.proxy.graph import delete, get, post
 from cmem.cmempy.workspace.projects.project import delete_project, make_new_project
 from cmem.cmempy.workspace.projects.resources.resource import get_resource
+from cmem_plugin_base.dataintegration.entity import Entities
 from rdflib import DCTERMS, OWL, RDF, RDFS, Graph, URIRef
 from rdflib.compare import to_isomorphic
 
@@ -25,6 +26,15 @@ VALIDATE_ONTOLOGY_GRAPH_IRI = f"https://ns.eccenca.com/validateontology/{UID}/vo
 OUTPUT_GRAPH_IRI = f"https://ns.eccenca.com/validateontology/{UID}/output/"
 MD_FILENAME = f"{UID}.md"
 PROJECT_ID = f"validate_plugin_test_project_{UID}"
+
+
+def get_value_dict(entities: Entities) -> dict:
+    """Make result path to value map"""
+    value_dict = {}
+    paths = [p.path for p in entities.schema.paths]
+    for p in paths:
+        value_dict[p] = next(iter(entities.entities)).values[paths.index(p)][0]  # type: ignore[union-attr]
+    return value_dict
 
 
 @pytest.fixture()
@@ -99,29 +109,21 @@ def tests(_setup: None) -> None:  # noqa: C901
         ).execute(None, context=TestExecutionContext(PROJECT_ID))
 
         md_test = (Path(__path__[0]) / "test_validate.md").read_text()
-        paths = [p.path for p in result.schema.paths]  # type: ignore[union-attr]
+        value_dict = get_value_dict(result)
+        output_graph = get_remote_graph(OUTPUT_GRAPH_IRI)
+        test = Graph().parse(Path(__path__[0]) / "test_validate_output.ttl", format="turtle")
         val_errors = ""
 
-        if next(iter(result.entities)).values[paths.index("markdown")][0] != md_test:  # type: ignore[union-attr]
+        if value_dict["markdown"] != md_test:
             val_errors += 'EntityPath "markdown" output error. '
-        if (
-            next(iter(result.entities)).values[paths.index("ontology_graph_iri")][0]  # type: ignore[union-attr]
-            != VALIDATE_ONTOLOGY_GRAPH_IRI
-        ):
+        if value_dict["ontology_graph_iri"] != VALIDATE_ONTOLOGY_GRAPH_IRI:
             val_errors += 'EntityPath "ontology_graph_iri" output error. '
-        if (
-            next(iter(result.entities)).values[paths.index("valid_profiles")][0]  # type: ignore[union-attr]
-            != "Full,DL,EL,QL,RL"
-        ):
+        if value_dict["valid_profiles"] != "Full,DL,EL,QL,RL":
             val_errors += 'EntityPath "valid_profiles" output error. '
         if md_test != get_resource(PROJECT_ID, MD_FILENAME).decode():
             val_errors += "Markdown file error. "
-
-        output_graph = get_remote_graph(OUTPUT_GRAPH_IRI)
-        test = Graph().parse(Path(__path__[0]) / "test_validate_output.ttl", format="turtle")
         if to_isomorphic(output_graph) != to_isomorphic(test):
             val_errors += "Output graph error. "
-
         if val_errors:
             errors += "Validate: " + val_errors
         return errors
