@@ -152,8 +152,7 @@ The filename of the Markdown file with the explanation of inconsistencies.
 Raise an error if inconsistencies are found. If enabled, the plugin does not output entities.
 
 ### Mode
-Mode _inconsistency_ generates an explanation for an inconsistent ontology.
-
+Mode _inconsistency_ generates an explanation for an inconsistent ontology.  
 Mode _unsatisfiability_ generates explanations for many unsatisfiable classes at once.
 
 ### Validate OWL2 profiles
