@@ -46,8 +46,7 @@ Raise an error if inconsistencies are found. If enabled, the plugin does not out
 Validate the input ontology against OWL profiles (DL, EL, QL, RL, and Full) and annotate the result graph.
 
 ### Mode
-Mode _inconsistency_ generates an explanation for an inconsistent ontology.
-
+Mode _inconsistency_ generates an explanation for an inconsistent ontology.  
 Mode _unsatisfiability_ generates explanations for many unsatisfiable classes at once.
 
 ### Output entities
