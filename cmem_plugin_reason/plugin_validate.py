@@ -1,5 +1,6 @@
 """Ontology consistency validation workflow plugin module"""
 
+from collections import OrderedDict
 from datetime import UTC, datetime
 from pathlib import Path
 from tempfile import TemporaryDirectory
@@ -19,12 +20,13 @@ from cmem_plugin_base.dataintegration.types import BoolParameterType, StringPara
 from cmem_plugin_base.dataintegration.utils import setup_cmempy_user_access
 from pathvalidate import is_valid_filename
 
+from cmem_plugin_reason.doc import VALIDATE_DOC
 from cmem_plugin_reason.utils import (
     MAX_RAM_PERCENTAGE_DEFAULT,
     MAX_RAM_PERCENTAGE_PARAMETER,
     ONTOLOGY_GRAPH_IRI_PARAMETER,
+    REASONER_PARAMETER,
     REASONERS,
-    VALIDATE_DOC,
     VALIDATE_PROFILES_PARAMETER,
     create_xml_catalog_file,
     get_graphs_tree,
@@ -46,6 +48,7 @@ from cmem_plugin_reason.utils import (
         ONTOLOGY_GRAPH_IRI_PARAMETER,
         MAX_RAM_PERCENTAGE_PARAMETER,
         VALIDATE_PROFILES_PARAMETER,
+        REASONER_PARAMETER,
         PluginParameter(
             param_type=GraphParameterType(
                 allow_only_autocompleted_values=False,
@@ -60,12 +63,6 @@ from cmem_plugin_reason.utils import (
             description="""The IRI of the output graph for the inconsistency validation. ⚠️ Existing
             graphs will be overwritten.""",
             default_value="",
-        ),
-        PluginParameter(
-            param_type=ChoiceParameterType(REASONERS),
-            name="reasoner",
-            label="Reasoner",
-            description="Reasoner option.",
         ),
         PluginParameter(
             param_type=StringParameterType(),
@@ -92,17 +89,34 @@ from cmem_plugin_reason.utils import (
             if enabled, the valid OWL2 profiles on the path "valid_profiles".""",
             default_value=False,
         ),
+        PluginParameter(
+            param_type=ChoiceParameterType(
+                OrderedDict(
+                    {
+                        "inconsistency": "inconsistency",
+                        "unsatisfiability": "unsatisfiability",
+                    }
+                )
+            ),
+            name="mode",
+            label="Mode",
+            description="""Mode "inconsistency" generates an explanation for an inconsistent
+            ontology.\nMode "unsatisfiability" generates explanations for many unsatisfiable classes
+            at once.""",
+            default_value="inconsistency",
+        ),
     ],
 )
 class ValidatePlugin(WorkflowPlugin):
     """Validate plugin"""
 
-    def __init__(  # noqa: PLR0913 C901
+    def __init__(  # noqa: PLR0912 PLR0913 C901
         self,
         ontology_graph_iri: str,
         reasoner: str,
         output_graph_iri: str = "",
         md_filename: str = "",
+        mode: str = "inconsistency",
         validate_profile: bool = False,
         output_entities: bool = False,
         stop_at_inconsistencies: bool = False,
@@ -121,6 +135,8 @@ class ValidatePlugin(WorkflowPlugin):
             errors += 'Invalid filename for parameter "Output filename". '
         if not output_graph_iri and not md_filename and not output_entities:
             errors += "No output selected. "
+        if mode not in ("inconsistency", "unsatisfiability"):
+            errors += 'Invalid value for parameter "Mode". '
         if max_ram_percentage not in range(1, 101):
             errors += 'Invalid value for parameter "Maximum RAM Percentage". '
         if errors:
@@ -128,6 +144,7 @@ class ValidatePlugin(WorkflowPlugin):
         self.ontology_graph_iri = ontology_graph_iri
         self.reasoner = reasoner
         self.output_graph_iri = output_graph_iri
+        self.mode = mode
         self.stop_at_inconsistencies = stop_at_inconsistencies
         if md_filename:
             self.md_filename = md_filename
@@ -167,7 +184,7 @@ class ValidatePlugin(WorkflowPlugin):
         utctime = str(datetime.fromtimestamp(int(time()), tz=UTC))[:-6].replace(" ", "T") + "Z"
         cmd = (
             f'explain --input "{data_location}" '
-            f"--reasoner {self.reasoner} -M inconsistency "
+            f"--reasoner {self.reasoner} -M {self.mode} "
             f'--explanation "{self.temp}/{self.md_filename}"'
         )
         if self.output_graph_iri:

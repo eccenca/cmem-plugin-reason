@@ -10,7 +10,6 @@ from cmem.cmempy.dp.proxy.graph import get
 from cmem.cmempy.dp.proxy.update import post
 from cmem_plugin_base.dataintegration.context import ExecutionContext, ExecutionReport
 from cmem_plugin_base.dataintegration.description import Icon, Plugin, PluginParameter
-from cmem_plugin_base.dataintegration.parameter.choice import ChoiceParameterType
 from cmem_plugin_base.dataintegration.parameter.graph import GraphParameterType
 from cmem_plugin_base.dataintegration.plugins import WorkflowPlugin
 from cmem_plugin_base.dataintegration.ports import FixedNumberOfInputs
@@ -18,11 +17,12 @@ from cmem_plugin_base.dataintegration.types import BoolParameterType, StringPara
 from cmem_plugin_base.dataintegration.utils import setup_cmempy_user_access
 from inflection import underscore
 
+from cmem_plugin_reason.doc import REASON_DOC
 from cmem_plugin_reason.utils import (
     MAX_RAM_PERCENTAGE_DEFAULT,
     MAX_RAM_PERCENTAGE_PARAMETER,
     ONTOLOGY_GRAPH_IRI_PARAMETER,
-    REASON_DOC,
+    REASONER_PARAMETER,
     REASONERS,
     VALIDATE_PROFILES_PARAMETER,
     create_xml_catalog_file,
@@ -44,6 +44,7 @@ from cmem_plugin_reason.utils import (
     parameters=[
         ONTOLOGY_GRAPH_IRI_PARAMETER,
         VALIDATE_PROFILES_PARAMETER,
+        REASONER_PARAMETER,
         MAX_RAM_PERCENTAGE_PARAMETER,
         PluginParameter(
             param_type=GraphParameterType(
@@ -58,12 +59,6 @@ from cmem_plugin_reason.utils import (
             label="Output graph IRI",
             description="""The IRI of the output graph for the inconsistency validation. ⚠️ Existing
             graphs will be overwritten.""",
-        ),
-        PluginParameter(
-            param_type=ChoiceParameterType(REASONERS),
-            name="reasoner",
-            label="Reasoner",
-            description="Reasoner option. Additionally, select axiom generators below.",
         ),
         PluginParameter(
             param_type=GraphParameterType(

@@ -8,6 +8,12 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 ### Added
 
+ - Validate: added "mode" parameter
+
+## [1.0.0beta5] 2024-08-15
+
+### Added
+
  - defined input and output schema
  - Reason: parameters to import the result graph in the ontology graph and to import the ontology graph in the result graph
  - Validate: parameter to enable/disable entity output

@@ -95,6 +95,7 @@ def tests(_setup: None) -> None:  # noqa: C901
             validate_profile=True,
             md_filename=MD_FILENAME,
             output_entities=True,
+            mode="inconsistency",
         ).execute(None, context=TestExecutionContext(PROJECT_ID))
 
         md_test = (Path(__path__[0]) / "test_validate.md").read_text()
