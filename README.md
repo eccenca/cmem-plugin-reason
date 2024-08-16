@@ -43,7 +43,7 @@ The IRI of the input ontology graph. The graph IRI is selected from a list of gr
 
 The IRI of the output graph for the reasoning result.
 
-:warning: Existing graphs will be overwritten.
+⚠️ Existing graphs will be overwritten.
 
 ### Reasoner
 
@@ -104,7 +104,7 @@ Add the triple `<ontology_graph_iri> owl:imports <output_graph_iri>` to the onto
 
 Maximum heap size for the Java virtual machine in the DI container running the reasoning process.
 
-:warning: Setting the percentage too high may result in an out of memory error.
+⚠️ Setting the percentage too high may result in an out of memory error.
 
 # Validate
 
@@ -136,7 +136,7 @@ If enabled, an explanation graph is created.
 
 The IRI of the output graph for the reasoning result.
 
-:warning: Existing graphs will be overwritten.
+⚠️ Existing graphs will be overwritten.
 
 ### Write markdown explanation file
 
@@ -146,7 +146,7 @@ If enabled, an explanation markdown file is written to the project.
 
 The filename of the Markdown file with the explanation of inconsistencies.
 
-:warning: Existing files will be overwritten.
+⚠️ Existing files will be overwritten.
 
 ### Stop at inconsistencies
 Raise an error if inconsistencies are found. If enabled, the plugin does not output entities.
@@ -168,4 +168,4 @@ on the path "ontology_graph_iri", and, if enabled, the valid OWL2 profiles on th
 
 Maximum heap size for the Java virtual machine in the DI container running the reasoning process.
 
-:warning: Setting the percentage too high may result in an out of memory error.
+⚠️ Setting the percentage too high may result in an out of memory error.
