@@ -37,8 +37,16 @@ from cmem_plugin_reason.utils import (
 
 SUBCLASS_DESC = """Infer assertions about the subclass relationship of classes. 
 
-If there are classes *A* ,*B* and *C* as well as an object property *hasPart*, such that
-*A ⊑ B and hasPart some C* holds, the reasoner will infer A ⊑ B."""
+If there are classes `Person`, ` Student` and `Professor`, such that `Person DisjointUnionOf: Student, Professor` holds, the reasoner will infer `Student SubClassOf: Person`"""
+
+EQUIVALENCE_DESC = """Infer assertions about the equivalency of classes. 
+
+If there are classes `Person`, ` Student` and `Professor`, such that `Person DisjointUnionOf: Student, Professor` holds, the reasoner will infer `Person EquivalentTo: Student and Professor`."""
+
+DISJOINT_DESC = """Infer assertions about the disjointness of classes. 
+
+If there are classes `Person`, ` Student` and `Professor`, such that `Person DisjointUnionOf: Student, Professor` holds, the reasoner will infer `DisjointClasses: Professor, Student`."""
+
 
 @Plugin(
     label="Reason",
@@ -87,14 +95,14 @@ If there are classes *A* ,*B* and *C* as well as an object property *hasPart*, s
             param_type=BoolParameterType(),
             name="equivalent_class",
             label="EquivalentClass",
-            description="",
+            description=EQUIVALENCE_DESC,
             default_value=False,
         ),
         PluginParameter(
             param_type=BoolParameterType(),
             name="disjoint_classes",
             label="DisjointClasses",
-            description="",
+            description=DISJOINT_DESC,
             default_value=False,
         ),
         PluginParameter(
