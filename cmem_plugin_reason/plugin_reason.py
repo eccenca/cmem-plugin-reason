@@ -35,6 +35,10 @@ from cmem_plugin_reason.utils import (
     validate_profiles,
 )
 
+SUBCLASS_DESC = """Infer assertions about the subclass relationship of classes. 
+
+If there are classes *A* ,*B* and *C* as well as an object property *hasPart*, such that
+*A ⊑ B and hasPart some C* holds, the reasoner will infer A ⊑ B."""
 
 @Plugin(
     label="Reason",
@@ -76,7 +80,7 @@ from cmem_plugin_reason.utils import (
             param_type=BoolParameterType(),
             name="sub_class",
             label="SubClass",
-            description="",
+            description=SUBCLASS_DESC,
             default_value=True,
         ),
         PluginParameter(
