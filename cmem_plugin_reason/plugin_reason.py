@@ -76,6 +76,24 @@ If there are data properties `identifier`, `studentIdentifier` and `enrollmentNu
 `studentIdentifier SubPropertyOf: identifier` and `enrollmentNumber SubPropertyOf: 
 studentIdentifier` holds, the reasoner will infer `enrollmentNumber SubPropertyOf: identifier`."""
 
+CLASS_ASSERT_DESC = """The reasoner will infer assertions about the classes of individuals, i.e. 
+`Types:` statements. 
+
+Assume, there are classes `Person`, `Student` and `University` as well a the property `enrolledIn`,
+such that `Student EquivalentTo: Person and enrolledIn some University` holds. For the individual 
+`John` with the assertions `John Types: Person; Facts: enrolledIn LeipzigUniversity`, the reasoner
+will infer `John Types: Student`.
+"""
+
+PROPERTY_ASSERT_DESC = """The reasoner will infer assertions about the properties of individuals, 
+i.e. `Facts:` statements. 
+
+Assume, there are properties `enrolledIn` and `offers`, such that `enrolled SubPropertyChain: 
+enrolledIn o inverse (offers)` holds. For the individuals `John`and `LeipzigUniversity` with the 
+assertions `John Facts: enrolledIn KnowledgeRepresentation` and `LeipzigUniversity Facts: offers 
+KnowledgeRepresentation`,  the reasoner will infer `John Facts: enrolledIn LeipzigUniversity`.
+"""
+
 @Plugin(
     label="Reason",
     icon=Icon(file_name="fluent--brain-circuit-24-regular.svg", package=__package__),
@@ -157,15 +175,15 @@ studentIdentifier` holds, the reasoner will infer `enrollmentNumber SubPropertyO
         PluginParameter(
             param_type=BoolParameterType(),
             name="class_assertion",
-            label="ClassAssertion",
-            description="",
+            label="Class assertions (`rdf:type`)",
+            description=CLASS_ASSERT_DESC,
             default_value=True,
         ),
         PluginParameter(
             param_type=BoolParameterType(),
             name="property_assertion",
-            label="PropertyAssertion",
-            description="",
+            label="Property assertions",
+            description=PROPERTY_ASSERT_DESC,
             default_value=True,
         ),
         PluginParameter(
