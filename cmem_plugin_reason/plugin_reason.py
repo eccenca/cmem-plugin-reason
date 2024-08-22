@@ -35,18 +35,46 @@ from cmem_plugin_reason.utils import (
     validate_profiles,
 )
 
-SUBCLASS_DESC = """Infer assertions about the subclass relationship of classes. 
+SUBCLASS_DESC = """The reasoner will infer assertions about the hierarchy of classes, i.e. 
+`SubClassOf:` statements. 
 
-If there are classes `Person`, ` Student` and `Professor`, such that `Person DisjointUnionOf: Student, Professor` holds, the reasoner will infer `Student SubClassOf: Person`"""
+If there are classes `Person`, `Student` and `Professor`, such that `Person DisjointUnionOf: 
+Student, Professor` holds, the reasoner will infer `Student SubClassOf: Person`."""
 
-EQUIVALENCE_DESC = """Infer assertions about the equivalency of classes. 
+EQUIVALENCE_DESC = """The reasoner will infer assertions about the equivalence of classes, i.e. 
+`EquivalentTo:` statements. 
 
-If there are classes `Person`, ` Student` and `Professor`, such that `Person DisjointUnionOf: Student, Professor` holds, the reasoner will infer `Person EquivalentTo: Student and Professor`."""
+If there are classes `Person`, `Student` and `Professor`, such that `Person DisjointUnionOf: 
+Student, Professor` holds, the reasoner will infer `Person EquivalentTo: Student and Professor`.
+"""
 
-DISJOINT_DESC = """Infer assertions about the disjointness of classes. 
+DISJOINT_DESC = """The reasoner will infer assertions about the disjointness of classes, i.e. 
+`DisjointClasses:` statements. 
 
-If there are classes `Person`, ` Student` and `Professor`, such that `Person DisjointUnionOf: Student, Professor` holds, the reasoner will infer `DisjointClasses: Professor, Student`."""
+If there are classes `Person`, `Student` and `Professor`, such that `Person DisjointUnionOf: 
+Student, Professor` holds, the reasoner will infer `Student DisjointClasses: Student, Professor`
+"""
 
+DATA_PROP_CHAR_DESC = """The reasoner will infer characteristics of data properties, i.e. 
+`Characteristics:` statements. For data properties, this only pertains to functionality.
+
+If there are data properties `identifier` and `enrollmentNumber`, such that `enrollmentNumber 
+SubPropertyOf: identifier` and `identifier Characteristics: Functional` holds, the reasoner will 
+infer `enrollmentNumber Characteristics: Functional`."""
+
+DATA_PROP_EQUIV_DESC = """The reasoner will infer axioms about the equivalence of data properties,
+ i.e. `EquivalentProperties` statements.
+
+If there are data properties `identifier` and `enrollmentNumber`, such that `enrollmentNumber 
+SubPropertyOf: identifier` and `identifier SubPropertyOf: enrollmentNumber` holds, the reasoner 
+will infer `Student EquivalentProperties: identifier, enrollmentNumber`."""
+
+DATA_PROP_SUB_DESC = """The reasoner will infer axioms about the hierarchy of data properties, i.e.
+`SubPropertyOf:` statements.
+
+If there are data properties `identifier`, `studentIdentifier` and `enrollmentNumber`, such that 
+`studentIdentifier SubPropertyOf: identifier` and `enrollmentNumber SubPropertyOf: 
+studentIdentifier` holds, the reasoner will infer `enrollmentNumber SubPropertyOf: identifier`."""
 
 @Plugin(
     label="Reason",
@@ -87,43 +115,43 @@ If there are classes `Person`, ` Student` and `Professor`, such that `Person Dis
         PluginParameter(
             param_type=BoolParameterType(),
             name="sub_class",
-            label="SubClass",
+            label="Class inclusion (`rdfs:subClassOf`)",
             description=SUBCLASS_DESC,
-            default_value=True,
+            default_value=False,
         ),
         PluginParameter(
             param_type=BoolParameterType(),
             name="equivalent_class",
-            label="EquivalentClass",
+            label="Class equivalence (`owl:equivalentClass`)",
             description=EQUIVALENCE_DESC,
             default_value=False,
         ),
         PluginParameter(
             param_type=BoolParameterType(),
             name="disjoint_classes",
-            label="DisjointClasses",
+            label="Class disjointness (`owl:disjointWith`) ",
             description=DISJOINT_DESC,
             default_value=False,
         ),
         PluginParameter(
             param_type=BoolParameterType(),
             name="data_property_characteristic",
-            label="DataPropertyCharacteristic",
-            description="",
+            label="Data property characteristics (Axiomatic triples) ",
+            description=DATA_PROP_CHAR_DESC,
             default_value=False,
         ),
         PluginParameter(
             param_type=BoolParameterType(),
             name="equivalent_data_properties",
-            label="EquivalentDataProperties",
-            description="",
+            label="Data property equivalence (`owl:equivalentDataProperty`) ",
+            description=DATA_PROP_EQUIV_DESC,
             default_value=False,
         ),
         PluginParameter(
             param_type=BoolParameterType(),
             name="sub_data_property",
-            label="SubDataProperty",
-            description="",
+            label="Data property inclusion (`rdfs:subPropertyOf`)",
+            description=DATA_PROP_SUB_DESC,
             default_value=False,
         ),
         PluginParameter(
@@ -131,14 +159,14 @@ If there are classes `Person`, ` Student` and `Professor`, such that `Person Dis
             name="class_assertion",
             label="ClassAssertion",
             description="",
-            default_value=False,
+            default_value=True,
         ),
         PluginParameter(
             param_type=BoolParameterType(),
             name="property_assertion",
             label="PropertyAssertion",
             description="",
-            default_value=False,
+            default_value=True,
         ),
         PluginParameter(
             param_type=BoolParameterType(),
