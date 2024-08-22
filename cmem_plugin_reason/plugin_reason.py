@@ -94,6 +94,16 @@ assertions `John Facts: enrolledIn KnowledgeRepresentation` and `LeipzigUniversi
 KnowledgeRepresentation`,  the reasoner will infer `John Facts: enrolledIn LeipzigUniversity`.
 """
 
+OBJECT_PROP_CHAR_DESC = """The reasoner will infer characteristics of object properties, i.e 
+`Characteristics:` statements. 
+
+If there are object properties `enrolledIn` and `studentOf`, such that `enrolledIn 
+SubPropertyOf: studentOf` and `enrolledIn Characteristics: Functional` holds, the reasoner will 
+infer `studentOf Characteristics: Functional`. **Note: this inference does neither work in JFact 
+nor in HermiT!**
+"""
+
+
 @Plugin(
     label="Reason",
     icon=Icon(file_name="fluent--brain-circuit-24-regular.svg", package=__package__),
@@ -203,8 +213,8 @@ KnowledgeRepresentation`,  the reasoner will infer `John Facts: enrolledIn Leipz
         PluginParameter(
             param_type=BoolParameterType(),
             name="object_property_characteristic",
-            label="ObjectPropertyCharacteristic",
-            description="",
+            label="Object property characteristic (Axiomatic triples)",
+            description=OBJECT_PROP_CHAR_DESC,
             default_value=False,
         ),
         PluginParameter(
