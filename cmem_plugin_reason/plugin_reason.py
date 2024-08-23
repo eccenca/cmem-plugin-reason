@@ -53,7 +53,7 @@ DISJOINT_DESC = """The reasoner will infer assertions about the disjointness of 
 `DisjointClasses:` statements.
 
 If there are classes `Person`, `Student` and `Professor`, such that `Person DisjointUnionOf:
-Student, Professor` holds, the reasoner will infer `Student DisjointClasses: Student, Professor`.
+Student, Professor` holds, the reasoner will infer `DisjointClasses: Student, Professor`.
 """
 
 DATA_PROP_CHAR_DESC = """The reasoner will infer characteristics of data properties, i.e.
