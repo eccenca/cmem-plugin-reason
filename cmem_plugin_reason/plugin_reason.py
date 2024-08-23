@@ -83,7 +83,7 @@ studentIdentifier` holds, the reasoner will infer `enrollmentNumber SubPropertyO
 CLASS_ASSERT_DESC = """The reasoner will infer assertions about the classes of individuals, i.e.
 `Types:` statements.
 
-Assume, there are classes `Person`, `Student` and `University` as well a the property
+Assume, there are classes `Person`, `Student` and `University` as well as the property
 `enrolledIn`, such that `Student EquivalentTo: Person and enrolledIn some University` holds. For
 the individual `John` with the assertions `John Types: Person; Facts: enrolledIn
 LeipzigUniversity`, the reasoner will infer `John Types: Student`.
@@ -216,7 +216,7 @@ If there are classes `Person`, `Student` and `Professor` as wells as the object 
         PluginParameter(
             param_type=BoolParameterType(),
             name="equivalent_data_properties",
-            label="Data property equivalence (owl:equivalentDataProperty)",
+            label="Data property equivalence (owl:equivalentProperty)",
             description=DATA_PROP_EQUIV_DESC,
             default_value=False,
         ),
@@ -336,13 +336,16 @@ class ReasonPlugin(WorkflowPlugin):
         disjoint_classes: bool = False,
         sub_object_property: bool = False,
         equivalent_object_property: bool = False,
-        object_property_characteristic: bool = False,
+#        This axiom generator does not yield any results. 
+#        TODO: Create issue in github
+#        object_property_characteristic: bool = False, 
         object_property_domain: bool = False,
         object_property_range: bool = False,
         inverse_object_properties: bool = False,
         sub_data_property: bool = False,
         equivalent_data_properties: bool = False,
-        data_property_characteristic: bool = False,
+#        Removing it, because the object property counterpart does not work
+#        data_property_characteristic: bool = False,
         validate_profile: bool = False,
         import_ontology: bool = True,
         import_result: bool = False,
