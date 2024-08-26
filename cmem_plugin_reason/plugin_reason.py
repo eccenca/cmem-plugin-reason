@@ -338,8 +338,7 @@ class ReasonPlugin(WorkflowPlugin):
         sub_object_property: bool = False,
         equivalent_object_property: bool = False,
         #   This axiom generator does not yield any results.
-        #   TODO: Create issue in github  # noqa: TD002
-        #   https://github.com/eccenca/cmem-plugin-reason/issues/10
+        #   Issue: https://github.com/eccenca/cmem-plugin-reason/issues/10
         #   object_property_characteristic: bool = False,
         object_property_domain: bool = False,
         object_property_range: bool = False,
