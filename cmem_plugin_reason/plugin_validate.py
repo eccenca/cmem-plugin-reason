@@ -85,8 +85,9 @@ from cmem_plugin_reason.utils import (
             name="output_entities",
             label="Output entities",
             description="""Output entities. The plugin outputs the explanation as text in Markdown
-            format on the path "markdown", the ontology IRI on the path "ontology_graph_iri", and,
-            if enabled, the valid OWL2 profiles on the path "valid_profiles".""",
+            format on the path "markdown", the ontology IRI on the path "ontology_graph_iri", the
+            reasoner option on the path "reasoner", and, if enabled, the valid OWL2 profiles on the
+            path "valid_profiles".""",
             default_value=False,
         ),
         PluginParameter(
@@ -165,7 +166,7 @@ class ValidatePlugin(WorkflowPlugin):
 
     def generate_output_schema(self) -> EntitySchema | None:
         """Generate output entity schema."""
-        paths = [EntityPath("markdown"), EntityPath("ontology_graph_iri")]
+        paths = [EntityPath("markdown"), EntityPath("ontology_graph_iri"), EntityPath("reasoner")]
         if self.validate_profile:
             paths.append(EntityPath("valid_profiles"))
         return EntitySchema(type_uri="validate", paths=paths)
@@ -227,7 +228,7 @@ class ValidatePlugin(WorkflowPlugin):
 
     def make_entities(self, text: str, valid_profiles: list) -> Entities:
         """Make entities"""
-        values = [[text], [self.ontology_graph_iri]]
+        values = [[text], [self.ontology_graph_iri], [self.reasoner]]
         if self.validate_profile:
             values.append([",".join(valid_profiles)])
         entities = [

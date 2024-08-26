@@ -118,6 +118,8 @@ def tests(_setup: None) -> None:  # noqa: C901
             val_errors += 'EntityPath "markdown" output error. '
         if value_dict["ontology_graph_iri"] != VALIDATE_ONTOLOGY_GRAPH_IRI:
             val_errors += 'EntityPath "ontology_graph_iri" output error. '
+        if value_dict["reasoner"] != "elk":
+            val_errors += 'EntityPath "reasoner" output error. '
         if value_dict["valid_profiles"] != "Full,DL,EL,QL,RL":
             val_errors += 'EntityPath "valid_profiles" output error. '
         if md_test != get_resource(PROJECT_ID, MD_FILENAME).decode():

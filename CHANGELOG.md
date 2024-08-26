@@ -10,6 +10,13 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
  - Validate: added "mode" parameter
 
+### Changed
+
+ - Validate: the entity output includes the reasoner option on path "reason"
+ - Detailed axiom generator documentation
+ - The axiom generator EquivalentobjectProperty does not yield results possibly due to a bug in the OWL API. Currently,
+this axiom generator and its (working) counterpart EquivalentDataProperties are removed from the Reason plugin.
+
 ## [1.0.0beta5] 2024-08-15
 
 ### Added

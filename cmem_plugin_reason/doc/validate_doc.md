@@ -52,7 +52,8 @@ Mode _unsatisfiability_ generates explanations for many unsatisfiable classes at
 ### Output entities
 
 Output entities. The plugin outputs the explanation as text in Markdown format on the path "markdown", the ontology IRI
-on the path "ontology_graph_iri", and, if enabled, the valid OWL2 profiles on the path "valid_profiles
+on the path "ontology_graph_iri", the reasoner option on the path "reasoner", and, if enabled, the valid OWL2 profiles
+on the path "valid_profiles".
 
 ### Maximum RAM Percentage
 

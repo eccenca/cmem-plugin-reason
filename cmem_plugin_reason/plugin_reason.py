@@ -56,13 +56,13 @@ If there are classes `Person`, `Student` and `Professor`, such that `Person Disj
 Student, Professor` holds, the reasoner will infer `DisjointClasses: Student, Professor`.
 """
 
-DATA_PROP_CHAR_DESC = """The reasoner will infer characteristics of data properties, i.e.
-`Characteristics:` statements. For data properties, this only pertains to functionality.
-
-If there are data properties `identifier` and `enrollmentNumber`, such that `enrollmentNumber
-SubPropertyOf: identifier` and `identifier Characteristics: Functional` holds, the reasoner will
-infer `enrollmentNumber Characteristics: Functional`.
-"""
+# DATA_PROP_CHAR_DESC = """The reasoner will infer characteristics of data properties, i.e.
+# `Characteristics:` statements. For data properties, this only pertains to functionality.
+#
+# If there are data properties `identifier` and `enrollmentNumber`, such that `enrollmentNumber
+# SubPropertyOf: identifier` and `identifier Characteristics: Functional` holds, the reasoner will
+# infer `enrollmentNumber Characteristics: Functional`.
+# """
 
 DATA_PROP_EQUIV_DESC = """The reasoner will infer axioms about the equivalence of data properties,
  i.e. `EquivalentProperties` statements.
@@ -98,14 +98,14 @@ assertions `John Facts: enrolledIn KnowledgeRepresentation` and `LeipzigUniversi
 KnowledgeRepresentation`,  the reasoner will infer `John Facts: enrolledIn LeipzigUniversity`.
 """
 
-OBJECT_PROP_CHAR_DESC = """The reasoner will infer characteristics of object properties, i.e.
-`Characteristics:` statements.
-
-If there are object properties `enrolledIn` and `studentOf`, such that `enrolledIn
-SubPropertyOf: studentOf` and `enrolledIn Characteristics: Functional` holds, the reasoner will
-infer `studentOf Characteristics: Functional`. **Note: this inference does neither work in JFact
-nor in HermiT!**
-"""
+# OBJECT_PROP_CHAR_DESC = """The reasoner will infer characteristics of object properties, i.e.
+# `Characteristics:` statements.
+#
+# If there are object properties `enrolledIn` and `studentOf`, such that `enrolledIn
+# SubPropertyOf: studentOf` and `enrolledIn Characteristics: Functional` holds, the reasoner will
+# infer `studentOf Characteristics: Functional`. **Note: this inference does neither work in JFact
+# nor in HermiT!**
+# """
 
 OBJECT_PROP_EQUIV_DESC = """The reasoner will infer assertions about the equivalence of object
 properties, i.e. `EquivalentTo:` statements.
@@ -206,13 +206,13 @@ If there are classes `Person`, `Student` and `Professor` as wells as the object 
             description=DISJOINT_DESC,
             default_value=False,
         ),
-        PluginParameter(
-            param_type=BoolParameterType(),
-            name="data_property_characteristic",
-            label="Data property characteristics (Axiomatic triples)",
-            description=DATA_PROP_CHAR_DESC,
-            default_value=False,
-        ),
+        # PluginParameter(
+        #     param_type=BoolParameterType(),
+        #     name="data_property_characteristic",
+        #     label="Data property characteristics (Axiomatic triples)",
+        #     description=DATA_PROP_CHAR_DESC,
+        #     default_value=False,
+        # ),
         PluginParameter(
             param_type=BoolParameterType(),
             name="equivalent_data_properties",
@@ -255,13 +255,13 @@ If there are classes `Person`, `Student` and `Professor` as wells as the object 
             description=OBJECT_PROP_INV_DESC,
             default_value=False,
         ),
-        PluginParameter(
-            param_type=BoolParameterType(),
-            name="object_property_characteristic",
-            label="Object property characteristic (Axiomatic triples)",
-            description=OBJECT_PROP_CHAR_DESC,
-            default_value=False,
-        ),
+        # PluginParameter(
+        #     param_type=BoolParameterType(),
+        #     name="object_property_characteristic",
+        #     label="Object property characteristic (Axiomatic triples)",
+        #     description=OBJECT_PROP_CHAR_DESC,
+        #     default_value=False,
+        # ),
         PluginParameter(
             param_type=BoolParameterType(),
             name="sub_object_property",
@@ -288,9 +288,10 @@ If there are classes `Person`, `Student` and `Professor` as wells as the object 
             name="input_profiles",
             label="Process valid OWL profiles from input",
             description="""If enabled along with the "Validate OWL2 profiles" parameter, the valid
-            profiles and ontology IRI is taken from the config port input (parameters
-            "valid_profiles" and "ontology_graph_iri") instead of from running the validation in the
-            plugin. The valid profiles input is a comma-separated string (e.g. "Full,DL").""",
+            profiles, ontology IRI and reasoner option is taken from the config port input
+            (parameters "valid_profiles", "ontology_graph_iri" and "reasoner") and the OWL2 profiles
+            validation is not done in the plugin. The valid profiles input is a comma-separated
+            string (e.g. "Full,DL").""",
             default_value=False,
             advanced=True,
         ),
@@ -336,16 +337,17 @@ class ReasonPlugin(WorkflowPlugin):
         disjoint_classes: bool = False,
         sub_object_property: bool = False,
         equivalent_object_property: bool = False,
-#        This axiom generator does not yield any results. 
-#        TODO: Create issue in github
-#        object_property_characteristic: bool = False, 
+        #   This axiom generator does not yield any results.
+        #   TODO: Create issue in github  # noqa: TD002
+        #   https://github.com/eccenca/cmem-plugin-reason/issues/10
+        #   object_property_characteristic: bool = False,
         object_property_domain: bool = False,
         object_property_range: bool = False,
         inverse_object_properties: bool = False,
         sub_data_property: bool = False,
         equivalent_data_properties: bool = False,
-#        Removing it, because the object property counterpart does not work
-#        data_property_characteristic: bool = False,
+        #   Removed because the object property counterpart does not work
+        #   data_property_characteristic: bool = False,
         validate_profile: bool = False,
         import_ontology: bool = True,
         import_result: bool = False,
@@ -357,14 +359,14 @@ class ReasonPlugin(WorkflowPlugin):
             "SubClass": sub_class,
             "EquivalentClass": equivalent_class,
             "DisjointClasses": disjoint_classes,
-            "DataPropertyCharacteristic": data_property_characteristic,
+            # "DataPropertyCharacteristic": data_property_characteristic,
             "EquivalentDataProperties": equivalent_data_properties,
             "SubDataProperty": sub_data_property,
             "ClassAssertion": class_assertion,
             "PropertyAssertion": property_assertion,
             "EquivalentObjectProperty": equivalent_object_property,
             "InverseObjectProperties": inverse_object_properties,
-            "ObjectPropertyCharacteristic": object_property_characteristic,
+            # "ObjectPropertyCharacteristic": object_property_characteristic,
             "SubObjectProperty": sub_object_property,
             "ObjectPropertyRange": object_property_range,
             "ObjectPropertyDomain": object_property_domain,
