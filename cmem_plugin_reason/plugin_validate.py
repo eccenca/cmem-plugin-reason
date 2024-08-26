@@ -13,6 +13,7 @@ from cmem_plugin_base.dataintegration.context import ExecutionContext, Execution
 from cmem_plugin_base.dataintegration.description import Icon, Plugin, PluginParameter
 from cmem_plugin_base.dataintegration.entity import Entities, Entity, EntityPath, EntitySchema
 from cmem_plugin_base.dataintegration.parameter.choice import ChoiceParameterType
+from cmem_plugin_base.dataintegration.parameter.graph import GraphParameterType
 from cmem_plugin_base.dataintegration.plugins import WorkflowPlugin
 from cmem_plugin_base.dataintegration.ports import FixedNumberOfInputs, FixedSchemaPort
 from cmem_plugin_base.dataintegration.types import BoolParameterType, StringParameterType
@@ -24,7 +25,6 @@ from cmem_plugin_reason.utils import (
     MAX_RAM_PERCENTAGE_DEFAULT,
     MAX_RAM_PERCENTAGE_PARAMETER,
     ONTOLOGY_GRAPH_IRI_PARAMETER,
-    OUTPUT_GRAPH_IRI_PARAMETER,
     REASONER_PARAMETER,
     REASONERS,
     VALIDATE_PROFILES_PARAMETER,
@@ -38,10 +38,6 @@ from cmem_plugin_reason.utils import (
     validate_profiles,
 )
 
-OUTPUT_GRAPH_IRI_PARAMETER.description = """The IRI of the output graph for the inconsistency
-validation. ⚠️ Existing graphs will be overwritten."""
-OUTPUT_GRAPH_IRI_PARAMETER.default_value = ""
-
 
 @Plugin(
     label="Validate OWL consistency",
@@ -50,7 +46,6 @@ OUTPUT_GRAPH_IRI_PARAMETER.default_value = ""
     icon=Icon(file_name="file-icons--owl.svg", package=__package__),
     parameters=[
         ONTOLOGY_GRAPH_IRI_PARAMETER,
-        OUTPUT_GRAPH_IRI_PARAMETER,
         MAX_RAM_PERCENTAGE_PARAMETER,
         VALIDATE_PROFILES_PARAMETER,
         REASONER_PARAMETER,
@@ -60,6 +55,21 @@ OUTPUT_GRAPH_IRI_PARAMETER.default_value = ""
             label="Output filename",
             description="The filename of the Markdown file with the explanation of "
             "inconsistencies.⚠️ Existing files will be overwritten.",
+            default_value="",
+        ),
+        PluginParameter(
+            param_type=GraphParameterType(
+                allow_only_autocompleted_values=False,
+                classes=[
+                    "https://vocab.eccenca.com/di/Dataset",
+                    "http://rdfs.org/ns/void#Dataset",
+                    "http://www.w3.org/2002/07/owl#Ontology",
+                ],
+            ),
+            name="output_graph_iri",
+            label="Output graph IRI",
+            description="""The IRI of the output graph for the inconsistency validation. ⚠️ Existing
+            graphs will be overwritten.""",
             default_value="",
         ),
         PluginParameter(

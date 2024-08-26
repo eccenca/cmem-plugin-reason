@@ -22,7 +22,6 @@ from cmem_plugin_reason.utils import (
     MAX_RAM_PERCENTAGE_DEFAULT,
     MAX_RAM_PERCENTAGE_PARAMETER,
     ONTOLOGY_GRAPH_IRI_PARAMETER,
-    OUTPUT_GRAPH_IRI_PARAMETER,
     REASONER_PARAMETER,
     REASONERS,
     VALIDATE_PROFILES_PARAMETER,
@@ -36,9 +35,8 @@ from cmem_plugin_reason.utils import (
     validate_profiles,
 )
 
-# REASONER_PARAMETER.description += " Select axiom generators below [Click (?) for documentation]."
-# OUTPUT_GRAPH_IRI_PARAMETER.description = """The IRI of the output graph for the reasoning result.
-# ⚠️ Existing graphs will be overwritten."""
+REASONER_PARAMETER.description += " Select axiom generators below [Click (?) for documentation]."
+
 #
 # SUBCLASS_DESC = """The reasoner will infer assertions about the hierarchy of classes, i.e.
 # `SubClassOf:` statements.
@@ -162,7 +160,6 @@ from cmem_plugin_reason.utils import (
     documentation=REASON_DOC,
     parameters=[
         ONTOLOGY_GRAPH_IRI_PARAMETER,
-        OUTPUT_GRAPH_IRI_PARAMETER,
         VALIDATE_PROFILES_PARAMETER,
         REASONER_PARAMETER,
         MAX_RAM_PERCENTAGE_PARAMETER,
@@ -177,6 +174,16 @@ from cmem_plugin_reason.utils import (
             name="data_graph_iri",
             label="Data graph IRI",
             description="The IRI of the input data graph.",
+        ),
+        PluginParameter(
+            param_type=GraphParameterType(
+                allow_only_autocompleted_values=False,
+                classes=["http://www.w3.org/2002/07/owl#Ontology"],
+            ),
+            name="output_graph_iri",
+            label="Output graph IRI",
+            description="""The IRI of the output graph for the reasoning result. ⚠️ Existing graphs
+            will be overwritten.""",
         ),
         PluginParameter(
             param_type=BoolParameterType(),
