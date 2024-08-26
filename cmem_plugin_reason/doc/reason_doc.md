@@ -32,10 +32,6 @@ The following reasoner options are supported:
 The plugin provides the following parameters to include inferred axiom generators:
 
 #### Class axiom generators
-By default, the reason operation will only assert inferred subclass axioms. The plugin provides the following 
-parameters to include inferred axiom generators:
-
-#### Class axiom generators
 - **Class inclusion (rdfs:subClassOf)**  
 The reasoner will infer assertions about the hierarchy of classes, i.e.
 `SubClassOf:` statements.  
