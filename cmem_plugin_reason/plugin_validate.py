@@ -287,7 +287,7 @@ class ValidatePlugin(WorkflowPlugin):
         return None
 
     def execute(self, inputs: None, context: ExecutionContext) -> Entities | None:  # noqa: ARG002
-        """Remove temp files on error"""
+        """Execute plugin with temporary directory"""
         context.report.update(
             ExecutionReport(
                 operation="validate",

@@ -531,7 +531,7 @@ class ReasonPlugin(WorkflowPlugin):
         )
 
     def execute(self, inputs: None, context: ExecutionContext) -> None:  # noqa: ARG002
-        """Validate input, execute plugin with temporary directory"""
+        """Execute plugin with temporary directory"""
         context.report.update(
             ExecutionReport(
                 operation="reason",
