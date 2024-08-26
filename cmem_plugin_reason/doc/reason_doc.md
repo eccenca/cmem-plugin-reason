@@ -29,8 +29,7 @@ The following reasoner options are supported:
 
 ### Generated Axioms
 
-By default, the reason operation will only assert inferred subclass axioms. The plugin provides the following 
-parameters to include inferred axiom generators:
+The plugin provides the following parameters to include inferred axiom generators:
 
 #### Class axiom generators
 By default, the reason operation will only assert inferred subclass axioms. The plugin provides the following 
