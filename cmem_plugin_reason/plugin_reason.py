@@ -22,6 +22,7 @@ from cmem_plugin_reason.utils import (
     MAX_RAM_PERCENTAGE_DEFAULT,
     MAX_RAM_PERCENTAGE_PARAMETER,
     ONTOLOGY_GRAPH_IRI_PARAMETER,
+    OUTPUT_GRAPH_IRI_PARAMETER,
     REASONER_PARAMETER,
     REASONERS,
     VALIDATE_PROFILES_PARAMETER,
@@ -35,118 +36,123 @@ from cmem_plugin_reason.utils import (
     validate_profiles,
 )
 
-SUBCLASS_DESC = """The reasoner will infer assertions about the hierarchy of classes, i.e.
-`SubClassOf:` statements.
-
-If there are classes `Person`, `Student` and `Professor`, such that `Person DisjointUnionOf:
-Student, Professor` holds, the reasoner will infer `Student SubClassOf: Person`.
-"""
-
-EQUIVALENCE_DESC = """The reasoner will infer assertions about the equivalence of classes, i.e.
-`EquivalentTo:` statements.
-
-If there are classes `Person`, `Student` and `Professor`, such that `Person DisjointUnionOf:
-Student, Professor` holds, the reasoner will infer `Person EquivalentTo: Student and Professor`.
-"""
-
-DISJOINT_DESC = """The reasoner will infer assertions about the disjointness of classes, i.e.
-`DisjointClasses:` statements.
-
-If there are classes `Person`, `Student` and `Professor`, such that `Person DisjointUnionOf:
-Student, Professor` holds, the reasoner will infer `DisjointClasses: Student, Professor`.
-"""
-
-# DATA_PROP_CHAR_DESC = """The reasoner will infer characteristics of data properties, i.e.
-# `Characteristics:` statements. For data properties, this only pertains to functionality.
+# REASONER_PARAMETER.description += " Select axiom generators below [Click (?) for documentation]."
+# OUTPUT_GRAPH_IRI_PARAMETER.description = """The IRI of the output graph for the reasoning result.
+# ⚠️ Existing graphs will be overwritten."""
+#
+# SUBCLASS_DESC = """The reasoner will infer assertions about the hierarchy of classes, i.e.
+# `SubClassOf:` statements.
+#
+# If there are classes `Person`, `Student` and `Professor`, such that `Person DisjointUnionOf:
+# Student, Professor` holds, the reasoner will infer `Student SubClassOf: Person`.
+# """
+#
+# EQUIVALENCE_DESC = """The reasoner will infer assertions about the equivalence of classes, i.e.
+# `EquivalentTo:` statements.
+#
+# If there are classes `Person`, `Student` and `Professor`, such that `Person DisjointUnionOf:
+# Student, Professor` holds, the reasoner will infer `Person EquivalentTo: Student and Professor`.
+# """
+#
+# DISJOINT_DESC = """The reasoner will infer assertions about the disjointness of classes, i.e.
+# `DisjointClasses:` statements.
+#
+# If there are classes `Person`, `Student` and `Professor`, such that `Person DisjointUnionOf:
+# Student, Professor` holds, the reasoner will infer `DisjointClasses: Student, Professor`.
+# """
+#
+# # DATA_PROP_CHAR_DESC = """The reasoner will infer characteristics of data properties, i.e.
+# # `Characteristics:` statements. For data properties, this only pertains to functionality.
+# #
+# # If there are data properties `identifier` and `enrollmentNumber`, such that `enrollmentNumber
+# # SubPropertyOf: identifier` and `identifier Characteristics: Functional` holds, the reasoner will
+# # infer `enrollmentNumber Characteristics: Functional`.
+# # """
+#
+# DATA_PROP_EQUIV_DESC = """The reasoner will infer axioms about the equivalence of data properties,
+#  i.e. `EquivalentProperties` statements.
 #
 # If there are data properties `identifier` and `enrollmentNumber`, such that `enrollmentNumber
-# SubPropertyOf: identifier` and `identifier Characteristics: Functional` holds, the reasoner will
-# infer `enrollmentNumber Characteristics: Functional`.
+# SubPropertyOf: identifier` and `identifier SubPropertyOf: enrollmentNumber` holds, the reasoner
+# will infer `Student EquivalentProperties: identifier, enrollmentNumber`.
 # """
-
-DATA_PROP_EQUIV_DESC = """The reasoner will infer axioms about the equivalence of data properties,
- i.e. `EquivalentProperties` statements.
-
-If there are data properties `identifier` and `enrollmentNumber`, such that `enrollmentNumber
-SubPropertyOf: identifier` and `identifier SubPropertyOf: enrollmentNumber` holds, the reasoner
-will infer `Student EquivalentProperties: identifier, enrollmentNumber`.
-"""
-
-DATA_PROP_SUB_DESC = """The reasoner will infer axioms about the hierarchy of data properties,
-i.e. `SubPropertyOf:` statements.
-
-If there are data properties `identifier`, `studentIdentifier` and `enrollmentNumber`, such that
-`studentIdentifier SubPropertyOf: identifier` and `enrollmentNumber SubPropertyOf:
-studentIdentifier` holds, the reasoner will infer `enrollmentNumber SubPropertyOf: identifier`.
-"""
-
-CLASS_ASSERT_DESC = """The reasoner will infer assertions about the classes of individuals, i.e.
-`Types:` statements.
-
-Assume, there are classes `Person`, `Student` and `University` as well as the property
-`enrolledIn`, such that `Student EquivalentTo: Person and enrolledIn some University` holds. For
-the individual `John` with the assertions `John Types: Person; Facts: enrolledIn
-LeipzigUniversity`, the reasoner will infer `John Types: Student`.
-"""
-
-PROPERTY_ASSERT_DESC = """The reasoner will infer assertions about the properties of individuals,
-i.e. `Facts:` statements.
-
-Assume, there are properties `enrolledIn` and `offers`, such that `enrolled SubPropertyChain:
-enrolledIn o inverse (offers)` holds. For the individuals `John`and `LeipzigUniversity` with the
-assertions `John Facts: enrolledIn KnowledgeRepresentation` and `LeipzigUniversity Facts: offers
-KnowledgeRepresentation`,  the reasoner will infer `John Facts: enrolledIn LeipzigUniversity`.
-"""
-
-# OBJECT_PROP_CHAR_DESC = """The reasoner will infer characteristics of object properties, i.e.
-# `Characteristics:` statements.
 #
-# If there are object properties `enrolledIn` and `studentOf`, such that `enrolledIn
-# SubPropertyOf: studentOf` and `enrolledIn Characteristics: Functional` holds, the reasoner will
-# infer `studentOf Characteristics: Functional`. **Note: this inference does neither work in JFact
-# nor in HermiT!**
+# DATA_PROP_SUB_DESC = """The reasoner will infer axioms about the hierarchy of data properties,
+# i.e. `SubPropertyOf:` statements.
+#
+# If there are data properties `identifier`, `studentIdentifier` and `enrollmentNumber`, such that
+# `studentIdentifier SubPropertyOf: identifier` and `enrollmentNumber SubPropertyOf:
+# studentIdentifier` holds, the reasoner will infer `enrollmentNumber SubPropertyOf: identifier`.
 # """
-
-OBJECT_PROP_EQUIV_DESC = """The reasoner will infer assertions about the equivalence of object
-properties, i.e. `EquivalentTo:` statements.
-
-If there are object properties `hasAlternativeLecture` and `hasSameTopicAs`, such that
-`hasAlternativeLecture Characteristics: Symmetric` and `hasSameTopicAs InverseOf:
-hasAlternativeLecture` holds, the reasoner will infer `EquivalentProperties: hasAlternativeLecture,
-hasSameTopicAs`.
-"""
-
-OBJECT_PROP_SUB_DESC = """The reasoner will infer axioms about the inclusion of object properties,
-i.e. `SubPropertyOf:` statements.
-
-If there are object properties `enrolledIn`, `studentOf` and `hasStudent`, such that `enrolledIn
-SubPropertyOf: studentOf` and `enrolledIn InverseOf: hasStudent` holds, the reasoner will infer
-`hasStudent SubPropertyOf: inverse (studentOf)`.
-"""
-
-OBJECT_PROP_INV_DESC = """The reasoner will infer axioms about the inversion about object
-properties, i.e. `InverseOf:` statements.
-
-If there is a object property `hasAlternativeLecture`, such that `hasAlternativeLecture
-Characteristics: Symmetric` holds, the reasoner will infer `hasAlternativeLecture InverseOf:
-hasAlternativeLecture`.
-"""
-
-OBJECT_PROP_RANGE_DESC = """The reasoner will infer axioms about the ranges of object properties,
-i.e. `Range:` statements.
-
-If there are classes `Student` and `Lecture` as wells as object properties `hasStudent` and
-`enrolledIn`, such that `hasStudent Range: Student and enrolledIn some Lecture` holds, the
-reasoner will infer `hasStudent Range: Student`.
-"""
-
-OBJECT_PROP_DOMAIN_DESC = """The reasoner will infer axioms about the domains of object
-properties, i.e. `Domain:` statements.
-
-If there are classes `Person`, `Student` and `Professor` as wells as the object property
-`hasRoleIn`, such that `Professor SubClassOf: Person`, `Student SubClassOf: Person` and
-`hasRoleIn Domain: Professor or Student` holds, the reasoner will infer `hasRoleIn Domain: Person`.
-"""
+#
+# CLASS_ASSERT_DESC = """The reasoner will infer assertions about the classes of individuals, i.e.
+# `Types:` statements.
+#
+# Assume, there are classes `Person`, `Student` and `University` as well as the property
+# `enrolledIn`, such that `Student EquivalentTo: Person and enrolledIn some University` holds. For
+# the individual `John` with the assertions `John Types: Person; Facts: enrolledIn
+# LeipzigUniversity`, the reasoner will infer `John Types: Student`.
+# """
+#
+# PROPERTY_ASSERT_DESC = """The reasoner will infer assertions about the properties of individuals,
+# i.e. `Facts:` statements.
+#
+# Assume, there are properties `enrolledIn` and `offers`, such that `enrolled SubPropertyChain:
+# enrolledIn o inverse (offers)` holds. For the individuals `John`and `LeipzigUniversity` with the
+# assertions `John Facts: enrolledIn KnowledgeRepresentation` and `LeipzigUniversity Facts: offers
+# KnowledgeRepresentation`,  the reasoner will infer `John Facts: enrolledIn LeipzigUniversity`.
+# """
+#
+# # OBJECT_PROP_CHAR_DESC = """The reasoner will infer characteristics of object properties, i.e.
+# # `Characteristics:` statements.
+# #
+# # If there are object properties `enrolledIn` and `studentOf`, such that `enrolledIn
+# # SubPropertyOf: studentOf` and `enrolledIn Characteristics: Functional` holds, the reasoner will
+# # infer `studentOf Characteristics: Functional`. **Note: this inference does neither work in JFact
+# # nor in HermiT!**
+# # """
+#
+# OBJECT_PROP_EQUIV_DESC = """The reasoner will infer assertions about the equivalence of object
+# properties, i.e. `EquivalentTo:` statements.
+#
+# If there are object properties `hasAlternativeLecture` and `hasSameTopicAs`, such that
+# `hasAlternativeLecture Characteristics: Symmetric` and `hasSameTopicAs InverseOf:
+# hasAlternativeLecture` holds, the reasoner will infer `EquivalentProperties:
+# hasAlternativeLecture, hasSameTopicAs`.
+# """
+#
+# OBJECT_PROP_SUB_DESC = """The reasoner will infer axioms about the inclusion of object properties,
+# i.e. `SubPropertyOf:` statements.
+#
+# If there are object properties `enrolledIn`, `studentOf` and `hasStudent`, such that `enrolledIn
+# SubPropertyOf: studentOf` and `enrolledIn InverseOf: hasStudent` holds, the reasoner will infer
+# `hasStudent SubPropertyOf: inverse (studentOf)`.
+# """
+#
+# OBJECT_PROP_INV_DESC = """The reasoner will infer axioms about the inversion about object
+# properties, i.e. `InverseOf:` statements.
+#
+# If there is a object property `hasAlternativeLecture`, such that `hasAlternativeLecture
+# Characteristics: Symmetric` holds, the reasoner will infer `hasAlternativeLecture InverseOf:
+# hasAlternativeLecture`.
+# """
+#
+# OBJECT_PROP_RANGE_DESC = """The reasoner will infer axioms about the ranges of object properties,
+# i.e. `Range:` statements.
+#
+# If there are classes `Student` and `Lecture` as wells as object properties `hasStudent` and
+# `enrolledIn`, such that `hasStudent Range: Student and enrolledIn some Lecture` holds, the
+# reasoner will infer `hasStudent Range: Student`.
+# """
+#
+# OBJECT_PROP_DOMAIN_DESC = """The reasoner will infer axioms about the domains of object
+# properties, i.e. `Domain:` statements.
+#
+# If there are classes `Person`, `Student` and `Professor` as wells as the object property
+# `hasRoleIn`, such that `Professor SubClassOf: Person`, `Student SubClassOf: Person` and
+# `hasRoleIn Domain: Professor or Student` holds, the reasoner will infer `hasRoleIn Domain:
+# Person`.
+# """
 
 
 @Plugin(
@@ -156,23 +162,10 @@ If there are classes `Person`, `Student` and `Professor` as wells as the object 
     documentation=REASON_DOC,
     parameters=[
         ONTOLOGY_GRAPH_IRI_PARAMETER,
+        OUTPUT_GRAPH_IRI_PARAMETER,
         VALIDATE_PROFILES_PARAMETER,
         REASONER_PARAMETER,
         MAX_RAM_PERCENTAGE_PARAMETER,
-        PluginParameter(
-            param_type=GraphParameterType(
-                allow_only_autocompleted_values=False,
-                classes=[
-                    "https://vocab.eccenca.com/di/Dataset",
-                    "http://rdfs.org/ns/void#Dataset",
-                    "http://www.w3.org/2002/07/owl#Ontology",
-                ],
-            ),
-            name="output_graph_iri",
-            label="Output graph IRI",
-            description="""The IRI of the output graph for the inconsistency validation. ⚠️ Existing
-            graphs will be overwritten.""",
-        ),
         PluginParameter(
             param_type=GraphParameterType(
                 classes=[
@@ -189,21 +182,21 @@ If there are classes `Person`, `Student` and `Professor` as wells as the object 
             param_type=BoolParameterType(),
             name="sub_class",
             label="Class inclusion (rdfs:subClassOf)",
-            description=SUBCLASS_DESC,
+            # description=SUBCLASS_DESC,
             default_value=False,
         ),
         PluginParameter(
             param_type=BoolParameterType(),
             name="equivalent_class",
             label="Class equivalence (owl:equivalentClass)",
-            description=EQUIVALENCE_DESC,
+            # description=EQUIVALENCE_DESC,
             default_value=False,
         ),
         PluginParameter(
             param_type=BoolParameterType(),
             name="disjoint_classes",
             label="Class disjointness (owl:disjointWith)",
-            description=DISJOINT_DESC,
+            # description=DISJOINT_DESC,
             default_value=False,
         ),
         # PluginParameter(
@@ -217,42 +210,42 @@ If there are classes `Person`, `Student` and `Professor` as wells as the object 
             param_type=BoolParameterType(),
             name="equivalent_data_properties",
             label="Data property equivalence (owl:equivalentProperty)",
-            description=DATA_PROP_EQUIV_DESC,
+            # description=DATA_PROP_EQUIV_DESC,
             default_value=False,
         ),
         PluginParameter(
             param_type=BoolParameterType(),
             name="sub_data_property",
             label="Data property inclusion (rdfs:subPropertyOf)",
-            description=DATA_PROP_SUB_DESC,
+            # description=DATA_PROP_SUB_DESC,
             default_value=False,
         ),
         PluginParameter(
             param_type=BoolParameterType(),
             name="class_assertion",
             label="Individual class assertions (rdf:type)",
-            description=CLASS_ASSERT_DESC,
+            # description=CLASS_ASSERT_DESC,
             default_value=True,
         ),
         PluginParameter(
             param_type=BoolParameterType(),
             name="property_assertion",
             label="Individual property assertions",
-            description=PROPERTY_ASSERT_DESC,
+            # description=PROPERTY_ASSERT_DESC,
             default_value=True,
         ),
         PluginParameter(
             param_type=BoolParameterType(),
             name="equivalent_object_property",
             label="Object property equivalence (owl:equivalentProperty)",
-            description=OBJECT_PROP_EQUIV_DESC,
+            # description=OBJECT_PROP_EQUIV_DESC,
             default_value=False,
         ),
         PluginParameter(
             param_type=BoolParameterType(),
             name="inverse_object_properties",
             label="Object property inversion (owl:inverseOf)",
-            description=OBJECT_PROP_INV_DESC,
+            # description=OBJECT_PROP_INV_DESC,
             default_value=False,
         ),
         # PluginParameter(
@@ -266,21 +259,21 @@ If there are classes `Person`, `Student` and `Professor` as wells as the object 
             param_type=BoolParameterType(),
             name="sub_object_property",
             label="Object property inclusion (rdfs:subPropertyOf)",
-            description=OBJECT_PROP_SUB_DESC,
+            # description=OBJECT_PROP_SUB_DESC,
             default_value=False,
         ),
         PluginParameter(
             param_type=BoolParameterType(),
             name="object_property_range",
             label="Object property ranges (rdfs:range)",
-            description=OBJECT_PROP_RANGE_DESC,
+            # description=OBJECT_PROP_RANGE_DESC,
             default_value=False,
         ),
         PluginParameter(
             param_type=BoolParameterType(),
             name="object_property_domain",
             label="Object property domains (rdfs:domain)",
-            description=OBJECT_PROP_DOMAIN_DESC,
+            # description=OBJECT_PROP_DOMAIN_DESC,
             default_value=False,
         ),
         PluginParameter(

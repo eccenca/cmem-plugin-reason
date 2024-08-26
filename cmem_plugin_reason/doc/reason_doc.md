@@ -11,7 +11,7 @@ and `owl:Ontology`.
 
 The IRI of the input ontology graph. The graph IRI is selected from a list of graphs of type`owl:Ontology`.
 
-### Result graph IRI
+### Output graph IRI
 
 The IRI of the output graph for the reasoning result.
 
@@ -33,28 +33,32 @@ By default, the reason operation will only assert inferred subclass axioms. The 
 parameters to include inferred axiom generators:
 
 #### Class axiom generators
-- **SubClass**  
+By default, the reason operation will only assert inferred subclass axioms. The plugin provides the following 
+parameters to include inferred axiom generators:
+
+#### Class axiom generators
+- **Class inclusion (rdfs:subClassOf)**  
 The reasoner will infer assertions about the hierarchy of classes, i.e.
 `SubClassOf:` statements.  
 If there are classes `Person`, `Student` and `Professor`, such that `Person DisjointUnionOf:
 Student, Professor` holds, the reasoner will infer `Student SubClassOf: Person`.  
 
 
-- **EquivalentClass**  
+- **Class equivalence (owl:equivalentClass)**  
 The reasoner will infer assertions about the equivalence of classes, i.e.
 `EquivalentTo:` statements.  
 If there are classes `Person`, `Student` and `Professor`, such that `Person DisjointUnionOf:
 Student, Professor` holds, the reasoner will infer `Person EquivalentTo: Student and Professor`.
 
 
-- **DisjointClasses**  
+- **Class disjointness (owl:disjointWith)**  
 The reasoner will infer assertions about the disjointness of classes, i.e.
 `DisjointClasses:` statements.  
 If there are classes `Person`, `Student` and `Professor`, such that `Person DisjointUnionOf:
 Student, Professor` holds, the reasoner will infer `DisjointClasses: Student, Professor`.
 
   
-- **EquivalentDataProperties**  
+- **Data property equivalence (owl:equivalentProperty)**  
 The reasoner will infer axioms about the equivalence of data properties,
  i.e. `EquivalentProperties` statements.  
 If there are data properties `identifier` and `enrollmentNumber`, such that `enrollmentNumber
@@ -62,15 +66,16 @@ SubPropertyOf: identifier` and `identifier SubPropertyOf: enrollmentNumber` hold
 will infer `Student EquivalentProperties: identifier, enrollmentNumber`.
 
 
-- **SubDataProperty**  
+- **Data property inclusion (rdfs:subPropertyOf)**  
 The reasoner will infer axioms about the hierarchy of data properties,
 i.e. `SubPropertyOf:` statements.  
 If there are data properties `identifier`, `studentIdentifier` and `enrollmentNumber`, such that
 `studentIdentifier SubPropertyOf: identifier` and `enrollmentNumber SubPropertyOf:
 studentIdentifier` holds, the reasoner will infer `enrollmentNumber SubPropertyOf: identifier`.
 
+
 #### Individual axiom generators
-- **ClassAssertion**  
+- **Individual class assertions (rdf:type)**  
 The reasoner will infer assertions about the classes of individuals, i.e.
 `Types:` statements.  
 Assume, there are classes `Person`, `Student` and `University` as well as the property
@@ -79,7 +84,7 @@ the individual `John` with the assertions `John Types: Person; Facts: enrolledIn
 LeipzigUniversity`, the reasoner will infer `John Types: Student`.
 
 
-- **PropertyAssertion**  
+- **Individual property assertions**  
 The reasoner will infer assertions about the properties of individuals,
 i.e. `Facts:` statements.  
 Assume, there are properties `enrolledIn` and `offers`, such that `enrolled SubPropertyChain:
@@ -87,8 +92,9 @@ enrolledIn o inverse (offers)` holds. For the individuals `John`and `LeipzigUniv
 assertions `John Facts: enrolledIn KnowledgeRepresentation` and `LeipzigUniversity Facts: offers
 KnowledgeRepresentation`,  the reasoner will infer `John Facts: enrolledIn LeipzigUniversity`.
 
+
 #### Object property axiom generators
-- **EquivalentObjectProperty**  
+- **Object property equivalence (owl:equivalentProperty)**  
 The reasoner will infer assertions about the equivalence of object
 properties, i.e. `EquivalentTo:` statements.  
 If there are object properties `hasAlternativeLecture` and `hasSameTopicAs`, such that
@@ -97,7 +103,7 @@ hasAlternativeLecture` holds, the reasoner will infer `EquivalentProperties: has
 hasSameTopicAs`.
 
 
-- **InverseObjectProperties**  
+- **Object property inversion (owl:inverseOf)**  
 The reasoner will infer axioms about the inversion about object
 properties, i.e. `InverseOf:` statements.  
 If there is a object property `hasAlternativeLecture`, such that `hasAlternativeLecture
@@ -105,7 +111,7 @@ Characteristics: Symmetric` holds, the reasoner will infer `hasAlternativeLectur
 hasAlternativeLecture`.
 
 
-- **SubObjectProperty**  
+- **Object property inclusion (rdfs:subPropertyOf)**  
 The reasoner will infer axioms about the inclusion of object properties,
 i.e. `SubPropertyOf:` statements.  
 If there are object properties `enrolledIn`, `studentOf` and `hasStudent`, such that `enrolledIn
@@ -113,7 +119,7 @@ SubPropertyOf: studentOf` and `enrolledIn InverseOf: hasStudent` holds, the reas
 `hasStudent SubPropertyOf: inverse (studentOf)`.
 
 
-- **ObjectPropertyRange**  
+- **Object property ranges (rdfs:range)**  
 The reasoner will infer axioms about the ranges of object properties,
 i.e. `Range:` statements.  
 If there are classes `Student` and `Lecture` as wells as object properties `hasStudent` and
@@ -121,7 +127,7 @@ If there are classes `Student` and `Lecture` as wells as object properties `hasS
 reasoner will infer `hasStudent Range: Student`.
 
 
-- **ObjectPropertyDomain**  
+- **Object property domains (rdfs:domain)**  
 The reasoner will infer axioms about the domains of object
 properties, i.e. `Domain:` statements.  
 If there are classes `Person`, `Student` and `Professor` as wells as the object property

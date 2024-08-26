@@ -36,6 +36,20 @@ REASONERS = OrderedDict(
 
 MAX_RAM_PERCENTAGE_DEFAULT = 20
 
+
+OUTPUT_GRAPH_IRI_PARAMETER = PluginParameter(
+    param_type=GraphParameterType(
+        allow_only_autocompleted_values=False,
+        classes=[
+            "https://vocab.eccenca.com/di/Dataset",
+            "http://rdfs.org/ns/void#Dataset",
+            "http://www.w3.org/2002/07/owl#Ontology",
+        ],
+    ),
+    name="output_graph_iri",
+    label="Output graph IRI",
+)
+
 REASONER_PARAMETER = PluginParameter(
     param_type=ChoiceParameterType(REASONERS),
     name="reasoner",
