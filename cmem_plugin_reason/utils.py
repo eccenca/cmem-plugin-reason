@@ -89,7 +89,7 @@ def create_xml_catalog_file(dir_: str, graphs: dict) -> None:
 
 
 def get_graphs_tree(graph_iris: tuple) -> dict:
-    """Get graph import tree. Last item in tuple is output_graph_iri which is excluded"""
+    """Get graph import tree. Last item in graph_iris is output_graph_iris which is excluded"""
     graphs = {}
     for graph_iri in graph_iris[:-1]:
         if graph_iri not in graphs:
