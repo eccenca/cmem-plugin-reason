@@ -338,7 +338,7 @@ class ReasonPlugin(WorkflowPlugin):
             f"--remove-annotations "
             f'--language-annotation rdfs:label "{self.get_output_graph_label()}" en '
             f"--language-annotation rdfs:comment "
-            f'"Reasoning result set of <{self.data_graph_iri}> and '
+            f'"Reasoning results of data graph <{self.data_graph_iri}> with ontology '
             f'<{self.ontology_graph_iri}>" en '
             f'--link-annotation dc:source "{self.data_graph_iri}" '
             f'--link-annotation dc:source "{self.ontology_graph_iri}" '
