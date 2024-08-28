@@ -9,7 +9,8 @@
 <https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/> rdf:type owl:Ontology ;
                                                    rdfs:comment "Vocabulary for a reasoning use case"@en ;
                                                    rdfs:label "Eccenca Reasoning Vocabulary"@en ;
-                                                   rdfs:seeAlso <http://owl.man.ac.uk/2006/07/sssw/people> .
+                                                   rdfs:seeAlso <http://owl.man.ac.uk/2006/07/sssw/people> ;
+                                                   owl:imports <https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab2/> .
 
 #################################################################
 #    Object Properties
@@ -141,16 +142,6 @@ owl:Thing rdf:type owl:Class .
        rdfs:label "adult"^^xsd:string .
 
 
-###  https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/animal
-:animal rdf:type owl:Class ;
-        rdfs:subClassOf [ rdf:type owl:Restriction ;
-                          owl:onProperty :eats ;
-                          owl:someValuesFrom owl:Thing
-                        ] ;
-        rdfs:comment ""^^xsd:string ;
-        rdfs:isDefinedBy <https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/> ;
-        rdfs:label "animal"^^xsd:string .
-
 
 ###  https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/animal_lover
 :animal_lover rdf:type owl:Class ;
@@ -261,19 +252,6 @@ owl:Thing rdf:type owl:Class .
            rdfs:label "cat liker"^^xsd:string .
 
 
-###  https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/cat_owner
-:cat_owner rdf:type owl:Class ;
-           owl:equivalentClass [ owl:intersectionOf ( :person
-                                                      [ rdf:type owl:Restriction ;
-                                                        owl:onProperty :has_pet ;
-                                                        owl:someValuesFrom :cat
-                                                      ]
-                                                    ) ;
-                                 rdf:type owl:Class
-                               ] ;
-           rdfs:comment ""^^xsd:string ;
-           rdfs:isDefinedBy <https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/> ;
-           rdfs:label "cat owner"^^xsd:string .
 
 
 ###  https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/company

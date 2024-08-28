@@ -20,9 +20,13 @@ from . import __path__
 
 UID = "e02aaed014c94e0c91bf960fed127750"
 REASON_DATA_GRAPH_IRI = f"https://ns.eccenca.com/reasoning/{UID}/data/"
-REASON_ONTOLOGY_GRAPH_IRI = f"https://ns.eccenca.com/reasoning/{UID}/vocab/"
+REASON_ONTOLOGY_GRAPH_IRI_1 = f"https://ns.eccenca.com/reasoning/{UID}/vocab/"
+REASON_ONTOLOGY_GRAPH_IRI_2 = f"https://ns.eccenca.com/reasoning/{UID}/vocab2/"
+REASON_ONTOLOGY_GRAPH_IRI_3 = f"https://ns.eccenca.com/reasoning/{UID}/vocab3/"
 REASON_RESULT_GRAPH_IRI = f"https://ns.eccenca.com/reasoning/{UID}/result/"
-VALIDATE_ONTOLOGY_GRAPH_IRI = f"https://ns.eccenca.com/validateontology/{UID}/vocab/"
+VALIDATE_ONTOLOGY_GRAPH_IRI_1 = f"https://ns.eccenca.com/validateontology/{UID}/vocab/"
+VALIDATE_ONTOLOGY_GRAPH_IRI_2 = f"https://ns.eccenca.com/validateontology/{UID}/vocab2/"
+VALIDATE_ONTOLOGY_GRAPH_IRI_3 = f"https://ns.eccenca.com/validateontology/{UID}/vocab3/"
 OUTPUT_GRAPH_IRI = f"https://ns.eccenca.com/validateontology/{UID}/output/"
 MD_FILENAME = f"{UID}.md"
 PROJECT_ID = f"validate_plugin_test_project_{UID}"
@@ -37,31 +41,39 @@ def get_value_dict(entities: Entities) -> dict:
     return value_dict
 
 
+def import_graph(iri: str, filename: str) -> None:
+    """Import graph to CMEM"""
+    res = post(iri, Path(__path__[0]) / filename, replace=True)
+    if res.status_code != 204:  # noqa: PLR2004
+        raise ValueError(f"Response {res.status_code}: {res.url}")
+
+
 @pytest.fixture()
 def _setup(request: pytest.FixtureRequest) -> None:
     """Set up"""
-    res = post(REASON_DATA_GRAPH_IRI, Path(__path__[0]) / "dataset_owl.ttl", replace=True)
-    if res.status_code != 204:  # noqa: PLR2004
-        raise ValueError(f"Response {res.status_code}: {res.url}")
-    res = post(REASON_ONTOLOGY_GRAPH_IRI, Path(__path__[0]) / "vocab.ttl", replace=True)
-    if res.status_code != 204:  # noqa: PLR2004
-        raise ValueError(f"Response {res.status_code}: {res.url}")
+    import_graph(REASON_DATA_GRAPH_IRI, "dataset_owl.ttl")
+    import_graph(REASON_ONTOLOGY_GRAPH_IRI_1, "test_reason_ontology_1.ttl")
+    import_graph(REASON_ONTOLOGY_GRAPH_IRI_2, "test_reason_ontology_2.ttl")
+    import_graph(REASON_ONTOLOGY_GRAPH_IRI_3, "test_reason_ontology_3.ttl")
 
     with suppress(Exception):
         delete_project(PROJECT_ID)
     make_new_project(PROJECT_ID)
-    res = post(
-        VALIDATE_ONTOLOGY_GRAPH_IRI, Path(__path__[0]) / "test_validate_ontology.ttl", replace=True
-    )
-    if res.status_code != 204:  # noqa: PLR2004
-        raise ValueError(f"Response {res.status_code}: {res.url}")
+
+    import_graph(VALIDATE_ONTOLOGY_GRAPH_IRI_1, "test_validate_ontology_1.ttl")
+    import_graph(VALIDATE_ONTOLOGY_GRAPH_IRI_2, "test_validate_ontology_2.ttl")
+    import_graph(VALIDATE_ONTOLOGY_GRAPH_IRI_3, "test_validate_ontology_3.ttl")
 
     request.addfinalizer(lambda: delete(REASON_DATA_GRAPH_IRI))
-    request.addfinalizer(lambda: delete(REASON_ONTOLOGY_GRAPH_IRI))
+    request.addfinalizer(lambda: delete(REASON_ONTOLOGY_GRAPH_IRI_1))
+    request.addfinalizer(lambda: delete(REASON_ONTOLOGY_GRAPH_IRI_2))
+    request.addfinalizer(lambda: delete(REASON_ONTOLOGY_GRAPH_IRI_3))
     request.addfinalizer(lambda: delete(REASON_RESULT_GRAPH_IRI))
     request.addfinalizer(lambda: delete_project(PROJECT_ID))
     request.addfinalizer(lambda: delete(OUTPUT_GRAPH_IRI))
-    request.addfinalizer(lambda: delete(VALIDATE_ONTOLOGY_GRAPH_IRI))  # noqa: PT021
+    request.addfinalizer(lambda: delete(VALIDATE_ONTOLOGY_GRAPH_IRI_1))
+    request.addfinalizer(lambda: delete(VALIDATE_ONTOLOGY_GRAPH_IRI_2))
+    request.addfinalizer(lambda: delete(VALIDATE_ONTOLOGY_GRAPH_IRI_3))  # noqa: PT021
 
 
 @needs_cmem
@@ -81,7 +93,7 @@ def tests(_setup: None) -> None:  # noqa: C901
     def test_reasoner(reasoner: str, err_list: list) -> list:
         ReasonPlugin(
             data_graph_iri=REASON_DATA_GRAPH_IRI,
-            ontology_graph_iri=REASON_ONTOLOGY_GRAPH_IRI,
+            ontology_graph_iri=REASON_ONTOLOGY_GRAPH_IRI_1,
             output_graph_iri=REASON_RESULT_GRAPH_IRI,
             reasoner=reasoner,
             sub_class=False,
@@ -99,7 +111,7 @@ def tests(_setup: None) -> None:  # noqa: C901
 
     def test_validate(errors: str) -> str:
         result = ValidatePlugin(
-            ontology_graph_iri=VALIDATE_ONTOLOGY_GRAPH_IRI,
+            ontology_graph_iri=VALIDATE_ONTOLOGY_GRAPH_IRI_1,
             output_graph_iri=OUTPUT_GRAPH_IRI,
             reasoner="elk",
             validate_profile=True,
@@ -116,7 +128,7 @@ def tests(_setup: None) -> None:  # noqa: C901
 
         if value_dict["markdown"] != md_test:
             val_errors += 'EntityPath "markdown" output error. '
-        if value_dict["ontology_graph_iri"] != VALIDATE_ONTOLOGY_GRAPH_IRI:
+        if value_dict["ontology_graph_iri"] != VALIDATE_ONTOLOGY_GRAPH_IRI_1:
             val_errors += 'EntityPath "ontology_graph_iri" output error. '
         if value_dict["reasoner"] != "elk":
             val_errors += 'EntityPath "reasoner" output error. '

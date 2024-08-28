@@ -1,0 +1,24 @@
+@prefix : <https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@base <https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab2/> .
+
+<https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab2/> rdf:type owl:Ontology ;
+                                                   rdfs:comment "Vocabulary for a reasoning use case"@en ;
+                                                   rdfs:label "Eccenca Reasoning Vocabulary"@en ;
+                                                   rdfs:seeAlso <http://owl.man.ac.uk/2006/07/sssw/people> ;
+                                                   owl:imports <https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab3/> .
+
+
+###  https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/animal
+:animal rdf:type owl:Class ;
+        rdfs:subClassOf [ rdf:type owl:Restriction ;
+                          owl:onProperty :eats ;
+                          owl:someValuesFrom owl:Thing
+                        ] ;
+        rdfs:comment ""^^xsd:string ;
+        rdfs:isDefinedBy <https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/> ;
+        rdfs:label "animal"^^xsd:string .

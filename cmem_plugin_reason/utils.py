@@ -209,7 +209,7 @@ def validate_profiles(plugin: WorkflowPlugin, graphs: dict) -> list:
     valid_profiles = []
     for profile in ("Full", "DL", "EL", "QL", "RL"):
         plugin.log.info(f"Validating {profile} profile.")
-        cmd = f"validate-profile --profile {profile} --input {ontology_location}"
+        cmd = f"merge --input {ontology_location} validate-profile --profile {profile}"
         response = robot(cmd, plugin.max_ram_percentage)
         if response.stdout.endswith(b"[Ontology and imports closure in profile]\n\n"):
             valid_profiles.append(profile)
