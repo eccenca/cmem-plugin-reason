@@ -219,7 +219,7 @@ def validate_profiles(plugin: WorkflowPlugin, graphs: dict) -> list:
 
 
 def post_profiles(plugin: WorkflowPlugin, valid_profiles: list) -> None:
-    """Validate OWL2 profiles"""
+    """Post OWL2 profiles"""
     if valid_profiles:
         profiles = '", "'.join(valid_profiles)
         query = f"""
