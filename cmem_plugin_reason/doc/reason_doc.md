@@ -1,33 +1,5 @@
-
-
-# cmem-plugin-reason
-
-This [eccenca](https://eccenca.com) [Corporate Memory](https://documentation.eccenca.com) workflow plugin bundle contains plugins performing reasoning (Reason) and ontology consistency checking (Validate) using [ROBOT](http://robot.obolibrary.org/).
-
-[![eccenca Corporate Memory](https://img.shields.io/badge/eccenca-Corporate%20Memory-orange)](https://documentation.eccenca.com) [![workflow](https://github.com/eccenca/cmem-plugin-pyshacl/actions/workflows/check.yml/badge.svg)](https://github.com/eccenca/cmem-plugin-pyshacl/actions) [![pypi version](https://img.shields.io/pypi/v/cmem-plugin-reason)](https://pypi.org/project/cmem-plugin-reason/) [![license](https://img.shields.io/pypi/l/cmem-plugin-reason)](https://pypi.org/project/cmem-plugin-reasom)
-
-ROBOT is published under the [BSD 3-Clause "New" or "Revised" License](https://choosealicense.com/licenses/bsd-3-clause/).
-Copyright © 2015, the authors. All rights reserved.
-
-## Build
-
-```
-➜ task clean build
-```
-
-## Installation
-
-```
-➜ cmemc admin workspace python install dist/*.tar.gz
-```
-
-Alternatively, the _build_ and _installation_ process can be initiated with the single command:
-
-```
-➜ task deploy
-```
-
-# Reason
+A task performing OWL reasoning. With an OWL ontology and a data graph as input the reasoning result is written to a specified graph.
+    
 ## Options
 
 ### Data graph IRI
@@ -157,6 +129,7 @@ If there are classes `Person`, `Student` and `Professor` as wells as the object 
 `hasRoleIn`, such that `Professor SubClassOf: Person`, `Student SubClassOf: Person` and
 `hasRoleIn Domain: Professor or Student` holds, the reasoner will infer `hasRoleIn Domain: Person`.
 
+
 ### Validate OWL2 profiles
 
 Validate the input ontology against OWL profiles (DL, EL, QL, RL, and Full) and annotate the result graph. 
@@ -174,71 +147,6 @@ Add the triple `<output_graph_iri> owl:imports <ontology_graph_iri>` to the outp
 ### Add result graph import to ontology graph
 
 Add the triple `<ontology_graph_iri> owl:imports <output_graph_iri>` to the ontology graph
-
-### Maximum RAM Percentage
-
-Maximum heap size for the Java virtual machine in the DI container running the reasoning process.
-
-⚠️ Setting the percentage too high may result in an out of memory error.
-
-# Validate
-
-The plugin outputs the explanation as text in Markdown format on the path "markdown",
-the ontology IRI on the path "ontology_graph_iri", and (if enabled) the valid OWL2 profiles on the path "valid_profiles" as 
-a comma-separated string.
-
-## Options
-
-### Ontology graph IRI
-
-The IRI of the input ontology graph. The graph IRI is selected from a list of graphs of type`owl:Ontology`.
-
-### Reasoner
-
-The following reasoner options are supported: 
-- [ELK](https://code.google.com/p/elk-reasoner/) (elk)
-- [Expression Materializing Reasoner](http://static.javadoc.io/org.geneontology/expression-materializing-reasoner/0.1.3/org/geneontology/reasoner/ExpressionMaterializingReasoner.html) (emr)
-- [HermiT](http://www.hermit-reasoner.com/) (hermit)
-- [JFact](http://jfact.sourceforge.net/) (jfact)
-- [Structural Reasoner](http://owlcs.github.io/owlapi/apidocs_4/org/semanticweb/owlapi/reasoner/structural/StructuralReasoner.html) (structural)
-- [Whelk](https://github.com/balhoff/whelk) (whelk)
-
-### Produce output graph
-
-If enabled, an explanation graph is created.
-
-### Output graph IRI
-
-The IRI of the output graph for the reasoning result.
-
-⚠️ Existing graphs will be overwritten.
-
-### Write markdown explanation file
-
-If enabled, an explanation markdown file is written to the project.
-
-### Output filename
-
-The filename of the Markdown file with the explanation of inconsistencies.
-
-⚠️ Existing files will be overwritten.
-
-### Stop at inconsistencies
-Raise an error if inconsistencies are found. If enabled, the plugin does not output entities.
-
-### Mode
-Mode _inconsistency_ generates an explanation for an inconsistent ontology.  
-Mode _unsatisfiability_ generates explanations for many unsatisfiable classes at once.
-
-### Validate OWL2 profiles
-
-Validate the input ontology against OWL profiles (DL, EL, QL, RL, and Full) and annotate the result graph.
-
-### Output entities
-
-Output entities. The plugin outputs the explanation as text in Markdown format on the path "markdown", the ontology IRI
-on the path "ontology_graph_iri", the reasoner option on the path "reasoner", and, if enabled, the valid OWL2 profiles
-on the path "valid_profiles".
 
 ### Maximum RAM Percentage
 

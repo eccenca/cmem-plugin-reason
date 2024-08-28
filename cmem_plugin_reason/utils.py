@@ -13,6 +13,7 @@ from cmem.cmempy.dp.proxy.sparql import post as post_select
 from cmem.cmempy.dp.proxy.update import post as post_update
 from cmem_plugin_base.dataintegration.context import ExecutionContext
 from cmem_plugin_base.dataintegration.description import PluginParameter
+from cmem_plugin_base.dataintegration.parameter.choice import ChoiceParameterType
 from cmem_plugin_base.dataintegration.parameter.graph import GraphParameterType
 from cmem_plugin_base.dataintegration.plugins import WorkflowPlugin
 from cmem_plugin_base.dataintegration.types import BoolParameterType, IntParameterType
@@ -20,11 +21,7 @@ from defusedxml import minidom
 
 from . import __path__
 
-with (Path(__path__[0]) / "reason_doc.md").open("r") as f:
-    REASON_DOC = f.read()
-
-with (Path(__path__[0]) / "validate_doc.md").open("r") as f:
-    VALIDATE_DOC = f.read()
+ROBOT = Path(__path__[0]) / "robot.jar"
 
 REASONERS = OrderedDict(
     {
@@ -38,6 +35,14 @@ REASONERS = OrderedDict(
 )
 
 MAX_RAM_PERCENTAGE_DEFAULT = 20
+
+
+REASONER_PARAMETER = PluginParameter(
+    param_type=ChoiceParameterType(REASONERS),
+    name="reasoner",
+    label="Reasoner",
+    description="Reasoner option.",
+)
 
 ONTOLOGY_GRAPH_IRI_PARAMETER = PluginParameter(
     param_type=GraphParameterType(classes=["http://www.w3.org/2002/07/owl#Ontology"]),
@@ -84,7 +89,7 @@ def create_xml_catalog_file(dir_: str, graphs: dict) -> None:
 
 
 def get_graphs_tree(graph_iris: tuple) -> dict:
-    """Get graph import tree. Last item in tuple is output_graph_iri which is excluded"""
+    """Get graph import tree. Last item in graph_iris is output_graph_iris which is excluded"""
     graphs = {}
     for graph_iri in graph_iris[:-1]:
         if graph_iri not in graphs:
@@ -194,8 +199,7 @@ def get_provenance(plugin: WorkflowPlugin, context: ExecutionContext) -> dict | 
 
 def robot(cmd: str, max_ram_percentage: int) -> CompletedProcess:
     """Run robot.jar"""
-    jar = Path(__path__[0]) / "bin" / "robot.jar"
-    cmd = f"java -XX:MaxRAMPercentage={max_ram_percentage} -jar {jar} {cmd}"
+    cmd = f"java -XX:MaxRAMPercentage={max_ram_percentage} -jar {ROBOT} {cmd}"
     return run(shlex.split(cmd), check=False, capture_output=True)  # noqa: S603
 
 
@@ -205,7 +209,7 @@ def validate_profiles(plugin: WorkflowPlugin, graphs: dict) -> list:
     valid_profiles = []
     for profile in ("Full", "DL", "EL", "QL", "RL"):
         plugin.log.info(f"Validating {profile} profile.")
-        cmd = f"validate-profile --profile {profile} --input {ontology_location}"
+        cmd = f"merge --input {ontology_location} validate-profile --profile {profile}"
         response = robot(cmd, plugin.max_ram_percentage)
         if response.stdout.endswith(b"[Ontology and imports closure in profile]\n\n"):
             valid_profiles.append(profile)

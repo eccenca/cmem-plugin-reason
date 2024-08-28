@@ -1,5 +1,6 @@
 """Ontology consistency validation workflow plugin module"""
 
+from collections import OrderedDict
 from datetime import UTC, datetime
 from pathlib import Path
 from tempfile import TemporaryDirectory
@@ -19,12 +20,13 @@ from cmem_plugin_base.dataintegration.types import BoolParameterType, StringPara
 from cmem_plugin_base.dataintegration.utils import setup_cmempy_user_access
 from pathvalidate import is_valid_filename
 
+from cmem_plugin_reason.doc import VALIDATE_DOC
 from cmem_plugin_reason.utils import (
     MAX_RAM_PERCENTAGE_DEFAULT,
     MAX_RAM_PERCENTAGE_PARAMETER,
     ONTOLOGY_GRAPH_IRI_PARAMETER,
+    REASONER_PARAMETER,
     REASONERS,
-    VALIDATE_DOC,
     VALIDATE_PROFILES_PARAMETER,
     create_xml_catalog_file,
     get_graphs_tree,
@@ -46,6 +48,15 @@ from cmem_plugin_reason.utils import (
         ONTOLOGY_GRAPH_IRI_PARAMETER,
         MAX_RAM_PERCENTAGE_PARAMETER,
         VALIDATE_PROFILES_PARAMETER,
+        REASONER_PARAMETER,
+        PluginParameter(
+            param_type=StringParameterType(),
+            name="md_filename",
+            label="Output filename",
+            description="The filename of the Markdown file with the explanation of "
+            "inconsistencies.⚠️ Existing files will be overwritten.",
+            default_value="",
+        ),
         PluginParameter(
             param_type=GraphParameterType(
                 allow_only_autocompleted_values=False,
@@ -62,20 +73,6 @@ from cmem_plugin_reason.utils import (
             default_value="",
         ),
         PluginParameter(
-            param_type=ChoiceParameterType(REASONERS),
-            name="reasoner",
-            label="Reasoner",
-            description="Reasoner option.",
-        ),
-        PluginParameter(
-            param_type=StringParameterType(),
-            name="md_filename",
-            label="Output filename",
-            description="The filename of the Markdown file with the explanation of "
-            "inconsistencies.⚠️ Existing files will be overwritten.",
-            default_value="",
-        ),
-        PluginParameter(
             param_type=BoolParameterType(),
             name="stop_at_inconsistencies",
             label="Stop at inconsistencies",
@@ -88,21 +85,39 @@ from cmem_plugin_reason.utils import (
             name="output_entities",
             label="Output entities",
             description="""Output entities. The plugin outputs the explanation as text in Markdown
-            format on the path "markdown", the ontology IRI on the path "ontology_graph_iri", and,
-            if enabled, the valid OWL2 profiles on the path "valid_profiles".""",
+            format on the path "markdown", the ontology IRI on the path "ontology_graph_iri", the
+            reasoner option on the path "reasoner", and, if enabled, the valid OWL2 profiles on the
+            path "valid_profiles".""",
             default_value=False,
+        ),
+        PluginParameter(
+            param_type=ChoiceParameterType(
+                OrderedDict(
+                    {
+                        "inconsistency": "inconsistency",
+                        "unsatisfiability": "unsatisfiability",
+                    }
+                )
+            ),
+            name="mode",
+            label="Mode",
+            description="""Mode "inconsistency" generates an explanation for an inconsistent
+            ontology. Mode "unsatisfiability" generates explanations for many unsatisfiable classes
+            at once.""",
+            default_value="inconsistency",
         ),
     ],
 )
 class ValidatePlugin(WorkflowPlugin):
     """Validate plugin"""
 
-    def __init__(  # noqa: PLR0913 C901
+    def __init__(  # noqa: PLR0912 PLR0913 C901
         self,
         ontology_graph_iri: str,
         reasoner: str,
         output_graph_iri: str = "",
         md_filename: str = "",
+        mode: str = "inconsistency",
         validate_profile: bool = False,
         output_entities: bool = False,
         stop_at_inconsistencies: bool = False,
@@ -121,6 +136,8 @@ class ValidatePlugin(WorkflowPlugin):
             errors += 'Invalid filename for parameter "Output filename". '
         if not output_graph_iri and not md_filename and not output_entities:
             errors += "No output selected. "
+        if mode not in ("inconsistency", "unsatisfiability"):
+            errors += 'Invalid value for parameter "Mode". '
         if max_ram_percentage not in range(1, 101):
             errors += 'Invalid value for parameter "Maximum RAM Percentage". '
         if errors:
@@ -128,6 +145,7 @@ class ValidatePlugin(WorkflowPlugin):
         self.ontology_graph_iri = ontology_graph_iri
         self.reasoner = reasoner
         self.output_graph_iri = output_graph_iri
+        self.mode = mode
         self.stop_at_inconsistencies = stop_at_inconsistencies
         if md_filename:
             self.md_filename = md_filename
@@ -148,7 +166,7 @@ class ValidatePlugin(WorkflowPlugin):
 
     def generate_output_schema(self) -> EntitySchema | None:
         """Generate output entity schema."""
-        paths = [EntityPath("markdown"), EntityPath("ontology_graph_iri")]
+        paths = [EntityPath("markdown"), EntityPath("ontology_graph_iri"), EntityPath("reasoner")]
         if self.validate_profile:
             paths.append(EntityPath("valid_profiles"))
         return EntitySchema(type_uri="validate", paths=paths)
@@ -167,7 +185,7 @@ class ValidatePlugin(WorkflowPlugin):
         utctime = str(datetime.fromtimestamp(int(time()), tz=UTC))[:-6].replace(" ", "T") + "Z"
         cmd = (
             f'explain --input "{data_location}" '
-            f"--reasoner {self.reasoner} -M inconsistency "
+            f"--reasoner {self.reasoner} -M {self.mode} "
             f'--explanation "{self.temp}/{self.md_filename}"'
         )
         if self.output_graph_iri:
@@ -210,7 +228,7 @@ class ValidatePlugin(WorkflowPlugin):
 
     def make_entities(self, text: str, valid_profiles: list) -> Entities:
         """Make entities"""
-        values = [[text], [self.ontology_graph_iri]]
+        values = [[text], [self.ontology_graph_iri], [self.reasoner]]
         if self.validate_profile:
             values.append([",".join(valid_profiles)])
         entities = [
@@ -269,7 +287,7 @@ class ValidatePlugin(WorkflowPlugin):
         return None
 
     def execute(self, inputs: None, context: ExecutionContext) -> Entities | None:  # noqa: ARG002
-        """Remove temp files on error"""
+        """Execute plugin with temporary directory"""
         context.report.update(
             ExecutionReport(
                 operation="validate",

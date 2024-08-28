@@ -10,7 +10,6 @@ from cmem.cmempy.dp.proxy.graph import get
 from cmem.cmempy.dp.proxy.update import post
 from cmem_plugin_base.dataintegration.context import ExecutionContext, ExecutionReport
 from cmem_plugin_base.dataintegration.description import Icon, Plugin, PluginParameter
-from cmem_plugin_base.dataintegration.parameter.choice import ChoiceParameterType
 from cmem_plugin_base.dataintegration.parameter.graph import GraphParameterType
 from cmem_plugin_base.dataintegration.plugins import WorkflowPlugin
 from cmem_plugin_base.dataintegration.ports import FixedNumberOfInputs
@@ -18,11 +17,12 @@ from cmem_plugin_base.dataintegration.types import BoolParameterType, StringPara
 from cmem_plugin_base.dataintegration.utils import setup_cmempy_user_access
 from inflection import underscore
 
+from cmem_plugin_reason.doc import REASON_DOC
 from cmem_plugin_reason.utils import (
     MAX_RAM_PERCENTAGE_DEFAULT,
     MAX_RAM_PERCENTAGE_PARAMETER,
     ONTOLOGY_GRAPH_IRI_PARAMETER,
-    REASON_DOC,
+    REASONER_PARAMETER,
     REASONERS,
     VALIDATE_PROFILES_PARAMETER,
     create_xml_catalog_file,
@@ -35,6 +35,8 @@ from cmem_plugin_reason.utils import (
     validate_profiles,
 )
 
+REASONER_PARAMETER.description += " Select axiom generators below [Click (?) for documentation]."
+
 
 @Plugin(
     label="Reason",
@@ -44,27 +46,8 @@ from cmem_plugin_reason.utils import (
     parameters=[
         ONTOLOGY_GRAPH_IRI_PARAMETER,
         VALIDATE_PROFILES_PARAMETER,
+        REASONER_PARAMETER,
         MAX_RAM_PERCENTAGE_PARAMETER,
-        PluginParameter(
-            param_type=GraphParameterType(
-                allow_only_autocompleted_values=False,
-                classes=[
-                    "https://vocab.eccenca.com/di/Dataset",
-                    "http://rdfs.org/ns/void#Dataset",
-                    "http://www.w3.org/2002/07/owl#Ontology",
-                ],
-            ),
-            name="output_graph_iri",
-            label="Output graph IRI",
-            description="""The IRI of the output graph for the inconsistency validation. ⚠️ Existing
-            graphs will be overwritten.""",
-        ),
-        PluginParameter(
-            param_type=ChoiceParameterType(REASONERS),
-            name="reasoner",
-            label="Reasoner",
-            description="Reasoner option. Additionally, select axiom generators below.",
-        ),
         PluginParameter(
             param_type=GraphParameterType(
                 classes=[
@@ -78,101 +61,111 @@ from cmem_plugin_reason.utils import (
             description="The IRI of the input data graph.",
         ),
         PluginParameter(
+            param_type=GraphParameterType(
+                allow_only_autocompleted_values=False,
+                classes=["http://www.w3.org/2002/07/owl#Ontology"],
+            ),
+            name="output_graph_iri",
+            label="Output graph IRI",
+            description="""The IRI of the output graph for the reasoning result. ⚠️ Existing graphs
+            will be overwritten.""",
+        ),
+        PluginParameter(
             param_type=BoolParameterType(),
             name="sub_class",
-            label="SubClass",
-            description="",
-            default_value=True,
+            label="Class inclusion (rdfs:subClassOf)",
+            # description=SUBCLASS_DESC,
+            default_value=False,
         ),
         PluginParameter(
             param_type=BoolParameterType(),
             name="equivalent_class",
-            label="EquivalentClass",
-            description="",
+            label="Class equivalence (owl:equivalentClass)",
+            # description=EQUIVALENCE_DESC,
             default_value=False,
         ),
         PluginParameter(
             param_type=BoolParameterType(),
             name="disjoint_classes",
-            label="DisjointClasses",
-            description="",
+            label="Class disjointness (owl:disjointWith)",
+            # description=DISJOINT_DESC,
             default_value=False,
         ),
-        PluginParameter(
-            param_type=BoolParameterType(),
-            name="data_property_characteristic",
-            label="DataPropertyCharacteristic",
-            description="",
-            default_value=False,
-        ),
+        # PluginParameter(
+        #     param_type=BoolParameterType(),
+        #     name="data_property_characteristic",
+        #     label="Data property characteristics (Axiomatic triples)",
+        #     description=DATA_PROP_CHAR_DESC,
+        #     default_value=False,
+        # ),
         PluginParameter(
             param_type=BoolParameterType(),
             name="equivalent_data_properties",
-            label="EquivalentDataProperties",
-            description="",
+            label="Data property equivalence (owl:equivalentProperty)",
+            # description=DATA_PROP_EQUIV_DESC,
             default_value=False,
         ),
         PluginParameter(
             param_type=BoolParameterType(),
             name="sub_data_property",
-            label="SubDataProperty",
-            description="",
+            label="Data property inclusion (rdfs:subPropertyOf)",
+            # description=DATA_PROP_SUB_DESC,
             default_value=False,
         ),
         PluginParameter(
             param_type=BoolParameterType(),
             name="class_assertion",
-            label="ClassAssertion",
-            description="",
-            default_value=False,
+            label="Individual class assertions (rdf:type)",
+            # description=CLASS_ASSERT_DESC,
+            default_value=True,
         ),
         PluginParameter(
             param_type=BoolParameterType(),
             name="property_assertion",
-            label="PropertyAssertion",
-            description="",
-            default_value=False,
+            label="Individual property assertions",
+            # description=PROPERTY_ASSERT_DESC,
+            default_value=True,
         ),
         PluginParameter(
             param_type=BoolParameterType(),
             name="equivalent_object_property",
-            label="EquivalentObjectProperty",
-            description="",
+            label="Object property equivalence (owl:equivalentProperty)",
+            # description=OBJECT_PROP_EQUIV_DESC,
             default_value=False,
         ),
         PluginParameter(
             param_type=BoolParameterType(),
             name="inverse_object_properties",
-            label="InverseObjectProperties",
-            description="",
+            label="Object property inversion (owl:inverseOf)",
+            # description=OBJECT_PROP_INV_DESC,
             default_value=False,
         ),
-        PluginParameter(
-            param_type=BoolParameterType(),
-            name="object_property_characteristic",
-            label="ObjectPropertyCharacteristic",
-            description="",
-            default_value=False,
-        ),
+        # PluginParameter(
+        #     param_type=BoolParameterType(),
+        #     name="object_property_characteristic",
+        #     label="Object property characteristic (Axiomatic triples)",
+        #     description=OBJECT_PROP_CHAR_DESC,
+        #     default_value=False,
+        # ),
         PluginParameter(
             param_type=BoolParameterType(),
             name="sub_object_property",
-            label="SubObjectProperty",
-            description="",
+            label="Object property inclusion (rdfs:subPropertyOf)",
+            # description=OBJECT_PROP_SUB_DESC,
             default_value=False,
         ),
         PluginParameter(
             param_type=BoolParameterType(),
             name="object_property_range",
-            label="ObjectPropertyRange",
-            description="",
+            label="Object property ranges (rdfs:range)",
+            # description=OBJECT_PROP_RANGE_DESC,
             default_value=False,
         ),
         PluginParameter(
             param_type=BoolParameterType(),
             name="object_property_domain",
-            label="ObjectPropertyDomain",
-            description="",
+            label="Object property domains (rdfs:domain)",
+            # description=OBJECT_PROP_DOMAIN_DESC,
             default_value=False,
         ),
         PluginParameter(
@@ -180,9 +173,10 @@ from cmem_plugin_reason.utils import (
             name="input_profiles",
             label="Process valid OWL profiles from input",
             description="""If enabled along with the "Validate OWL2 profiles" parameter, the valid
-            profiles and ontology IRI is taken from the config port input (parameters
-            "valid_profiles" and "ontology_graph_iri") instead of from running the validation in the
-            plugin. The valid profiles input is a comma-separated string (e.g. "Full,DL").""",
+            profiles, ontology IRI and reasoner option is taken from the config port input
+            (parameters "valid_profiles", "ontology_graph_iri" and "reasoner") and the OWL2 profiles
+            validation is not done in the plugin. The valid profiles input is a comma-separated
+            string (e.g. "Full,DL").""",
             default_value=False,
             advanced=True,
         ),
@@ -221,20 +215,23 @@ class ReasonPlugin(WorkflowPlugin):
         ontology_graph_iri: str,
         output_graph_iri: str,
         reasoner: str,
-        class_assertion: bool = False,
-        data_property_characteristic: bool = False,
-        disjoint_classes: bool = False,
+        class_assertion: bool = True,
+        property_assertion: bool = True,
+        sub_class: bool = False,
         equivalent_class: bool = False,
-        equivalent_data_properties: bool = False,
+        disjoint_classes: bool = False,
+        sub_object_property: bool = False,
         equivalent_object_property: bool = False,
-        inverse_object_properties: bool = False,
-        object_property_characteristic: bool = False,
+        #   This axiom generator does not yield any results.
+        #   Issue: https://github.com/eccenca/cmem-plugin-reason/issues/10
+        #   object_property_characteristic: bool = False,
         object_property_domain: bool = False,
         object_property_range: bool = False,
-        property_assertion: bool = False,
-        sub_class: bool = True,
+        inverse_object_properties: bool = False,
         sub_data_property: bool = False,
-        sub_object_property: bool = False,
+        equivalent_data_properties: bool = False,
+        #   Removed because the object property counterpart does not work
+        #   data_property_characteristic: bool = False,
         validate_profile: bool = False,
         import_ontology: bool = True,
         import_result: bool = False,
@@ -246,14 +243,14 @@ class ReasonPlugin(WorkflowPlugin):
             "SubClass": sub_class,
             "EquivalentClass": equivalent_class,
             "DisjointClasses": disjoint_classes,
-            "DataPropertyCharacteristic": data_property_characteristic,
+            # "DataPropertyCharacteristic": data_property_characteristic,
             "EquivalentDataProperties": equivalent_data_properties,
             "SubDataProperty": sub_data_property,
             "ClassAssertion": class_assertion,
             "PropertyAssertion": property_assertion,
             "EquivalentObjectProperty": equivalent_object_property,
             "InverseObjectProperties": inverse_object_properties,
-            "ObjectPropertyCharacteristic": object_property_characteristic,
+            # "ObjectPropertyCharacteristic": object_property_characteristic,
             "SubObjectProperty": sub_object_property,
             "ObjectPropertyRange": object_property_range,
             "ObjectPropertyDomain": object_property_domain,
@@ -419,7 +416,7 @@ class ReasonPlugin(WorkflowPlugin):
         )
 
     def execute(self, inputs: None, context: ExecutionContext) -> None:  # noqa: ARG002
-        """Validate input, execute plugin with temporary directory"""
+        """Execute plugin with temporary directory"""
         context.report.update(
             ExecutionReport(
                 operation="reason",

@@ -45,10 +45,15 @@ Raise an error if inconsistencies are found. If enabled, the plugin does not out
 
 Validate the input ontology against OWL profiles (DL, EL, QL, RL, and Full) and annotate the result graph.
 
+### Mode
+Mode _inconsistency_ generates an explanation for an inconsistent ontology.  
+Mode _unsatisfiability_ generates explanations for many unsatisfiable classes at once.
+
 ### Output entities
 
 Output entities. The plugin outputs the explanation as text in Markdown format on the path "markdown", the ontology IRI
-on the path "ontology_graph_iri", and, if enabled, the valid OWL2 profiles on the path "valid_profiles
+on the path "ontology_graph_iri", the reasoner option on the path "reasoner", and, if enabled, the valid OWL2 profiles
+on the path "valid_profiles".
 
 ### Maximum RAM Percentage
 

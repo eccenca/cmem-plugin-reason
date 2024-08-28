@@ -2,9 +2,9 @@
 @prefix owl: <http://www.w3.org/2002/07/owl#> .
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
-@base <https://ns.eccenca.com/validateontology/e02aaed014c94e0c91bf960fed127750/vocab> .
+@base <https://ns.eccenca.com/validateontology/e02aaed014c94e0c91bf960fed127750/vocab3/> .
 
-<https://ns.eccenca.com/validateontology/e02aaed014c94e0c91bf960fed127750/vocab> rdf:type owl:Ontology .
+<https://ns.eccenca.com/validateontology/e02aaed014c94e0c91bf960fed127750/vocab3/> rdf:type owl:Ontology .
 
 #################################################################
 #    Classes
