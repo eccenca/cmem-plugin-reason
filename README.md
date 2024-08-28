@@ -27,6 +27,12 @@ Alternatively, the _build_ and _installation_ process can be initiated with the 
 ➜ task deploy
 ```
 
+## Development
+
+- Run [task](https://taskfile.dev/) to see all major development tasks.
+- Use [pre-commit](https://pre-commit.com/) to avoid errors before commit.
+- This repository was created with [this copier template](https://github.com/eccenca/cmem-plugin-template).
+
 # Reason
 ## Options
 
