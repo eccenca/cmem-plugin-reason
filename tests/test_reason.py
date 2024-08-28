@@ -48,7 +48,7 @@ def import_graph(iri: str, filename: str) -> None:
         raise ValueError(f"Response {res.status_code}: {res.url}")
 
 
-@pytest.fixture()
+@pytest.fixture
 def _setup(request: pytest.FixtureRequest) -> None:
     """Set up"""
     import_graph(REASON_DATA_GRAPH_IRI, "dataset_owl.ttl")
