@@ -30,6 +30,7 @@ from cmem_plugin_reason.utils import (
     VALIDATE_PROFILES_PARAMETER,
     create_xml_catalog_file,
     get_graphs_tree,
+    get_output_graph_label,
     get_provenance,
     post_profiles,
     post_provenance,
@@ -183,6 +184,7 @@ class ValidatePlugin(WorkflowPlugin):
         """Reason"""
         data_location = f"{self.temp}/{graphs[self.ontology_graph_iri]}"
         utctime = str(datetime.fromtimestamp(int(time()), tz=UTC))[:-6].replace(" ", "T") + "Z"
+        label = get_output_graph_label(self.ontology_graph_iri, "Validation Result")
         cmd = (
             f'explain --input "{data_location}" '
             f"--reasoner {self.reasoner} -M {self.mode} "
@@ -191,7 +193,7 @@ class ValidatePlugin(WorkflowPlugin):
         if self.output_graph_iri:
             cmd += (
                 f' annotate --ontology-iri "{self.output_graph_iri}" '
-                f'--language-annotation rdfs:label "Ontology Validation Result {utctime}" en '
+                f'--language-annotation rdfs:label "{label}" en '
                 f"--language-annotation rdfs:comment "
                 f'"Ontology validation of <{self.ontology_graph_iri}>" en '
                 f'--link-annotation dc:source "{self.ontology_graph_iri}" '

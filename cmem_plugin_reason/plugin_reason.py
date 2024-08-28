@@ -6,7 +6,7 @@ from tempfile import TemporaryDirectory
 from time import time
 
 import validators.url
-from cmem.cmempy.dp.proxy.graph import get, get_graphs_list
+from cmem.cmempy.dp.proxy.graph import get
 from cmem.cmempy.dp.proxy.update import post
 from cmem_plugin_base.dataintegration.context import ExecutionContext, ExecutionReport
 from cmem_plugin_base.dataintegration.description import Icon, Plugin, PluginParameter
@@ -27,6 +27,7 @@ from cmem_plugin_reason.utils import (
     VALIDATE_PROFILES_PARAMETER,
     create_xml_catalog_file,
     get_graphs_tree,
+    get_output_graph_label,
     get_provenance,
     post_profiles,
     post_provenance,
@@ -308,21 +309,12 @@ class ReasonPlugin(WorkflowPlugin):
                             f"<http://www.w3.org/2002/07/owl#imports> <{self.ontology_graph_iri}> ."
                         )
 
-    def get_output_graph_label(self) -> str:
-        """Create a label for the output graph"""
-        graphs = {_["iri"]: _ for _ in get_graphs_list()}
-        try:
-            data_graph_label = graphs[self.data_graph_iri]["label"]["title"]
-            data_graph_label += " - "
-        except KeyError:
-            data_graph_label = ""
-        return f"{data_graph_label}Reasoning Results"
-
     def reason(self, graphs: dict) -> None:
         """Reason"""
         axioms = " ".join(k for k, v in self.axioms.items() if v)
         data_location = f"{self.temp}/{graphs[self.data_graph_iri]}"
         utctime = str(datetime.fromtimestamp(int(time()), tz=UTC))[:-6].replace(" ", "T") + "Z"
+        label = get_output_graph_label(self.data_graph_iri, "Reasoning Results")
         cmd = (
             f'reason --input "{data_location}" '
             f"--reasoner {self.reasoner} "
@@ -336,7 +328,7 @@ class ReasonPlugin(WorkflowPlugin):
             f'unmerge --input "{data_location}" '
             f'annotate --ontology-iri "{self.output_graph_iri}" '
             f"--remove-annotations "
-            f'--language-annotation rdfs:label "{self.get_output_graph_label()}" en '
+            f'--language-annotation rdfs:label "{label}" en '
             f"--language-annotation rdfs:comment "
             f'"Reasoning results of data graph <{self.data_graph_iri}> with ontology '
             f'<{self.ontology_graph_iri}>" en '

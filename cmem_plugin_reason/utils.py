@@ -8,7 +8,7 @@ from secrets import token_hex
 from subprocess import CompletedProcess, run
 from xml.etree.ElementTree import Element, SubElement, tostring
 
-from cmem.cmempy.dp.proxy.graph import get_graph_import_tree, post_streamed
+from cmem.cmempy.dp.proxy.graph import get_graph_import_tree, get_graphs_list, post_streamed
 from cmem.cmempy.dp.proxy.sparql import post as post_select
 from cmem.cmempy.dp.proxy.update import post as post_update
 from cmem_plugin_base.dataintegration.context import ExecutionContext
@@ -231,3 +231,14 @@ def post_profiles(plugin: WorkflowPlugin, valid_profiles: list) -> None:
             }}
         """
         post_update(query=query)
+
+
+def get_output_graph_label(iri: str, add_string: str) -> str:
+    """Create a label for the output graph"""
+    graphs = {_["iri"]: _ for _ in get_graphs_list()}
+    try:
+        data_graph_label = graphs[iri]["label"]["title"]
+        data_graph_label += " - "
+    except KeyError:
+        data_graph_label = ""
+    return f"{data_graph_label}{add_string}"
