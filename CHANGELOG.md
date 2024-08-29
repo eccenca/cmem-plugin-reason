@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 ## [unreleased]
 
+### Added
+
+- axiom generator description in UI
+
 ### Changed
 
 - output graph label derived from input graph
@@ -23,7 +27,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 ### Changed
 
  - Validate: the entity output includes the reasoner option on path "reason"
- - Detailed axiom generator documentation
+ - detailed axiom generator documentation
  - The axiom generator ObjectPropertyCharacteristic does not yield results. Currently, this axiom generator and its
 (working) counterpart DataPropertyCharacteristic are removed from the Reason plugin.
 
