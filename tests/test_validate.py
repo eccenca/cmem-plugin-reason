@@ -13,7 +13,7 @@ from rdflib.compare import to_isomorphic
 
 from cmem_plugin_reason.plugin_validate import ValidatePlugin
 from cmem_plugin_reason.utils import REASONERS
-from tests.utils import TestExecutionContext
+from tests.utils import TestExecutionContext, needs_cmem
 from tests.utils2 import get_remote_graph, import_graph
 
 from . import __path__
@@ -54,42 +54,8 @@ def _setup(request: pytest.FixtureRequest) -> None:
     request.addfinalizer(lambda: delete(VALIDATE_ONTOLOGY_GRAPH_IRI_3))  # noqa: PT021
 
 
-# @needs_cmem
-# def tests_validate(_setup: None) -> None:
-#     """Tests for Validate plugin"""
-#     result = ValidatePlugin(
-#         ontology_graph_iri=VALIDATE_ONTOLOGY_GRAPH_IRI_1,
-#         output_graph_iri=VALIDATE_RESULT_GRAPH_IRI,
-#         reasoner="elk",
-#         validate_profile=True,
-#         md_filename=MD_FILENAME,
-#         output_entities=True,
-#         mode="inconsistency",
-#     ).execute(None, context=TestExecutionContext(PROJECT_ID))
-#
-#     md_test = (Path(__path__[0]) / "test_validate.md").read_text()
-#     value_dict = get_value_dict(result)
-#     output_graph = get_remote_graph(VALIDATE_RESULT_GRAPH_IRI)
-#     test = Graph().parse(Path(__path__[0]) / "test_validate_output.ttl", format="turtle")
-#     val_errors = ""
-#
-#     if value_dict["markdown"] != md_test:
-#         val_errors += 'EntityPath "markdown" output error. '
-#     if value_dict["ontology_graph_iri"] != VALIDATE_ONTOLOGY_GRAPH_IRI_1:
-#         val_errors += 'EntityPath "ontology_graph_iri" output error. '
-#     if value_dict["reasoner"] != "elk":
-#         val_errors += 'EntityPath "reasoner" output error. '
-#     if value_dict["valid_profiles"] != "Full,DL,EL,QL,RL":
-#         val_errors += 'EntityPath "valid_profiles" output error. '
-#     if md_test != get_resource(PROJECT_ID, MD_FILENAME).decode():
-#         val_errors += "Markdown file error. "
-#     if to_isomorphic(output_graph) != to_isomorphic(test):
-#         val_errors += "Output graph error. "
-#     if val_errors:
-#         raise AssertionError("Validate: " + val_errors[:-1])
-
-
-def tests_validate(_setup: None) -> None:
+@needs_cmem
+def tests_validate(_setup: None) -> None:  # noqa: C901
     """Tests for Validate plugin"""
 
     def test_validate(reasoner: str, err_list: list) -> list:
