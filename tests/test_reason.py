@@ -22,7 +22,7 @@ REASON_ONTOLOGY_GRAPH_IRI_3 = f"https://ns.eccenca.com/reasoning/{UID}/vocab3/"
 REASON_RESULT_GRAPH_IRI = f"https://ns.eccenca.com/reasoning/{UID}/result/"
 
 
-@pytest.fixture()
+@pytest.fixture
 def _setup(request: pytest.FixtureRequest) -> None:
     """Set up Reason test"""
     import_graph(REASON_DATA_GRAPH_IRI, "dataset_owl.ttl")
