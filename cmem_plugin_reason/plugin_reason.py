@@ -27,6 +27,7 @@ from cmem_plugin_reason.utils import (
     VALIDATE_PROFILES_PARAMETER,
     create_xml_catalog_file,
     get_graphs_tree,
+    get_output_graph_label,
     get_provenance,
     post_profiles,
     post_provenance,
@@ -313,6 +314,7 @@ class ReasonPlugin(WorkflowPlugin):
         axioms = " ".join(k for k, v in self.axioms.items() if v)
         data_location = f"{self.temp}/{graphs[self.data_graph_iri]}"
         utctime = str(datetime.fromtimestamp(int(time()), tz=UTC))[:-6].replace(" ", "T") + "Z"
+        label = get_output_graph_label(self.data_graph_iri, "Reasoning Results")
         cmd = (
             f'reason --input "{data_location}" '
             f"--reasoner {self.reasoner} "
@@ -326,9 +328,9 @@ class ReasonPlugin(WorkflowPlugin):
             f'unmerge --input "{data_location}" '
             f'annotate --ontology-iri "{self.output_graph_iri}" '
             f"--remove-annotations "
-            f'--language-annotation rdfs:label "Eccenca Reasoning Result {utctime}" en '
+            f'--language-annotation rdfs:label "{label}" en '
             f"--language-annotation rdfs:comment "
-            f'"Reasoning result set of <{self.data_graph_iri}> and '
+            f'"Reasoning results of data graph <{self.data_graph_iri}> with ontology '
             f'<{self.ontology_graph_iri}>" en '
             f'--link-annotation dc:source "{self.data_graph_iri}" '
             f'--link-annotation dc:source "{self.ontology_graph_iri}" '

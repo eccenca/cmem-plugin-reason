@@ -6,6 +6,7 @@
 
 
 <https://ns.eccenca.com/validateontology/e02aaed014c94e0c91bf960fed127750/output/> a owl:Ontology ;
+    rdfs:label "Eccenca Validate Vocabulary - Validation Result"@en ;
     rdfs:comment "Ontology validation of <https://ns.eccenca.com/validateontology/e02aaed014c94e0c91bf960fed127750/vocab/>"@en ;
     dc:source <https://ns.eccenca.com/validateontology/e02aaed014c94e0c91bf960fed127750/vocab/> .
 
