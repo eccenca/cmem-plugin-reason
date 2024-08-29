@@ -35,7 +35,7 @@ def get_value_dict(entities: Entities) -> dict:
     return value_dict
 
 
-@pytest.fixture()
+@pytest.fixture
 def _setup(request: pytest.FixtureRequest) -> None:
     """Set up Validate test"""
     with suppress(Exception):
