@@ -66,5 +66,5 @@ def tests_reason(_setup: None) -> None:
 
     if errors_list:
         errors = ""
-        errors += f"Reason: test failed for reasoners {', '.join(errors_list)}. "
+        errors += f"Test failed for reasoners {', '.join(errors_list)}."
         raise AssertionError(errors[:-1])
