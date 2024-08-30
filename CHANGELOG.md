@@ -13,6 +13,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 ### Changed
 
 - output graph label derived from input graph
+- create plugin label in provenance data
 
 ## [1.0.0rc1] 2024-08-28
 

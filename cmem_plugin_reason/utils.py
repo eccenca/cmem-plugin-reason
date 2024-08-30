@@ -136,7 +136,9 @@ def post_provenance(plugin: WorkflowPlugin, prov: dict | None) -> None:
         post_update(query=insert_query)
 
 
-def get_provenance(plugin: WorkflowPlugin, context: ExecutionContext) -> dict | None:
+def get_provenance(
+    plugin: WorkflowPlugin, label_plugin: str, context: ExecutionContext
+) -> dict | None:
     """Get provenance information"""
     plugin_iri = (
         f"http://dataintegration.eccenca.com/{context.task.project_id()}/{context.task.task_id()}"
@@ -144,10 +146,9 @@ def get_provenance(plugin: WorkflowPlugin, context: ExecutionContext) -> dict | 
     project_graph = f"http://di.eccenca.com/project/{context.task.project_id()}"
 
     type_query = f"""
-        SELECT ?type ?label {{
+        SELECT ?type {{
             GRAPH <{project_graph}> {{
                 <{plugin_iri}> a ?type .
-                <{plugin_iri}> <http://www.w3.org/2000/01/rdf-schema#label> ?label .
                 FILTER(STRSTARTS(STR(?type), "https://vocab.eccenca.com/di/functions/"))
             }}
         }}
@@ -160,7 +161,6 @@ def get_provenance(plugin: WorkflowPlugin, context: ExecutionContext) -> dict | 
     except IndexError:
         plugin.log.warning("Could not add provenance data to output graph.")
         return None
-    plugin_label = result["results"]["bindings"][0]["label"]["value"]
 
     param_split = (
         plugin_type.replace(
@@ -180,11 +180,12 @@ def get_provenance(plugin: WorkflowPlugin, context: ExecutionContext) -> dict | 
     """
 
     new_plugin_iri = f'{"_".join(plugin_iri.split("_")[:-1])}_{token_hex(8)}'
+    label = f"{label_plugin} plugin"
     result = json.loads(post_select(query=parameter_query))
 
     prov = {
         "plugin_iri": new_plugin_iri,
-        "plugin_label": plugin_label,
+        "plugin_label": label,
         "plugin_type": plugin_type,
         "parameters": {},
     }
