@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](https://semver.org/)
 
-## [unreleased]
+## [1.0.0] 2024-09-03
 
 ### Added
 
@@ -49,12 +49,12 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 - raise OSError on post result graph error
 - removed write_md and produce_graph bool parameters
-- if "input_profiles" is enabled the Reason plugin expects "ontology_iri" and "profile" on the input.
+- If "input_profiles" is enabled the Reason plugin expects "ontology_iri" and "profile" on the input.
 The ontology IRI on the input overrides the plugin setting.
 - update execution report
-- Output graph IRI selectable from existing graphs
+- output graph IRI selectable from existing graphs
 - When "input_profiles" is enabled the ontology IRI and list of valid OWL2 profiles is now taken from the config port.
-The list of valid profiles is a comma-separated string (e.g. "Full,DL")
+The list of valid profiles is a comma-separated string (e.g. "Full,DL").
 
 ## [1.0.0beta4] 2024-07-12
 
