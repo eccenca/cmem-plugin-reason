@@ -213,13 +213,13 @@ class ValidatePlugin(WorkflowPlugin):
         create_resource(
             project_name=context.task.project_id(),
             resource_name=self.md_filename,
-            file_resource=(Path(self.temp) / self.md_filename).open("r"),
+            file_resource=(Path(self.temp) / self.md_filename).open("r", encoding="utf-8"),
             replace=True,
         )
 
     def add_profiles(self, valid_profiles: list) -> list:
         """Add profile validation result to output"""
-        with (Path(self.temp) / self.md_filename).open("a") as mdfile:
+        with (Path(self.temp) / self.md_filename).open("a", encoding="utf-8") as mdfile:
             mdfile.write("\n\n\n# Valid Profiles:\n")
             if valid_profiles:
                 profiles_str = "\n- ".join(valid_profiles)

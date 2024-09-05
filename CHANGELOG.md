@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](https://semver.org/)
 
+
+## [unreleased]
+
+### Fixed
+
+- fix installation issue for platform encodings other than UTF-8
+
 ## [1.0.0] 2024-09-03
 
 ### Added
