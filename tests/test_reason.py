@@ -5,7 +5,7 @@ from pathlib import Path
 import pytest
 from cmem.cmempy.dp.proxy.graph import delete
 from rdflib import Graph
-from rdflib.compare import to_isomorphic
+from rdflib.compare import isomorphic
 
 from cmem_plugin_reason.plugin_reason import ReasonPlugin
 from cmem_plugin_reason.utils import REASONERS
@@ -56,7 +56,7 @@ def tests_reason(_setup: None) -> None:
 
         result = get_remote_graph(REASON_RESULT_GRAPH_IRI)
         test = Graph().parse(Path(__path__[0]) / f"test_{reasoner}.ttl", format="turtle")
-        if to_isomorphic(result) != to_isomorphic(test):
+        if not isomorphic(result, test):
             err_list.append(reasoner)
         return err_list
 

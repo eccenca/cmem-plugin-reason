@@ -9,7 +9,7 @@ from cmem.cmempy.workspace.projects.project import delete_project, make_new_proj
 from cmem.cmempy.workspace.projects.resources.resource import get_resource
 from cmem_plugin_base.dataintegration.entity import Entities
 from rdflib import Graph
-from rdflib.compare import to_isomorphic
+from rdflib.compare import isomorphic
 
 from cmem_plugin_reason.plugin_validate import ValidatePlugin
 from cmem_plugin_reason.utils import REASONERS
@@ -87,7 +87,7 @@ def tests_validate(_setup: None) -> None:  # noqa: C901
             val_errors += 'EntityPath "valid_profiles" output error. '
         if md_test != get_resource(PROJECT_ID, MD_FILENAME).decode():
             val_errors += "Markdown file error. "
-        if to_isomorphic(output_graph) != to_isomorphic(test):
+        if not isomorphic(output_graph, test):
             val_errors += "Output graph error. "
 
         if val_errors:
