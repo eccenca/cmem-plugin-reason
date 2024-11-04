@@ -5,12 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](https://semver.org/)
 
 
-## unreleased
+## 1.1.0beta1
 
 ## Added
 
 - support for directories in filepath for output filename in Validate plugin
-- axiom generators for object property characteristics and data property characcteristics (needs testing)
+- axiom generators for object property characteristics and data property characteristics (needs testing)
 
 ## Changed
 
