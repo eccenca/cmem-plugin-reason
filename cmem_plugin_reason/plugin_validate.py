@@ -5,6 +5,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from time import time
+from warnings import simplefilter
 
 import validators.url
 from cmem.cmempy.dp.proxy.graph import get
@@ -19,6 +20,7 @@ from cmem_plugin_base.dataintegration.ports import FixedNumberOfInputs, FixedSch
 from cmem_plugin_base.dataintegration.types import BoolParameterType, StringParameterType
 from cmem_plugin_base.dataintegration.utils import setup_cmempy_user_access
 from pathvalidate import is_valid_filepath
+from urllib3.exceptions import InsecureRequestWarning
 
 from cmem_plugin_reason.doc import VALIDATE_DOC
 from cmem_plugin_reason.utils import (
@@ -38,6 +40,8 @@ from cmem_plugin_reason.utils import (
     send_result,
     validate_profiles,
 )
+
+simplefilter("ignore", category=InsecureRequestWarning)
 
 
 @Plugin(
