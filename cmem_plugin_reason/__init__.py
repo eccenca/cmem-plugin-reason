@@ -1,1 +1,1 @@
-"""reason - main package"""
+"""cmem-plugin-reason"""
