@@ -20,6 +20,7 @@ validators = "^0.34.0"
 pathvalidate = "^3.2.0"
 defusedxml = "^0.7.1"
 inflection = "^0.5.1"
+urllib3 = "^2.2.3"
 
 [tool.poetry.dependencies.cmem-plugin-base]
 version = "^4.5.0"
