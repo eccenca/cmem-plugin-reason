@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "cmem-plugin-reason"
-version = "0.0.0"
+version = "1.0.2.dev1+11e3f9e.dirty"
 license = "Apache-2.0"
 description = "Perform reasoning tasks and validate OWL consistency."
 authors = ["eccenca GmbH <cmempy-developer@eccenca.com>"]
