@@ -18,7 +18,7 @@ from cmem_plugin_base.dataintegration.plugins import WorkflowPlugin
 from cmem_plugin_base.dataintegration.ports import FixedNumberOfInputs, FixedSchemaPort
 from cmem_plugin_base.dataintegration.types import BoolParameterType, StringParameterType
 from cmem_plugin_base.dataintegration.utils import setup_cmempy_user_access
-from pathvalidate import is_valid_filename
+from pathvalidate import is_valid_filepath
 
 from cmem_plugin_reason.doc import VALIDATE_DOC
 from cmem_plugin_reason.utils import (
@@ -133,7 +133,7 @@ class ValidatePlugin(WorkflowPlugin):
             errors += "Output graph IRI cannot be the same as the Ontology graph IRI. "
         if reasoner not in REASONERS:
             errors += 'Invalid value for parameter "Reasoner". '
-        if md_filename and not is_valid_filename(md_filename):
+        if md_filename and not is_valid_filepath(md_filename):
             errors += 'Invalid filename for parameter "Output filename". '
         if not output_graph_iri and not md_filename and not output_entities:
             errors += "No output selected. "

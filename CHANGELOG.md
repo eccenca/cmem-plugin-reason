@@ -5,9 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](https://semver.org/)
 
 
-## [1.0.2beta1] 2024-11-04
+## unreleased
+
+## Added
+
+- support for directories in filepath for output filename in Validate plugin
+- axiom generators for object property characteristics and data property characcteristics (needs testing)
+
+## Changed
 
 - compatibility with cmem-plugin-base 4.5.0 
+- update ROBOT to 1.9.7
 
 ## [1.0.1] 2024-09-05
 
