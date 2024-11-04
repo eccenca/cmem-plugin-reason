@@ -2,12 +2,6 @@
 
 Perform reasoning tasks and validate OWL consistency.
 
-## Robot
-
-This [eccenca](https://eccenca.com) [Corporate Memory](https://documentation.eccenca.com) plugin contains workflow tasks to perform reasoning (Reason) and ontology consistency checking (Validate) using [ROBOT](http://robot.obolibrary.org/).
-
-ROBOT is published under the [BSD 3-Clause "New" or "Revised" License](https://choosealicense.com/licenses/bsd-3-clause/).
-Copyright © 2015, the authors. All rights reserved.
 
 ## Build
 
@@ -27,7 +21,6 @@ Alternatively, the _build_ and _installation_ process can be initiated with the 
 ➜ task deploy
 ```
 
-=======
 [cmem-link]: https://documentation.eccenca.com
 [cmem-shield]: https://img.shields.io/endpoint?url=https://dev.documentation.eccenca.com/badge.json
 [poetry-link]: https://python-poetry.org/
@@ -38,4 +31,7 @@ Alternatively, the _build_ and _installation_ process can be initiated with the 
 [mypy-shield]: https://www.mypy-lang.org/static/mypy_badge.svg
 [copier]: https://copier.readthedocs.io/
 [copier-shield]: https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/copier-org/copier/master/img/badge/badge-grayscale-inverted-border-purple.json
->>>>>>> after updating
+
+
+ROBOT is published under the [BSD 3-Clause "New" or "Revised" License](https://choosealicense.com/licenses/bsd-3-clause/).
+Copyright © 2015, the authors. All rights reserved.
