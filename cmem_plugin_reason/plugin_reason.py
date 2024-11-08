@@ -4,6 +4,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from time import time
+from warnings import simplefilter
 
 import validators.url
 from cmem.cmempy.dp.proxy.graph import get
@@ -16,6 +17,7 @@ from cmem_plugin_base.dataintegration.ports import FixedNumberOfInputs
 from cmem_plugin_base.dataintegration.types import BoolParameterType, StringParameterType
 from cmem_plugin_base.dataintegration.utils import setup_cmempy_user_access
 from inflection import underscore
+from urllib3.exceptions import InsecureRequestWarning
 
 from cmem_plugin_reason.doc import REASON_DOC
 from cmem_plugin_reason.utils import (
@@ -35,6 +37,8 @@ from cmem_plugin_reason.utils import (
     send_result,
     validate_profiles,
 )
+
+simplefilter("ignore", category=InsecureRequestWarning)
 
 SUBCLASS_DESC = """The reasoner will infer assertions about the hierarchy of classes, i.e.
 `SubClassOf:` statements.\n
@@ -394,6 +398,8 @@ class ReasonPlugin(WorkflowPlugin):
         self.input_profiles = input_profiles
         self.max_ram_percentage = max_ram_percentage
         self.valid_profiles = valid_profiles
+        self.data_property_characteristic = data_property_characteristic
+        self.object_property_characteristic = object_property_characteristic
 
         for k, v in self.axioms.items():
             self.__dict__[underscore(k)] = v
