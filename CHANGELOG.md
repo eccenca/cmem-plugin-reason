@@ -5,7 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](https://semver.org/)
 
 
-## 1.1.0beta1
+## 1.1.0beta2 2024-11-08
+
+## Fixed
+
+- error when axiom generators for object property characteristics and data property characteristics are selected
+
+## 1.1.0beta1 2024-11-04
 
 ## Added
 
