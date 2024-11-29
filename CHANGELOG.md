@@ -4,12 +4,19 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](https://semver.org/)
 
+## 2.0.0 2024-11-29
+
+## Changed
+
+- replaced the boolean parameters "Add ontology graph import to result graph" and "Add result graph import to ontology graph"
+with a pull down menu
+- removed axiom generators for object property characteristics and data property characteristics (not working)
 
 ## 1.1.0beta2 2024-11-08
 
 ## Fixed
 
-- error when axiom generators for object property characteristics and data property characteristics are selected
+- error caused by plugin parameter provenance generation
 
 ## 1.1.0beta1 2024-11-04
 

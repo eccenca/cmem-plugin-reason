@@ -16,9 +16,9 @@ def test_reason_output_graph_label() -> None:
         reasoner="hermit",
         sub_class=False,
         class_assertion=True,
-        property_assertion=True,
-        validate_profile=True,
-        import_ontology=True,
+        property_assertion=False,
+        validate_profile=False,
+        imports="none",
     )
     assert (
         get_output_graph_label(plugin.data_graph_iri, "Reasoning Results")
@@ -36,9 +36,9 @@ def test_reason_output_graph_label_fail() -> None:
         reasoner="hermit",
         sub_class=False,
         class_assertion=True,
-        property_assertion=True,
-        validate_profile=True,
-        import_ontology=True,
+        property_assertion=False,
+        validate_profile=False,
+        imports="none",
     )
     assert get_output_graph_label(plugin.data_graph_iri, "Reasoning Results") == "Reasoning Results"
 

@@ -51,7 +51,7 @@ def tests_reason(_setup: None) -> None:
             class_assertion=True,
             property_assertion=True,
             validate_profile=True,
-            import_ontology=True,
+            imports="import_ontology",
         ).execute(None, context=TestExecutionContext())
 
         result = get_remote_graph(REASON_RESULT_GRAPH_IRI)

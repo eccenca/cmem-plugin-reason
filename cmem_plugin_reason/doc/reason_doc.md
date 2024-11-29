@@ -140,13 +140,10 @@ If enabled along with the "Validate OWL2 profiles" parameter, the valid profiles
 taken from the config port input (parameters "valid_profiles", "ontology_graph_iri" and "reasoner") and the OWL2
 profiles validation is not done in the plugin. The valid profiles input is a comma-separated string (e.g. "Full,DL").
 
-### Add ontology graph import to result graph
+### Output graph import
 
-Add the triple `<output_graph_iri> owl:imports <ontology_graph_iri>` to the output graph.
-
-### Add result graph import to ontology graph
-
-Add the triple `<ontology_graph_iri> owl:imports <output_graph_iri>` to the ontology graph
+Add the triple <output_graph_iri> owl:imports <ontology_graph_iri> into the output graph or add the triple
+<ontology_graph_iri> owl:imports <output_graph_iri> into the ontology graph.
 
 ### Maximum RAM Percentage
 

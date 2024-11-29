@@ -1,5 +1,6 @@
 """Reasoning workflow plugin module"""
 
+from collections import OrderedDict
 from datetime import UTC, datetime
 from pathlib import Path
 from tempfile import TemporaryDirectory
@@ -11,6 +12,7 @@ from cmem.cmempy.dp.proxy.graph import get
 from cmem.cmempy.dp.proxy.update import post
 from cmem_plugin_base.dataintegration.context import ExecutionContext, ExecutionReport
 from cmem_plugin_base.dataintegration.description import Icon, Plugin, PluginParameter
+from cmem_plugin_base.dataintegration.parameter.choice import ChoiceParameterType
 from cmem_plugin_base.dataintegration.parameter.graph import GraphParameterType
 from cmem_plugin_base.dataintegration.plugins import WorkflowPlugin
 from cmem_plugin_base.dataintegration.ports import FixedNumberOfInputs
@@ -58,12 +60,12 @@ If there are classes `Person`, `Student` and `Professor`, such that `Person Disj
 Student, Professor` holds, the reasoner will infer `DisjointClasses: Student, Professor`.
 """
 
-DATA_PROP_CHAR_DESC = """The reasoner will infer characteristics of data properties, i.e.
-`Characteristics:` statements. For data properties, this only pertains to functionality.\n
-If there are data properties `identifier` and `enrollmentNumber`, such that `enrollmentNumber
-SubPropertyOf: identifier` and `identifier Characteristics: Functional` holds, the reasoner will
-infer `enrollmentNumber Characteristics: Functional`.
-"""
+# DATA_PROP_CHAR_DESC = """The reasoner will infer characteristics of data properties, i.e.
+# `Characteristics:` statements. For data properties, this only pertains to functionality.\n
+# If there are data properties `identifier` and `enrollmentNumber`, such that `enrollmentNumber
+# SubPropertyOf: identifier` and `identifier Characteristics: Functional` holds, the reasoner will
+# infer `enrollmentNumber Characteristics: Functional`.
+# """
 
 DATA_PROP_EQUIV_DESC = """The reasoner will infer axioms about the equivalence of data properties,
  i.e. `EquivalentProperties` statements.\n
@@ -95,13 +97,13 @@ assertions `John Facts: enrolledIn KnowledgeRepresentation` and `LeipzigUniversi
 KnowledgeRepresentation`,  the reasoner will infer `John Facts: enrolledIn LeipzigUniversity`.
 """
 
-OBJECT_PROP_CHAR_DESC = """The reasoner will infer characteristics of object properties, i.e.
-`Characteristics:` statements.\n
-If there are object properties `enrolledIn` and `studentOf`, such that `enrolledIn
-SubPropertyOf: studentOf` and `enrolledIn Characteristics: Functional` holds, the reasoner will
-infer `studentOf Characteristics: Functional`. **Note: this inference does neither work in JFact
-nor in HermiT!**
-"""
+# OBJECT_PROP_CHAR_DESC = """The reasoner will infer characteristics of object properties, i.e.
+# `Characteristics:` statements.\n
+# If there are object properties `enrolledIn` and `studentOf`, such that `enrolledIn
+# SubPropertyOf: studentOf` and `enrolledIn Characteristics: Functional` holds, the reasoner will
+# infer `studentOf Characteristics: Functional`. **Note: this inference does neither work in JFact
+# nor in HermiT!**
+# """
 
 OBJECT_PROP_EQUIV_DESC = """The reasoner will infer assertions about the equivalence of object
 properties, i.e. `EquivalentTo:` statements.\n
@@ -194,13 +196,13 @@ Person`.
             description=DISJOINT_DESC,
             default_value=False,
         ),
-        PluginParameter(
-            param_type=BoolParameterType(),
-            name="data_property_characteristic",
-            label="Data property characteristics (Axiomatic triples)",
-            description=DATA_PROP_CHAR_DESC,
-            default_value=False,
-        ),
+        # PluginParameter(
+        #     param_type=BoolParameterType(),
+        #     name="data_property_characteristic",
+        #     label="Data property characteristics (Axiomatic triples)",
+        #     description=DATA_PROP_CHAR_DESC,
+        #     default_value=False,
+        # ),
         PluginParameter(
             param_type=BoolParameterType(),
             name="equivalent_data_properties",
@@ -243,13 +245,13 @@ Person`.
             description=OBJECT_PROP_INV_DESC,
             default_value=False,
         ),
-        PluginParameter(
-            param_type=BoolParameterType(),
-            name="object_property_characteristic",
-            label="Object property characteristic (Axiomatic triples)",
-            description=OBJECT_PROP_CHAR_DESC,
-            default_value=False,
-        ),
+        # PluginParameter(
+        #     param_type=BoolParameterType(),
+        #     name="object_property_characteristic",
+        #     label="Object property characteristic (Axiomatic triples)",
+        #     description=OBJECT_PROP_CHAR_DESC,
+        #     default_value=False,
+        # ),
         PluginParameter(
             param_type=BoolParameterType(),
             name="sub_object_property",
@@ -279,25 +281,26 @@ Person`.
             profiles, ontology IRI and reasoner option is taken from the config port input
             (parameters "valid_profiles", "ontology_graph_iri" and "reasoner") and the OWL2 profiles
             validation is not done in the plugin. The valid profiles input is a comma-separated
-            string (e.g. "Full,DL").""",
+            string (e.g. "Full,DL", ).""",
             default_value=False,
             advanced=True,
         ),
         PluginParameter(
-            param_type=BoolParameterType(),
-            name="import_ontology",
-            label="Add ontology graph import to result graph.",
+            param_type=ChoiceParameterType(
+                OrderedDict(
+                    {
+                        "none": "Do not add import statement",
+                        "import_ontology": "Import ontology graph into output graph",
+                        "import_result": "Import output graph into ontology graph",
+                    }
+                )
+            ),
+            name="imports",
+            label="Output graph import",
             description="""Add the triple <output_graph_iri> owl:imports <ontology_graph_iri> to the
-            output graph.""",
-            default_value=True,
-        ),
-        PluginParameter(
-            param_type=BoolParameterType(),
-            name="import_result",
-            label="Add result graph import to ontology graph.",
-            description="""Add the triple <ontology_graph_iri> owl:imports <output_graph_iri> to the
-            ontology graph.""",
-            default_value=False,
+            output graph or add the triple <ontology_graph_iri> owl:imports <output_graph_iri> to
+            the ontology graph.""",
+            default_value="none",
         ),
         PluginParameter(
             param_type=StringParameterType(),
@@ -325,16 +328,18 @@ class ReasonPlugin(WorkflowPlugin):
         disjoint_classes: bool = False,
         sub_object_property: bool = False,
         equivalent_object_property: bool = False,
-        object_property_characteristic: bool = False,
+        #   This axiom generator does not yield any results.
+        #   Issue: https://github.com/eccenca/cmem-plugin-reason/issues/10
+        #   object_property_characteristic: bool = False,
         object_property_domain: bool = False,
         object_property_range: bool = False,
         inverse_object_properties: bool = False,
         sub_data_property: bool = False,
         equivalent_data_properties: bool = False,
-        data_property_characteristic: bool = False,
+        #   Removed because the object property counterpart does not work
+        #   data_property_characteristic: bool = False,
         validate_profile: bool = False,
-        import_ontology: bool = True,
-        import_result: bool = False,
+        imports: str = "none",
         input_profiles: bool = False,
         max_ram_percentage: int = MAX_RAM_PERCENTAGE_DEFAULT,
         valid_profiles: str = "",
@@ -343,14 +348,14 @@ class ReasonPlugin(WorkflowPlugin):
             "SubClass": sub_class,
             "EquivalentClass": equivalent_class,
             "DisjointClasses": disjoint_classes,
-            "DataPropertyCharacteristic": data_property_characteristic,
+            # "DataPropertyCharacteristic": data_property_characteristic,
             "EquivalentDataProperties": equivalent_data_properties,
             "SubDataProperty": sub_data_property,
             "ClassAssertion": class_assertion,
             "PropertyAssertion": property_assertion,
             "EquivalentObjectProperty": equivalent_object_property,
             "InverseObjectProperties": inverse_object_properties,
-            "ObjectPropertyCharacteristic": object_property_characteristic,
+            # "ObjectPropertyCharacteristic": object_property_characteristic,
             "SubObjectProperty": sub_object_property,
             "ObjectPropertyRange": object_property_range,
             "ObjectPropertyDomain": object_property_domain,
@@ -370,11 +375,6 @@ class ReasonPlugin(WorkflowPlugin):
             errors += 'Invalid value for parameter "Reasoner". '
         if True not in self.axioms.values():
             errors += "No axiom generator selected. "
-        if import_result and import_ontology:
-            errors += (
-                'Enable only one of "Add result graph import to ontology graph" and "Add '
-                'ontology graph import to result graph". '
-            )
         if (
             input_profiles
             and valid_profiles
@@ -393,13 +393,12 @@ class ReasonPlugin(WorkflowPlugin):
         self.output_graph_iri = output_graph_iri
         self.reasoner = reasoner
         self.validate_profile = validate_profile
-        self.import_ontology = import_ontology
-        self.import_result = import_result
+        self.imports = imports
         self.input_profiles = input_profiles
         self.max_ram_percentage = max_ram_percentage
         self.valid_profiles = valid_profiles
-        self.data_property_characteristic = data_property_characteristic
-        self.object_property_characteristic = object_property_characteristic
+        # self.data_property_characteristic = data_property_characteristic
+        # self.object_property_characteristic = object_property_characteristic
 
         for k, v in self.axioms.items():
             self.__dict__[underscore(k)] = v
@@ -503,11 +502,11 @@ class ReasonPlugin(WorkflowPlugin):
             post_profiles(self, valid_profiles)
         post_provenance(self, get_provenance(self, "Reason", context))
 
-        if self.import_result or not self.import_ontology:
+        if self.imports == "import_result" or self.imports != "import_ontology":
             setup_cmempy_user_access(context.user)
-            if self.import_result:
+            if self.imports == "import_result":
                 self.add_result_import()
-            if not self.import_ontology:
+            if self.imports != "import_ontology":
                 self.remove_ontology_import()
 
         context.report.update(
