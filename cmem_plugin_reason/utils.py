@@ -11,7 +11,6 @@ from xml.etree.ElementTree import Element, SubElement, tostring
 from cmem.cmempy.dp.proxy.graph import get_graph_import_tree, get_graphs_list, post_streamed
 from cmem.cmempy.dp.proxy.sparql import post as post_select
 from cmem.cmempy.dp.proxy.update import post as post_update
-from cmem_plugin_base.dataintegration.context import ExecutionContext
 from cmem_plugin_base.dataintegration.description import PluginParameter
 from cmem_plugin_base.dataintegration.parameter.choice import ChoiceParameterType
 from cmem_plugin_base.dataintegration.parameter.graph import GraphParameterType
@@ -70,6 +69,14 @@ VALIDATE_PROFILES_PARAMETER = PluginParameter(
     default_value=False,
 )
 
+IGNORE_MISSING_IMPORTS_PARAMETER = PluginParameter(
+    param_type=BoolParameterType(),
+    name="ignore_missing_imports",
+    label="Ignore missing imports",
+    description="""Ignore missing graphs from the import tree of the input graphs.""",
+    default_value=True,
+)
+
 
 def create_xml_catalog_file(dir_: str, graphs: dict) -> None:
     """Create XML catalog file"""
@@ -88,7 +95,7 @@ def create_xml_catalog_file(dir_: str, graphs: dict) -> None:
         file.write(reparsed)
 
 
-def get_graphs_tree(graph_iris: tuple) -> dict:
+def get_graphs_tree(plugin: WorkflowPlugin, graph_iris: tuple, ignore_missing: bool = True) -> dict:
     """Get graph import tree. Last item in graph_iris is output_graph_iris which is excluded"""
     graphs = {}
     for graph_iri in graph_iris[:-1]:
@@ -99,6 +106,14 @@ def get_graphs_tree(graph_iris: tuple) -> dict:
                 for iri in value:
                     if iri not in graphs and iri != graph_iri[-1]:
                         graphs[iri] = f"{token_hex(8)}.nt"
+
+    graphs_list = [_["iri"] for _ in get_graphs_list()]
+    missing = [_ for _ in graphs if _ not in graphs_list]
+    if ignore_missing:
+        [plugin.log.warning(f"Missing graph import: {iri}") for iri in missing]
+    else:
+        raise ImportError(f"Missing graph imports {', '.join(missing)}")
+
     return graphs
 
 
@@ -136,14 +151,10 @@ def post_provenance(plugin: WorkflowPlugin, prov: dict | None) -> None:
         post_update(query=insert_query)
 
 
-def get_provenance(
-    plugin: WorkflowPlugin, label_plugin: str, context: ExecutionContext
-) -> dict | None:
+def get_provenance(plugin: WorkflowPlugin, label_plugin: str) -> dict | None:
     """Get provenance information"""
-    plugin_iri = (
-        f"http://dataintegration.eccenca.com/{context.task.project_id()}/{context.task.task_id()}"
-    )
-    project_graph = f"http://di.eccenca.com/project/{context.task.project_id()}"
+    plugin_iri = f"http://dataintegration.eccenca.com/{plugin.context.task.project_id()}/{plugin.context.task.task_id()}"
+    project_graph = f"http://di.eccenca.com/project/{plugin.context.task.project_id()}"
 
     type_query = f"""
         SELECT ?type {{
