@@ -5,6 +5,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from time import time
+from warnings import simplefilter
 
 import validators.url
 from cmem.cmempy.dp.proxy.graph import get
@@ -19,10 +20,10 @@ from cmem_plugin_base.dataintegration.ports import FixedNumberOfInputs, FixedSch
 from cmem_plugin_base.dataintegration.types import BoolParameterType, StringParameterType
 from cmem_plugin_base.dataintegration.utils import setup_cmempy_user_access
 from pathvalidate import is_valid_filepath
+from urllib3.exceptions import InsecureRequestWarning
 
 from cmem_plugin_reason.doc import VALIDATE_DOC
 from cmem_plugin_reason.utils import (
-    IGNORE_MISSING_IMPORTS_PARAMETER,
     MAX_RAM_PERCENTAGE_DEFAULT,
     MAX_RAM_PERCENTAGE_PARAMETER,
     ONTOLOGY_GRAPH_IRI_PARAMETER,
@@ -40,6 +41,8 @@ from cmem_plugin_reason.utils import (
     validate_profiles,
 )
 
+simplefilter("ignore", category=InsecureRequestWarning)
+
 
 @Plugin(
     label="Validate OWL consistency",
@@ -47,7 +50,6 @@ from cmem_plugin_reason.utils import (
     documentation=VALIDATE_DOC,
     icon=Icon(file_name="file-icons--owl.svg", package=__package__),
     parameters=[
-        IGNORE_MISSING_IMPORTS_PARAMETER,
         ONTOLOGY_GRAPH_IRI_PARAMETER,
         MAX_RAM_PERCENTAGE_PARAMETER,
         VALIDATE_PROFILES_PARAMETER,
@@ -118,7 +120,6 @@ class ValidatePlugin(WorkflowPlugin):
         self,
         ontology_graph_iri: str,
         reasoner: str,
-        ignore_missing_imports: bool = True,
         output_graph_iri: str = "",
         md_filename: str = "",
         mode: str = "inconsistency",
@@ -160,7 +161,6 @@ class ValidatePlugin(WorkflowPlugin):
         self.validate_profile = validate_profile
         self.output_entities = output_entities
         self.max_ram_percentage = max_ram_percentage
-        self.ignore_missing_imports = ignore_missing_imports
 
         self.input_ports = FixedNumberOfInputs([])
         if self.output_entities:
@@ -169,7 +169,7 @@ class ValidatePlugin(WorkflowPlugin):
         else:
             self.output_port = None
 
-    def generate_output_schema(self) -> EntitySchema:
+    def generate_output_schema(self) -> EntitySchema | None:
         """Generate output entity schema."""
         paths = [EntityPath("markdown"), EntityPath("ontology_graph_iri"), EntityPath("reasoner")]
         if self.validate_profile:
@@ -245,36 +245,32 @@ class ValidatePlugin(WorkflowPlugin):
         ]
         return Entities(entities=entities, schema=self.schema)
 
-    def _execute(self) -> Entities | None:
+    def _execute(self, context: ExecutionContext) -> Entities | None:
         """Run the workflow operator."""
-        setup_cmempy_user_access(self.context.user)
-        graphs = get_graphs_tree(
-            self,
-            graph_iris=(self.ontology_graph_iri, self.output_graph_iri),
-            ignore_missing=self.ignore_missing_imports,
-        )
-        self.get_graphs(graphs, self.context)
+        setup_cmempy_user_access(context.user)
+        graphs = get_graphs_tree((self.ontology_graph_iri, self.output_graph_iri))
+        self.get_graphs(graphs, context)
         create_xml_catalog_file(self.temp, graphs)
         self.explain(graphs)
 
         if self.output_graph_iri:
-            setup_cmempy_user_access(self.context.user)
+            setup_cmempy_user_access(context.user)
             send_result(self.output_graph_iri, Path(self.temp) / "output.ttl")
-            setup_cmempy_user_access(self.context.user)
-            post_provenance(self, get_provenance(self, "Validate"))
+            setup_cmempy_user_access(context.user)
+            post_provenance(self, get_provenance(self, "Validate", context))
 
         valid_profiles = (
             self.add_profiles(validate_profiles(self, graphs)) if self.validate_profile else []
         )
 
         if self.write_md:
-            setup_cmempy_user_access(self.context.user)
-            self.make_resource(self.context)
+            setup_cmempy_user_access(context.user)
+            self.make_resource(context)
 
         text = (Path(self.temp) / self.md_filename).read_text()
         if text.split("\n", 1)[0] != "No explanations found.":
             if self.stop_at_inconsistencies:
-                self.context.report.update(
+                context.report.update(
                     ExecutionReport(
                         operation="validate",
                         error="Inconsistencies found in ontology.",
@@ -285,7 +281,7 @@ class ValidatePlugin(WorkflowPlugin):
             else:
                 self.log.warning("Inconsistencies found in ontology.")
         else:
-            self.context.report.update(
+            context.report.update(
                 ExecutionReport(
                     operation="validate",
                     operation_desc="ontology validated.",
@@ -298,7 +294,6 @@ class ValidatePlugin(WorkflowPlugin):
 
     def execute(self, inputs: None, context: ExecutionContext) -> Entities | None:  # noqa: ARG002
         """Execute plugin with temporary directory"""
-        self.context = context
         context.report.update(
             ExecutionReport(
                 operation="validate",
@@ -306,4 +301,4 @@ class ValidatePlugin(WorkflowPlugin):
             )
         )
         with TemporaryDirectory() as self.temp:
-            return self._execute()
+            return self._execute(context)
