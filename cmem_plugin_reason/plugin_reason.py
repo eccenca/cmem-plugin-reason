@@ -408,22 +408,26 @@ class ReasonPlugin(WorkflowPlugin):
         self.input_ports = FixedNumberOfInputs([])
         self.output_port = None
 
-    def get_graphs(self, graphs: dict) -> None:
+    def get_graphs(self, graphs: dict, missing: list) -> None:
         """Get graphs from CMEM"""
         for iri, filename in graphs.items():
-            self.log.info(f"Fetching graph {iri}.")
             with (Path(self.temp) / filename).open("w", encoding="utf-8") as file:
-                setup_cmempy_user_access(self.context.user)
-                for line in get(iri).text.splitlines():
-                    if not line.endswith(
-                        f"<http://www.w3.org/2002/07/owl#imports> <{self.output_graph_iri}> ."
-                    ):
-                        file.write(line + "\n")
-                    if iri == self.data_graph_iri:
-                        file.write(
-                            f"<{iri}> "
-                            f"<http://www.w3.org/2002/07/owl#imports> <{self.ontology_graph_iri}> ."
-                        )
+                if iri in missing and self.ignore_missing_imports:
+                    self.log.info(f"ignoring missing import {iri}.")
+                else:
+                    self.log.info(f"Fetching graph {iri}.")
+                    setup_cmempy_user_access(self.context.user)
+                    for line in get(iri).text.splitlines():
+                        if not line.endswith(
+                            f"<http://www.w3.org/2002/07/owl#imports> <{self.output_graph_iri}> ."
+                        ):
+                            file.write(line + "\n")
+                        if iri == self.data_graph_iri:
+                            file.write(
+                                f"<{iri}> "
+                                "<http://www.w3.org/2002/07/owl#imports> "
+                                f"<{self.ontology_graph_iri}> ."
+                            )
 
     def reason(self, graphs: dict) -> None:
         """Reason"""
@@ -488,12 +492,12 @@ class ReasonPlugin(WorkflowPlugin):
     def _execute(self) -> None:
         """`Execute plugin"""
         setup_cmempy_user_access(self.context.user)
-        graphs, self.missing = get_graphs_tree(
+        graphs, missing = get_graphs_tree(
             self,
             graph_iris=(self.data_graph_iri, self.ontology_graph_iri, self.output_graph_iri),
             ignore_missing=self.ignore_missing_imports,
         )
-        self.get_graphs(graphs)
+        self.get_graphs(graphs, missing)
         create_xml_catalog_file(self.temp, graphs)
         self.reason(graphs)
         setup_cmempy_user_access(self.context.user)

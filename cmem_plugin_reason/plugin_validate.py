@@ -177,13 +177,17 @@ class ValidatePlugin(WorkflowPlugin):
             paths.append(EntityPath("valid_profiles"))
         return EntitySchema(type_uri="validate", paths=paths)
 
-    def get_graphs(self, graphs: dict, context: ExecutionContext) -> None:
+    def get_graphs(self, graphs: dict, missing: list) -> None:
         """Get graphs from CMEM"""
         for iri, filename in graphs.items():
             self.log.info(f"Fetching graph {iri}.")
             with (Path(self.temp) / filename).open("w", encoding="utf-8") as file:
-                setup_cmempy_user_access(context.user)
-                file.write(get(iri).text)
+                if iri in missing and self.ignore_missing_imports:
+                    self.log.info(f"ignoring missing import {iri}.")
+                else:
+                    self.log.info(f"Fetching graph {iri}.")
+                    setup_cmempy_user_access(self.context.user)
+                    file.write(get(iri).text)
 
     def explain(self, graphs: dict) -> None:
         """Reason"""
@@ -249,12 +253,12 @@ class ValidatePlugin(WorkflowPlugin):
     def _execute(self) -> Entities | None:
         """Run the workflow operator."""
         setup_cmempy_user_access(self.context.user)
-        graphs = get_graphs_tree(
+        graphs, missing = get_graphs_tree(
             self,
             graph_iris=(self.ontology_graph_iri, self.output_graph_iri),
             ignore_missing=self.ignore_missing_imports,
         )
-        self.get_graphs(graphs, self.context)
+        self.get_graphs(graphs, missing)
         create_xml_catalog_file(self.temp, graphs)
         self.explain(graphs)
 

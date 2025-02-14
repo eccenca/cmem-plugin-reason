@@ -34,6 +34,13 @@ def reasoner_parameter() -> str | None:
 @pytest.fixture
 def setup() -> Generator[None, Any, None]:
     """Set up Reason test"""
+    delete(REASON_DATA_GRAPH_IRI)
+    delete(REASON_ONTOLOGY_GRAPH_IRI_1)
+    delete(REASON_ONTOLOGY_GRAPH_IRI_2)
+    delete(REASON_ONTOLOGY_GRAPH_IRI_3)
+    delete(ONTOLOGY_GRAPH_IMPORT_FAIL_IRI)
+    delete(REASON_RESULT_GRAPH_IRI)
+
     import_graph(REASON_DATA_GRAPH_IRI, "dataset_owl.ttl")
     import_graph(REASON_ONTOLOGY_GRAPH_IRI_1, "test_reason_ontology_1.ttl")
     import_graph(REASON_ONTOLOGY_GRAPH_IRI_2, "test_reason_ontology_2.ttl")
@@ -48,70 +55,48 @@ def setup() -> Generator[None, Any, None]:
     delete(REASON_ONTOLOGY_GRAPH_IRI_3)
     delete(ONTOLOGY_GRAPH_IMPORT_FAIL_IRI)
     delete(REASON_RESULT_GRAPH_IRI)
-#
-#
-# @pytest.mark.parametrize("reasoner_parameter", list(REASONERS.keys()))
-# def test_reasoner(setup: None, reasoner_parameter: str) -> None:  # noqa: ARG001
-#     """Test reasoning"""
-#     ReasonPlugin(
-#         data_graph_iri=REASON_DATA_GRAPH_IRI,
-#         ontology_graph_iri=REASON_ONTOLOGY_GRAPH_IRI_1,
-#         output_graph_iri=REASON_RESULT_GRAPH_IRI,
-#         reasoner=reasoner_parameter,
-#         sub_class=False,
-#         class_assertion=True,
-#         property_assertion=True,
-#         validate_profile=True,
-#         imports="import_ontology",
-#     ).execute(inputs=(), context=TestExecutionContext())
-#
-#     result = get_remote_graph(REASON_RESULT_GRAPH_IRI)
-#     test = Graph().parse(Path(__path__[0]) / f"test_{reasoner_parameter}.ttl", format="turtle")
-#     assert isomorphic(result, test)
-#
-#
-# def test_reason_input_not_exist(setup: None) -> None:  # noqa: ARG001
-#     """Test Reason with non-existing input graph"""
-#     plugin = ReasonPlugin(
-#         data_graph_iri="http://not-exist1.org",
-#         ontology_graph_iri="http://not-exist2.org",
-#         output_graph_iri=REASON_RESULT_GRAPH_IRI,
-#         reasoner="elk",
-#         sub_class=False,
-#         class_assertion=True,
-#         property_assertion=True,
-#         validate_profile=True,
-#         imports="import_ontology",
-#     )
-#     with pytest.raises(
-#         ValueError, match="Graphs do not exist: http://not-exist1.org, http://not-exist2.org"
-#     ):
-#         plugin.execute(inputs=(), context=TestExecutionContext())
-
-#
-# def test_reasoner_import_not_exist_not_ignore(setup: None) -> None:  # noqa: ARG001
-#     """Test Reason with missing import"""
-#     plugin = ReasonPlugin(
-#         data_graph_iri=REASON_DATA_GRAPH_IRI,
-#         ontology_graph_iri=ONTOLOGY_GRAPH_IMPORT_FAIL_IRI,
-#         output_graph_iri=REASON_RESULT_GRAPH_IRI,
-#         reasoner="elk",
-#         sub_class=False,
-#         class_assertion=True,
-#         property_assertion=True,
-#         validate_profile=True,
-#         imports="import_ontology",
-#         ignore_missing_imports=False,
-#     )
-#     with pytest.raises(
-#         ImportError,
-#         match="Missing graph imports: "
-#         "https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/not-exist/",
-#     ):
-#         plugin.execute(inputs=(), context=TestExecutionContext())
 
 
-def test_reasoner_import_not_exist_ignore(setup: None) -> None:  # noqa: ARG001
+@pytest.mark.parametrize("reasoner_parameter", list(REASONERS.keys()))
+def test_reasoner(setup: None, reasoner_parameter: str) -> None:  # noqa: ARG001
+    """Test reasoning"""
+    ReasonPlugin(
+        data_graph_iri=REASON_DATA_GRAPH_IRI,
+        ontology_graph_iri=REASON_ONTOLOGY_GRAPH_IRI_1,
+        output_graph_iri=REASON_RESULT_GRAPH_IRI,
+        reasoner=reasoner_parameter,
+        sub_class=False,
+        class_assertion=True,
+        property_assertion=True,
+        validate_profile=True,
+        imports="import_ontology",
+    ).execute(inputs=(), context=TestExecutionContext())
+
+    result = get_remote_graph(REASON_RESULT_GRAPH_IRI)
+    test = Graph().parse(Path(__path__[0]) / f"test_{reasoner_parameter}.ttl", format="turtle")
+    assert isomorphic(result, test)
+
+
+def test_reason_input_not_exist(setup: None) -> None:  # noqa: ARG001
+    """Test Reason with non-existing input graph"""
+    plugin = ReasonPlugin(
+        data_graph_iri="http://not-exist1.org",
+        ontology_graph_iri="http://not-exist2.org",
+        output_graph_iri=REASON_RESULT_GRAPH_IRI,
+        reasoner="elk",
+        sub_class=False,
+        class_assertion=True,
+        property_assertion=True,
+        validate_profile=True,
+        imports="import_ontology",
+    )
+    with pytest.raises(
+        ValueError, match="Graphs do not exist: http://not-exist1.org, http://not-exist2.org"
+    ):
+        plugin.execute(inputs=(), context=TestExecutionContext())
+
+
+def test_reasoner_import_not_exist_not_ignore(setup: None) -> None:  # noqa: ARG001
     """Test Reason with missing import"""
     plugin = ReasonPlugin(
         data_graph_iri=REASON_DATA_GRAPH_IRI,
@@ -123,11 +108,27 @@ def test_reasoner_import_not_exist_ignore(setup: None) -> None:  # noqa: ARG001
         property_assertion=True,
         validate_profile=True,
         imports="import_ontology",
-        ignore_missing_imports=True,
+        ignore_missing_imports=False,
     )
-    # with pytest.raises(
-    #     ImportError,
-    #     match="Missing graph imports: "
-    #     "https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/not-exist/",
-    # ):
-    plugin.execute(inputs=(), context=TestExecutionContext())
+    with pytest.raises(
+        ImportError,
+        match="Missing graph imports: "
+        "https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/not-exist/",
+    ):
+        plugin.execute(inputs=(), context=TestExecutionContext())
+
+
+def test_reasoner_import_not_exist_ignore(setup: None) -> None:  # noqa: ARG001
+    """Test Reason ignnoring missing import"""
+    ReasonPlugin(
+        data_graph_iri=REASON_DATA_GRAPH_IRI,
+        ontology_graph_iri=ONTOLOGY_GRAPH_IMPORT_FAIL_IRI,
+        output_graph_iri=REASON_RESULT_GRAPH_IRI,
+        reasoner="elk",
+        sub_class=False,
+        class_assertion=True,
+        property_assertion=True,
+        validate_profile=True,
+        imports="import_ontology",
+        ignore_missing_imports=True,
+    ).execute(inputs=(), context=TestExecutionContext())
