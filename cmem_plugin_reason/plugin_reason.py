@@ -7,7 +7,7 @@ from tempfile import TemporaryDirectory
 from time import time
 
 import validators.url
-from cmem.cmempy.dp.proxy.graph import get
+from cmem.cmempy.dp.proxy.graph import get, get_graphs_list
 from cmem.cmempy.dp.proxy.update import post
 from cmem_plugin_base.dataintegration.context import ExecutionContext, ExecutionReport
 from cmem_plugin_base.dataintegration.description import Icon, Plugin, PluginParameter
@@ -521,11 +521,23 @@ class ReasonPlugin(WorkflowPlugin):
 
     def execute(self, inputs: None, context: ExecutionContext) -> None:  # noqa: ARG002
         """Execute plugin with temporary directory"""
+        setup_cmempy_user_access(context.user)
+
+        graphs_list = [_["iri"] for _ in get_graphs_list()]
+        not_exist = []
+        if self.data_graph_iri not in graphs_list:
+            not_exist.append(self.data_graph_iri)
+        if self.ontology_graph_iri not in graphs_list:
+            not_exist.append(self.ontology_graph_iri)
+        if not_exist:
+            raise ValueError(f"Graphs do not exist: {', '.join(not_exist)}")
+
         self.context = context
         context.report.update(
             ExecutionReport(
                 operation="reason",
                 operation_desc="ontologies and data graphs processed.",
+                entity_count=0,
             )
         )
         with TemporaryDirectory() as self.temp:

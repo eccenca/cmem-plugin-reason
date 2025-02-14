@@ -7,7 +7,7 @@ from tempfile import TemporaryDirectory
 from time import time
 
 import validators.url
-from cmem.cmempy.dp.proxy.graph import get
+from cmem.cmempy.dp.proxy.graph import get, get_graphs_list
 from cmem.cmempy.workspace.projects.resources.resource import create_resource
 from cmem_plugin_base.dataintegration.context import ExecutionContext, ExecutionReport
 from cmem_plugin_base.dataintegration.description import Icon, Plugin, PluginParameter
@@ -298,6 +298,12 @@ class ValidatePlugin(WorkflowPlugin):
 
     def execute(self, inputs: None, context: ExecutionContext) -> Entities | None:  # noqa: ARG002
         """Execute plugin with temporary directory"""
+        setup_cmempy_user_access(context.user)
+
+        graphs_list = [_["iri"] for _ in get_graphs_list()]
+        if self.ontology_graph_iri not in graphs_list:
+            raise ValueError(f"Ontology graph does not exist: {self.ontology_graph_iri}")
+
         self.context = context
         context.report.update(
             ExecutionReport(

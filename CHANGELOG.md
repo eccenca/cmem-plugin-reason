@@ -6,10 +6,10 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 ## Unreleased
 
-
 ### Added
 
 - Parameter to check missing OWL imports. Missing imports can be ignored or lead to execution error.
+- Check if ontology graph and data graph exist before execution.
 
 ## 2.0.0 2024-11-29
 
