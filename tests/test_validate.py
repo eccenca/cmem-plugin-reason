@@ -50,6 +50,13 @@ def setup() -> Generator[None, Any, None]:
     """Set up Validate test"""
     with suppress(Exception):
         delete_project(PROJECT_ID)
+
+    delete(VALIDATE_ONTOLOGY_GRAPH_IRI_1)
+    delete(VALIDATE_ONTOLOGY_GRAPH_IRI_2)
+    delete(VALIDATE_ONTOLOGY_GRAPH_IRI_3)
+    delete(ONTOLOGY_GRAPH_IMPORT_FAIL_IRI)
+    delete(VALIDATE_RESULT_GRAPH_IRI)
+
     make_new_project(PROJECT_ID)
 
     import_graph(VALIDATE_ONTOLOGY_GRAPH_IRI_1, "test_validate_ontology_1.ttl")
