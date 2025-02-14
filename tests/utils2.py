@@ -21,6 +21,6 @@ def get_remote_graph(iri: str) -> Graph:
 
 def import_graph(iri: str, filename: str) -> None:
     """Import graph to CMEM"""
-    res = post_streamed(iri, str(Path(__path__[0]) / filename), replace=True)
+    res = post_streamed(iri, Path(__path__[0]) / filename, replace=True)
     if res.status_code != 204:  # noqa: PLR2004
         raise ValueError(f"Response {res.status_code}: {res.url}")
