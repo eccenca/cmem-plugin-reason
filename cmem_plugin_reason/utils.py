@@ -143,7 +143,7 @@ def post_provenance(plugin: WorkflowPlugin, prov: dict | None) -> None:
                     <{prov["plugin_iri"]}> a <{prov["plugin_type"]}>,
                         <https://vocab.eccenca.com/di/CustomTask> .
                     <{prov["plugin_iri"]}> <http://www.w3.org/2000/01/rdf-schema#label>
-                        "{prov['plugin_label']}" .
+                        "{prov["plugin_label"]}" .
                     {param_sparql}
                 }}
             }}
@@ -190,7 +190,7 @@ def get_provenance(plugin: WorkflowPlugin, label_plugin: str) -> dict | None:
         }}
     """
 
-    new_plugin_iri = f'{"_".join(plugin_iri.split("_")[:-1])}_{token_hex(8)}'
+    new_plugin_iri = f"{'_'.join(plugin_iri.split('_')[:-1])}_{token_hex(8)}"
     label = f"{label_plugin} plugin"
     result = json.loads(post_select(query=parameter_query))
 
