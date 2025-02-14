@@ -422,12 +422,12 @@ class ReasonPlugin(WorkflowPlugin):
                             f"<http://www.w3.org/2002/07/owl#imports> <{self.output_graph_iri}> ."
                         ):
                             file.write(line + "\n")
-                        if iri == self.data_graph_iri:
-                            file.write(
-                                f"<{iri}> "
-                                "<http://www.w3.org/2002/07/owl#imports> "
-                                f"<{self.ontology_graph_iri}> ."
-                            )
+                    if iri == self.data_graph_iri:
+                        file.write(
+                            f"<{iri}> "
+                            "<http://www.w3.org/2002/07/owl#imports> "
+                            f"<{self.ontology_graph_iri}> ."
+                        )
 
     def reason(self, graphs: dict) -> None:
         """Reason"""
