@@ -1,6 +1,7 @@
 """Reasoning workflow plugin module"""
 
 from collections import OrderedDict
+from collections.abc import Sequence
 from datetime import UTC, datetime
 from pathlib import Path
 from tempfile import TemporaryDirectory
@@ -11,6 +12,7 @@ from cmem.cmempy.dp.proxy.graph import get, get_graphs_list
 from cmem.cmempy.dp.proxy.update import post
 from cmem_plugin_base.dataintegration.context import ExecutionContext, ExecutionReport
 from cmem_plugin_base.dataintegration.description import Icon, Plugin, PluginParameter
+from cmem_plugin_base.dataintegration.entity import Entities
 from cmem_plugin_base.dataintegration.parameter.choice import ChoiceParameterType
 from cmem_plugin_base.dataintegration.parameter.graph import GraphParameterType
 from cmem_plugin_base.dataintegration.plugins import WorkflowPlugin
@@ -486,7 +488,7 @@ class ReasonPlugin(WorkflowPlugin):
     def _execute(self) -> None:
         """`Execute plugin"""
         setup_cmempy_user_access(self.context.user)
-        graphs = get_graphs_tree(
+        graphs, self.missing = get_graphs_tree(
             self,
             graph_iris=(self.data_graph_iri, self.ontology_graph_iri, self.output_graph_iri),
             ignore_missing=self.ignore_missing_imports,
@@ -519,7 +521,7 @@ class ReasonPlugin(WorkflowPlugin):
             )
         )
 
-    def execute(self, inputs: None, context: ExecutionContext) -> None:  # noqa: ARG002
+    def execute(self, inputs: Sequence[Entities], context: ExecutionContext) -> None:  # noqa: ARG002
         """Execute plugin with temporary directory"""
         setup_cmempy_user_access(context.user)
 

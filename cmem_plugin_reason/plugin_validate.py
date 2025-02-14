@@ -1,6 +1,7 @@
 """Ontology consistency validation workflow plugin module"""
 
 from collections import OrderedDict
+from collections.abc import Sequence
 from datetime import UTC, datetime
 from pathlib import Path
 from tempfile import TemporaryDirectory
@@ -296,7 +297,7 @@ class ValidatePlugin(WorkflowPlugin):
             return self.make_entities(text, valid_profiles)
         return None
 
-    def execute(self, inputs: None, context: ExecutionContext) -> Entities | None:  # noqa: ARG002
+    def execute(self, inputs: Sequence[Entities], context: ExecutionContext) -> Entities | None:  # noqa: ARG002
         """Execute plugin with temporary directory"""
         setup_cmempy_user_access(context.user)
 

@@ -95,15 +95,13 @@ def create_xml_catalog_file(dir_: str, graphs: dict) -> None:
         file.write(reparsed)
 
 
-def get_graphs_tree(plugin: WorkflowPlugin, graph_iris: tuple, ignore_missing: bool = True) -> dict:
+def get_graphs_tree(plugin: WorkflowPlugin, graph_iris: tuple, ignore_missing: bool = True) -> (dict, list):
     """Get graph import tree. Last item in graph_iris is output_graph_iris which is excluded"""
     graphs_list = [_["iri"] for _ in get_graphs_list()]
     missing = []
     graphs = {}
     for graph_iri in graph_iris[:-1]:
-        if graph_iri not in graphs_list:
-            missing.append(graph_iri)
-        elif graph_iri not in graphs:
+        if graph_iri not in graphs:
             graphs[graph_iri] = f"{token_hex(8)}.nt"
             tree = get_graph_import_tree(graph_iri)
             for value in tree["tree"].values():
@@ -113,12 +111,13 @@ def get_graphs_tree(plugin: WorkflowPlugin, graph_iris: tuple, ignore_missing: b
                             missing.append(iri)
                         elif iri not in graphs:
                             graphs[iri] = f"{token_hex(8)}.nt"
-    if ignore_missing:
-        [plugin.log.warning(f"Missing graph import: {iri}") for iri in missing]
-    else:
-        raise ImportError(f"Missing graph imports {', '.join(missing)}")
+    if missing:
+        if ignore_missing:
+            [plugin.log.warning(f"Missing graph import: {iri}") for iri in missing]
+        else:
+            raise ImportError(f"Missing graph imports: {', '.join(missing)}")
 
-    return graphs
+    return graphs, missing
 
 
 def send_result(iri: str, filepath: Path) -> None:
