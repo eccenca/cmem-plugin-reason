@@ -21,7 +21,7 @@ def test_reason_output_graph_label() -> None:
         imports="none",
     )
     assert (
-        get_output_graph_label(plugin.data_graph_iri, "Reasoning Results")
+        get_output_graph_label(plugin, plugin.data_graph_iri, "Reasoning Results")
         == "CMEM Shapes Catalog - Reasoning Results"
     )
 
@@ -40,7 +40,10 @@ def test_reason_output_graph_label_fail() -> None:
         validate_profile=False,
         imports="none",
     )
-    assert get_output_graph_label(plugin.data_graph_iri, "Reasoning Results") == "Reasoning Results"
+    assert (
+        get_output_graph_label(plugin, plugin.data_graph_iri, "Reasoning Results")
+        == "Reasoning Results"
+    )
 
 
 @needs_cmem
@@ -52,7 +55,7 @@ def test_validate_output_graph_label() -> None:
         reasoner="hermit",
     )
     assert (
-        get_output_graph_label(plugin.ontology_graph_iri, "Validation Result")
+        get_output_graph_label(plugin, plugin.ontology_graph_iri, "Validation Result")
         == "CMEM Shapes Catalog - Validation Result"
     )
 
@@ -66,6 +69,6 @@ def test_validate_output_graph_label_fail() -> None:
         reasoner="hermit",
     )
     assert (
-        get_output_graph_label(plugin.ontology_graph_iri, "Validation Result")
+        get_output_graph_label(plugin, plugin.ontology_graph_iri, "Validation Result")
         == "Validation Result"
     )

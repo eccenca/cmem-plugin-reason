@@ -199,7 +199,7 @@ class ValidatePlugin(WorkflowPlugin):
                     if iri not in graphs:
                         if iri == self.output_graph_iri:
                             raise ImportError("Input graph imports output graph.")
-                        if iri not in self.graphs_list:
+                        if iri not in self.graphs_dict:
                             missing.append(iri)
                         graphs[iri] = f"{uuid4().hex}.nt"
         if missing:
@@ -214,7 +214,7 @@ class ValidatePlugin(WorkflowPlugin):
         """Reason"""
         data_location = f"{self.temp}/{graphs[self.ontology_graph_iri]}"
         utctime = str(datetime.fromtimestamp(int(time()), tz=UTC))[:-6].replace(" ", "T") + "Z"
-        label = get_output_graph_label(self.ontology_graph_iri, "Validation Result")
+        label = get_output_graph_label(self, self.ontology_graph_iri, "Validation Result")
         cmd = (
             f'explain --input "{data_location}" '
             f"--reasoner {self.reasoner} -M {self.mode} "
@@ -321,8 +321,8 @@ class ValidatePlugin(WorkflowPlugin):
     def execute(self, inputs: Sequence[Entities], context: ExecutionContext) -> Entities | None:  # noqa: ARG002
         """Execute plugin with temporary directory"""
         setup_cmempy_user_access(context.user)
-        self.graphs_list = [_["iri"] for _ in get_graphs_list()]
-        if self.ontology_graph_iri not in self.graphs_list:
+        self.graphs_dict = {_["iri"]: _ for _ in get_graphs_list()}
+        if self.ontology_graph_iri not in self.graphs_dict:
             raise ValueError(f"Ontology graph does not exist: {self.ontology_graph_iri}")
 
         self.context = context

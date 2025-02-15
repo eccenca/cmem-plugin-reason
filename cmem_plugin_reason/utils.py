@@ -223,9 +223,12 @@ def post_profiles(plugin: WorkflowPlugin, valid_profiles: list) -> None:
         post_update(query=query)
 
 
-def get_output_graph_label(iri: str, add_string: str) -> str:
+def get_output_graph_label(plugin: WorkflowPlugin, iri: str, add_string: str) -> str:
     """Create a label for the output graph"""
-    graphs = {_["iri"]: _ for _ in get_graphs_list()}
+    if hasattr(plugin, "graphs_dict"):
+        graphs = plugin.graphs_dict
+    else:
+        graphs = {_["iri"]: _ for _ in get_graphs_list()}
     try:
         data_graph_label = graphs[iri]["label"]["title"]
         data_graph_label += " - "

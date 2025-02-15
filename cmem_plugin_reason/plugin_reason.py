@@ -440,7 +440,7 @@ class ReasonPlugin(WorkflowPlugin):
                                 self.data_imports_ontology = True
                             elif iri == self.output_graph_iri:
                                 raise ImportError("Input graph imports output graph.")
-                            if iri not in self.graphs_list:
+                            if iri not in self.graphs_dict:
                                 missing.append(iri)
                             graphs[iri] = f"{uuid4().hex}.nt"
         if missing:
@@ -456,7 +456,7 @@ class ReasonPlugin(WorkflowPlugin):
         axioms = " ".join(k for k, v in self.axioms.items() if v)
         data_location = f"{self.temp}/{graphs[self.data_graph_iri]}"
         utctime = str(datetime.fromtimestamp(int(time()), tz=UTC))[:-6].replace(" ", "T") + "Z"
-        label = get_output_graph_label(self.data_graph_iri, "Reasoning Results")
+        label = get_output_graph_label(self, self.data_graph_iri, "Reasoning Results")
         cmd = (
             f'reason --input "{data_location}" '
             f"--reasoner {self.reasoner} "
@@ -547,11 +547,11 @@ class ReasonPlugin(WorkflowPlugin):
     def execute(self, inputs: Sequence[Entities], context: ExecutionContext) -> None:  # noqa: ARG002
         """Execute plugin with temporary directory"""
         setup_cmempy_user_access(context.user)
-        self.graphs_list = [_["iri"] for _ in get_graphs_list()]
+        self.graphs_dict = {_["iri"]: _ for _ in get_graphs_list()}
         not_exist = []
-        if self.data_graph_iri not in self.graphs_list:
+        if self.data_graph_iri not in self.graphs_dict:
             not_exist.append(self.data_graph_iri)
-        if self.ontology_graph_iri not in self.graphs_list:
+        if self.ontology_graph_iri not in self.graphs_dict:
             not_exist.append(self.ontology_graph_iri)
         if not_exist:
             raise ValueError(f"Graphs do not exist: {', '.join(not_exist)}")
