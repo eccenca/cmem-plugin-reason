@@ -11,6 +11,11 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 - Parameter to check missing OWL imports. Missing imports can be ignored or lead to execution error.
 - Check if ontology graph and data graph exist before execution.
 
+### Changed
+
+- Throw error if output graph is imported by innput graph in Reason plugin
+- Better tests
+
 ## 2.0.0 2024-11-29
 
 ### Changed

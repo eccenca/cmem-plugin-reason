@@ -98,17 +98,18 @@ def create_xml_catalog_file(dir_: str, graphs: dict) -> None:
 def get_graphs_tree(
     plugin: WorkflowPlugin, graph_iris: tuple, ignore_missing: bool = True
 ) -> tuple[dict, list]:
-    """Get graph import tree. Last item in graph_iris is output_graph_iris which is excluded"""
+    """Get graph import tree. Last item in graph_iris is output_graph_iri which is excluded"""
     graphs_list = [_["iri"] for _ in get_graphs_list()]
     missing = []
     graphs = {}
-    for graph_iri in graph_iris[:-1]:
+    for graph_iri in graph_iris:
         if graph_iri not in graphs:
             graphs[graph_iri] = f"{token_hex(8)}.nt"
-
             tree = get_graph_import_tree(graph_iri)
             for value in tree["tree"].values():
                 for iri in value:
+                    if iri == plugin.output_graph_iri:
+                        raise ImportError("Input graph imports output graph.")
                     if iri != graph_iris[-1]:
                         if iri not in graphs_list:
                             missing.append(iri)

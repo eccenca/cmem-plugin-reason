@@ -412,19 +412,13 @@ class ReasonPlugin(WorkflowPlugin):
         """Get graphs from CMEM"""
         for iri, filename in graphs.items():
             with (Path(self.temp) / filename).open("w", encoding="utf-8") as file:
-                if iri in missing and self.ignore_missing_imports:
-                    self.log.info(f"ignoring missing import {iri}.")
-                else:
+                if iri not in missing:
                     self.log.info(f"Fetching graph {iri}.")
                     setup_cmempy_user_access(self.context.user)
-                    for line in get(iri).text.splitlines():
-                        if not line.endswith(
-                            f"<http://www.w3.org/2002/07/owl#imports> <{self.output_graph_iri}> ."
-                        ):
-                            file.write(line + "\n")
+                    file.write(get(iri).text)
                     if iri == self.data_graph_iri:
                         file.write(
-                            f"<{iri}> "
+                            f"\n<{iri}> "
                             "<http://www.w3.org/2002/07/owl#imports> "
                             f"<{self.ontology_graph_iri}> ."
                         )
@@ -494,7 +488,7 @@ class ReasonPlugin(WorkflowPlugin):
         setup_cmempy_user_access(self.context.user)
         graphs, missing = get_graphs_tree(
             self,
-            graph_iris=(self.data_graph_iri, self.ontology_graph_iri, self.output_graph_iri),
+            graph_iris=(self.data_graph_iri, self.ontology_graph_iri),
             ignore_missing=self.ignore_missing_imports,
         )
         self.get_graphs(graphs, missing)
