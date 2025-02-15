@@ -13,7 +13,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 ### Changed
 
-- Throw error if output graph is imported by innput graph in Reason plugin
+- Throw error if output graph is imported by input graph in Reason plugin
 - Use UUIDs for temporary RDF files
 - Better tests
 
