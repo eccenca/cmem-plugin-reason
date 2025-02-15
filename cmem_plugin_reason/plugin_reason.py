@@ -489,7 +489,6 @@ class ReasonPlugin(WorkflowPlugin):
         graphs, missing = get_graphs_tree(
             self,
             graph_iris=(self.data_graph_iri, self.ontology_graph_iri),
-            ignore_missing=self.ignore_missing_imports,
         )
         self.get_graphs(graphs, missing)
         create_xml_catalog_file(self.temp, graphs)

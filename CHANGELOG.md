@@ -14,6 +14,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 ### Changed
 
 - Throw error if output graph is imported by innput graph in Reason plugin
+- Use UUIDs for temporary RDF files
 - Better tests
 
 ## 2.0.0 2024-11-29
