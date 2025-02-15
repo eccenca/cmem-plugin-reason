@@ -6,9 +6,10 @@ from datetime import UTC, datetime
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from time import time
+from uuid import uuid4
 
 import validators.url
-from cmem.cmempy.dp.proxy.graph import get, get_graphs_list
+from cmem.cmempy.dp.proxy.graph import get, get_graph_import_tree, get_graphs_list
 from cmem.cmempy.dp.proxy.update import post
 from cmem_plugin_base.dataintegration.context import ExecutionContext, ExecutionReport
 from cmem_plugin_base.dataintegration.description import Icon, Plugin, PluginParameter
@@ -31,7 +32,6 @@ from cmem_plugin_reason.utils import (
     REASONERS,
     VALIDATE_PROFILES_PARAMETER,
     create_xml_catalog_file,
-    get_graphs_tree,
     get_output_graph_label,
     get_provenance,
     post_profiles,
@@ -405,6 +405,8 @@ class ReasonPlugin(WorkflowPlugin):
         for k, v in self.axioms.items():
             self.__dict__[underscore(k)] = v
 
+        self.data_imports_ontology = False
+
         self.input_ports = FixedNumberOfInputs([])
         self.output_port = None
 
@@ -422,6 +424,33 @@ class ReasonPlugin(WorkflowPlugin):
                             "<http://www.w3.org/2002/07/owl#imports> "
                             f"<{self.ontology_graph_iri}> ."
                         )
+
+    def get_graphs_tree(self, graph_iris: tuple) -> tuple[dict, list]:  # noqa: C901
+        """Get graph import tree. Last item in graph_iris is output_graph_iri which is excluded"""
+        graphs_list = [_["iri"] for _ in get_graphs_list()]
+        missing = []
+        graphs = {}
+        for graph_iri in graph_iris:
+            if graph_iri not in graphs:
+                graphs[graph_iri] = f"{uuid4().hex}.nt"
+                tree = get_graph_import_tree(graph_iri)
+                for value in tree["tree"].values():
+                    for iri in value:
+                        if iri not in graphs:
+                            if iri == self.ontology_graph_iri:
+                                self.data_imports_ontology = True
+                            elif iri == self.output_graph_iri:
+                                raise ImportError("Input graph imports output graph.")
+                            if iri not in graphs_list:
+                                missing.append(iri)
+                            graphs[iri] = f"{uuid4().hex}.nt"
+        if missing:
+            if self.ignore_missing_imports:
+                [self.log.warning(f"Missing graph import: {iri}") for iri in missing]
+            else:
+                raise ImportError(f"Missing graph imports: {', '.join(missing)}")
+
+        return graphs, missing
 
     def reason(self, graphs: dict) -> None:
         """Reason"""
@@ -486,8 +515,8 @@ class ReasonPlugin(WorkflowPlugin):
     def _execute(self) -> None:
         """`Execute plugin"""
         setup_cmempy_user_access(self.context.user)
-        graphs, missing = get_graphs_tree(
-            self,
+
+        graphs, missing = self.get_graphs_tree(
             graph_iris=(self.data_graph_iri, self.ontology_graph_iri),
         )
         self.get_graphs(graphs, missing)
@@ -503,12 +532,12 @@ class ReasonPlugin(WorkflowPlugin):
             post_profiles(self, valid_profiles)
         post_provenance(self, get_provenance(self, "Reason"))
 
-        if self.imports == "import_result" or self.imports != "import_ontology":
-            setup_cmempy_user_access(self.context.user)
-            if self.imports == "import_result":
-                self.add_result_import()
-            if self.imports != "import_ontology":
-                self.remove_ontology_import()
+        # if self.imports == "import_result" or self.imports != "import_ontology":
+        setup_cmempy_user_access(self.context.user)
+        if self.imports == "import_result":
+            self.add_result_import()
+        if self.imports != "import_ontology" and not self.data_imports_ontology:
+            self.remove_ontology_import()
 
         self.context.report.update(
             ExecutionReport(

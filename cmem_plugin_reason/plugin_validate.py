@@ -6,9 +6,10 @@ from datetime import UTC, datetime
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from time import time
+from uuid import uuid4
 
 import validators.url
-from cmem.cmempy.dp.proxy.graph import get, get_graphs_list
+from cmem.cmempy.dp.proxy.graph import get, get_graph_import_tree, get_graphs_list
 from cmem.cmempy.workspace.projects.resources.resource import create_resource
 from cmem_plugin_base.dataintegration.context import ExecutionContext, ExecutionReport
 from cmem_plugin_base.dataintegration.description import Icon, Plugin, PluginParameter
@@ -31,7 +32,6 @@ from cmem_plugin_reason.utils import (
     REASONERS,
     VALIDATE_PROFILES_PARAMETER,
     create_xml_catalog_file,
-    get_graphs_tree,
     get_output_graph_label,
     get_provenance,
     post_profiles,
@@ -187,6 +187,31 @@ class ValidatePlugin(WorkflowPlugin):
                     setup_cmempy_user_access(self.context.user)
                     file.write(get(iri).text)
 
+    def get_graphs_tree(self, graph_iris: tuple) -> tuple[dict, list]:
+        """Get graph import tree. Last item in graph_iris is output_graph_iri which is excluded"""
+        graphs_list = [_["iri"] for _ in get_graphs_list()]
+        missing = []
+        graphs = {}
+        for graph_iri in graph_iris:
+            if graph_iri not in graphs:
+                graphs[graph_iri] = f"{uuid4().hex}.nt"
+                tree = get_graph_import_tree(graph_iri)
+                for value in tree["tree"].values():
+                    for iri in value:
+                        if iri not in graphs:
+                            if iri == self.output_graph_iri:
+                                raise ImportError("Input graph imports output graph.")
+                            if iri not in graphs_list:
+                                missing.append(iri)
+                            graphs[iri] = f"{uuid4().hex}.nt"
+        if missing:
+            if self.ignore_missing_imports:
+                [self.log.warning(f"Missing graph import: {iri}") for iri in missing]
+            else:
+                raise ImportError(f"Missing graph imports: {', '.join(missing)}")
+
+        return graphs, missing
+
     def explain(self, graphs: dict) -> None:
         """Reason"""
         data_location = f"{self.temp}/{graphs[self.ontology_graph_iri]}"
@@ -251,7 +276,7 @@ class ValidatePlugin(WorkflowPlugin):
     def _execute(self) -> Entities | None:
         """Run the workflow operator."""
         setup_cmempy_user_access(self.context.user)
-        graphs, missing = get_graphs_tree(self, graph_iris=(self.ontology_graph_iri,))
+        graphs, missing = self.get_graphs_tree(graph_iris=(self.ontology_graph_iri,))
         self.get_graphs(graphs, missing)
         create_xml_catalog_file(self.temp, graphs)
         self.explain(graphs)

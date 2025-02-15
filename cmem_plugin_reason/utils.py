@@ -6,10 +6,9 @@ from collections import OrderedDict
 from pathlib import Path
 from secrets import token_hex
 from subprocess import CompletedProcess, run
-from uuid import uuid4
 from xml.etree.ElementTree import Element, SubElement, tostring
 
-from cmem.cmempy.dp.proxy.graph import get_graph_import_tree, get_graphs_list, post_streamed
+from cmem.cmempy.dp.proxy.graph import get_graphs_list, post_streamed
 from cmem.cmempy.dp.proxy.sparql import post as post_select
 from cmem.cmempy.dp.proxy.update import post as post_update
 from cmem_plugin_base.dataintegration.description import PluginParameter
@@ -94,31 +93,6 @@ def create_xml_catalog_file(dir_: str, graphs: dict) -> None:
     with Path(file_name).open("w", encoding="utf-8") as file:
         file.truncate(0)
         file.write(reparsed)
-
-
-def get_graphs_tree(plugin: WorkflowPlugin, graph_iris: tuple) -> tuple[dict, list]:
-    """Get graph import tree. Last item in graph_iris is output_graph_iri which is excluded"""
-    graphs_list = [_["iri"] for _ in get_graphs_list()]
-    missing = []
-    graphs = {}
-    for graph_iri in graph_iris:
-        if graph_iri not in graphs:
-            graphs[graph_iri] = f"{uuid4().hex}.nt"
-            tree = get_graph_import_tree(graph_iri)
-            for value in tree["tree"].values():
-                for iri in value:
-                    if iri == plugin.output_graph_iri:
-                        raise ImportError("Input graph imports output graph.")
-                    if iri not in graphs_list:
-                        missing.append(iri)
-                    graphs[iri] = f"{uuid4().hex}.nt"
-    if missing:
-        if plugin.ignore_missing_imports:
-            [plugin.log.warning(f"Missing graph import: {iri}") for iri in missing]
-        else:
-            raise ImportError(f"Missing graph imports: {', '.join(missing)}")
-
-    return graphs, missing
 
 
 def send_result(iri: str, filepath: Path) -> None:

@@ -6,6 +6,11 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 ## Unreleased
 
+### Fixed
+
+- Do not remove import of ontology in result graph if ontology is imported in data graph and "Output graph import" is not
+set to "Import ontology graph into output graph" in Reason plugin
+
 ### Added
 
 - Parameter to check missing OWL imports. Missing imports can be ignored or lead to execution error.
