@@ -425,12 +425,11 @@ class ReasonPlugin(WorkflowPlugin):
                             f"<{self.ontology_graph_iri}> ."
                         )
 
-    def get_graphs_tree(self, graph_iris: tuple) -> tuple[dict, list]:  # noqa: C901
+    def get_graphs_tree(self) -> tuple[dict, list]:  # noqa: C901
         """Get graph import tree. Last item in graph_iris is output_graph_iri which is excluded"""
-        graphs_list = [_["iri"] for _ in get_graphs_list()]
         missing = []
         graphs = {}
-        for graph_iri in graph_iris:
+        for graph_iri in [self.data_graph_iri, self.ontology_graph_iri]:
             if graph_iri not in graphs:
                 graphs[graph_iri] = f"{uuid4().hex}.nt"
                 tree = get_graph_import_tree(graph_iri)
@@ -441,7 +440,7 @@ class ReasonPlugin(WorkflowPlugin):
                                 self.data_imports_ontology = True
                             elif iri == self.output_graph_iri:
                                 raise ImportError("Input graph imports output graph.")
-                            if iri not in graphs_list:
+                            if iri not in self.graphs_list:
                                 missing.append(iri)
                             graphs[iri] = f"{uuid4().hex}.nt"
         if missing:
@@ -516,9 +515,7 @@ class ReasonPlugin(WorkflowPlugin):
         """`Execute plugin"""
         setup_cmempy_user_access(self.context.user)
 
-        graphs, missing = self.get_graphs_tree(
-            graph_iris=(self.data_graph_iri, self.ontology_graph_iri),
-        )
+        graphs, missing = self.get_graphs_tree()
         self.get_graphs(graphs, missing)
         create_xml_catalog_file(self.temp, graphs)
         self.reason(graphs)
@@ -550,12 +547,11 @@ class ReasonPlugin(WorkflowPlugin):
     def execute(self, inputs: Sequence[Entities], context: ExecutionContext) -> None:  # noqa: ARG002
         """Execute plugin with temporary directory"""
         setup_cmempy_user_access(context.user)
-
-        graphs_list = [_["iri"] for _ in get_graphs_list()]
+        self.graphs_list = [_["iri"] for _ in get_graphs_list()]
         not_exist = []
-        if self.data_graph_iri not in graphs_list:
+        if self.data_graph_iri not in self.graphs_list:
             not_exist.append(self.data_graph_iri)
-        if self.ontology_graph_iri not in graphs_list:
+        if self.ontology_graph_iri not in self.graphs_list:
             not_exist.append(self.ontology_graph_iri)
         if not_exist:
             raise ValueError(f"Graphs do not exist: {', '.join(not_exist)}")
