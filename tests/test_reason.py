@@ -1,11 +1,13 @@
 """Plugin tests."""
 
+import json
 from collections.abc import Generator
 from pathlib import Path
 from typing import Any
 
 import pytest
 from cmem.cmempy.dp.proxy.graph import delete
+from cmem.cmempy.dp.proxy.sparql import get
 from rdflib import Graph
 from rdflib.compare import isomorphic
 
@@ -18,11 +20,18 @@ from . import __path__
 
 UID = "e02aaed014c94e0c91bf960fed127750"
 REASON_DATA_GRAPH_IRI = f"https://ns.eccenca.com/reasoning/{UID}/data/"
+REASON_DATA_GRAPH_IRI_2 = f"https://ns.eccenca.com/reasoning/{UID}/data2/"
 REASON_ONTOLOGY_GRAPH_IRI_1 = f"https://ns.eccenca.com/reasoning/{UID}/vocab/"
 REASON_ONTOLOGY_GRAPH_IRI_2 = f"https://ns.eccenca.com/reasoning/{UID}/vocab2/"
 REASON_ONTOLOGY_GRAPH_IRI_3 = f"https://ns.eccenca.com/reasoning/{UID}/vocab3/"
 ONTOLOGY_GRAPH_IMPORT_FAIL_IRI = f"https://ns.eccenca.com/reasoning/{UID}/vocab4/"
 REASON_RESULT_GRAPH_IRI = f"https://ns.eccenca.com/reasoning/{UID}/result/"
+ASK_QUERY = f"""PREFIX owl: <http://www.w3.org/2002/07/owl#>
+ASK {{
+  GRAPH <{REASON_RESULT_GRAPH_IRI}> {{
+    <{REASON_RESULT_GRAPH_IRI}> owl:imports <{REASON_ONTOLOGY_GRAPH_IRI_1}>
+  }}
+}}"""
 
 
 @pytest.fixture
@@ -35,13 +44,15 @@ def reasoner_parameter() -> str | None:
 def setup() -> Generator[None, Any, None]:
     """Set up Reason test"""
     delete(REASON_DATA_GRAPH_IRI)
+    delete(REASON_DATA_GRAPH_IRI_2)
     delete(REASON_ONTOLOGY_GRAPH_IRI_1)
     delete(REASON_ONTOLOGY_GRAPH_IRI_2)
     delete(REASON_ONTOLOGY_GRAPH_IRI_3)
     delete(ONTOLOGY_GRAPH_IMPORT_FAIL_IRI)
     delete(REASON_RESULT_GRAPH_IRI)
 
-    import_graph(REASON_DATA_GRAPH_IRI, "dataset_owl.ttl")
+    import_graph(REASON_DATA_GRAPH_IRI, "test_reason_data.ttl")
+    import_graph(REASON_DATA_GRAPH_IRI_2, "test_reason_data_2.ttl")
     import_graph(REASON_ONTOLOGY_GRAPH_IRI_1, "test_reason_ontology_1.ttl")
     import_graph(REASON_ONTOLOGY_GRAPH_IRI_2, "test_reason_ontology_2.ttl")
     import_graph(REASON_ONTOLOGY_GRAPH_IRI_3, "test_reason_ontology_3.ttl")
@@ -50,6 +61,7 @@ def setup() -> Generator[None, Any, None]:
     yield
 
     delete(REASON_DATA_GRAPH_IRI)
+    delete(REASON_DATA_GRAPH_IRI_2)
     delete(REASON_ONTOLOGY_GRAPH_IRI_1)
     delete(REASON_ONTOLOGY_GRAPH_IRI_2)
     delete(REASON_ONTOLOGY_GRAPH_IRI_3)
@@ -86,8 +98,8 @@ def test_reason_input_not_exist(setup: None) -> None:  # noqa: ARG001
         reasoner="elk",
         sub_class=False,
         class_assertion=True,
-        property_assertion=True,
-        validate_profile=True,
+        property_assertion=False,
+        validate_profile=False,
         imports="import_ontology",
     )
     with pytest.raises(
@@ -105,8 +117,8 @@ def test_reasoner_import_not_exist_not_ignore(setup: None) -> None:  # noqa: ARG
         reasoner="elk",
         sub_class=False,
         class_assertion=True,
-        property_assertion=True,
-        validate_profile=True,
+        property_assertion=False,
+        validate_profile=False,
         imports="import_ontology",
         ignore_missing_imports=False,
     )
@@ -119,7 +131,7 @@ def test_reasoner_import_not_exist_not_ignore(setup: None) -> None:  # noqa: ARG
 
 
 def test_reasoner_import_not_exist_ignore(setup: None) -> None:  # noqa: ARG001
-    """Test Reason ignnoring missing import"""
+    """Test Reason ignoring missing import"""
     ReasonPlugin(
         data_graph_iri=REASON_DATA_GRAPH_IRI,
         ontology_graph_iri=ONTOLOGY_GRAPH_IMPORT_FAIL_IRI,
@@ -127,8 +139,44 @@ def test_reasoner_import_not_exist_ignore(setup: None) -> None:  # noqa: ARG001
         reasoner="elk",
         sub_class=False,
         class_assertion=True,
-        property_assertion=True,
-        validate_profile=True,
+        property_assertion=False,
+        validate_profile=False,
         imports="import_ontology",
         ignore_missing_imports=True,
     ).execute(inputs=(), context=TestExecutionContext())
+
+
+def test_reasoner_ontology_import(setup: None) -> None:  # noqa: ARG001
+    """Test Reason remove ontology import"""
+    ReasonPlugin(
+        data_graph_iri=REASON_DATA_GRAPH_IRI,
+        ontology_graph_iri=REASON_ONTOLOGY_GRAPH_IRI_1,
+        output_graph_iri=REASON_RESULT_GRAPH_IRI,
+        reasoner="elk",
+        sub_class=False,
+        class_assertion=True,
+        property_assertion=False,
+        validate_profile=False,
+        imports="none",
+        ignore_missing_imports=True,
+    ).execute(inputs=(), context=TestExecutionContext())
+
+    assert not json.loads(get(query=ASK_QUERY)).get("boolean")
+
+
+def test_reasoner_ontology_import_2(setup: None) -> None:  # noqa: ARG001
+    """Test Reason, do not remove ontology import if it exists in data graph"""
+    ReasonPlugin(
+        data_graph_iri=REASON_DATA_GRAPH_IRI_2,
+        ontology_graph_iri=REASON_ONTOLOGY_GRAPH_IRI_1,
+        output_graph_iri=REASON_RESULT_GRAPH_IRI,
+        reasoner="elk",
+        sub_class=False,
+        class_assertion=True,
+        property_assertion=False,
+        validate_profile=False,
+        imports="none",
+        ignore_missing_imports=True,
+    ).execute(inputs=(), context=TestExecutionContext())
+
+    assert json.loads(get(query=ASK_QUERY)).get("boolean")

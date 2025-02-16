@@ -529,7 +529,6 @@ class ReasonPlugin(WorkflowPlugin):
             post_profiles(self, valid_profiles)
         post_provenance(self, get_provenance(self, "Reason"))
 
-        # if self.imports == "import_result" or self.imports != "import_ontology":
         setup_cmempy_user_access(self.context.user)
         if self.imports == "import_result":
             self.add_result_import()
