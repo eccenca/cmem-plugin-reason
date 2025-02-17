@@ -4,7 +4,7 @@
 @prefix xml: <http://www.w3.org/XML/1998/namespace> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
-@base <https://ns.eccenca.com/reasoning/{uuid}/vocab4/> .
+@base <https://ns.eccenca.com/reasoning/{uuid}/vocab3/> .
 
 <https://ns.eccenca.com/reasoning/{uuid}/vocab4/> rdf:type owl:Ontology ;
                                                    rdfs:comment "Vocabulary for a reasoning use case"@en ;
