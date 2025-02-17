@@ -14,9 +14,8 @@ from cmem_plugin_reason.plugin_reason import ReasonPlugin
 from cmem_plugin_reason.utils import REASONERS
 from tests import FIXTURE_DIR
 from tests.utils import TestExecutionContext
-from tests.utils2 import get_remote_graph, import_graph
+from tests.utils2 import UID, get_bytes_io, get_remote_graph, import_graph, replace_uuid
 
-UID = "e02aaed014c94e0c91bf960fed127750"
 REASON_DATA_GRAPH_IRI = f"https://ns.eccenca.com/reasoning/{UID}/data/"
 REASON_DATA_GRAPH_IRI_2 = f"https://ns.eccenca.com/reasoning/{UID}/data2/"
 REASON_ONTOLOGY_GRAPH_IRI_1 = f"https://ns.eccenca.com/reasoning/{UID}/vocab/"
@@ -41,14 +40,20 @@ def reasoner_parameter() -> str | None:
 @pytest.fixture
 def setup() -> Generator[None, Any, None]:
     """Set up Reason test"""
-    delete(REASON_RESULT_GRAPH_IRI)
-
-    import_graph(REASON_DATA_GRAPH_IRI, f"{FIXTURE_DIR}/test_reason_data.ttl")
-    import_graph(REASON_DATA_GRAPH_IRI_2, f"{FIXTURE_DIR}/test_reason_data_2.ttl")
-    import_graph(REASON_ONTOLOGY_GRAPH_IRI_1, f"{FIXTURE_DIR}/test_reason_ontology_1.ttl")
-    import_graph(REASON_ONTOLOGY_GRAPH_IRI_2, f"{FIXTURE_DIR}/test_reason_ontology_2.ttl")
-    import_graph(REASON_ONTOLOGY_GRAPH_IRI_3, f"{FIXTURE_DIR}/test_reason_ontology_3.ttl")
-    import_graph(ONTOLOGY_GRAPH_IMPORT_FAIL_IRI, f"{FIXTURE_DIR}/test_reason_ontology_4.ttl")
+    import_graph(REASON_DATA_GRAPH_IRI, get_bytes_io(f"{FIXTURE_DIR}/test_reason_data.ttl"))
+    import_graph(REASON_DATA_GRAPH_IRI_2, get_bytes_io(f"{FIXTURE_DIR}/test_reason_data_2.ttl"))
+    import_graph(
+        REASON_ONTOLOGY_GRAPH_IRI_1, get_bytes_io(f"{FIXTURE_DIR}/test_reason_ontology_1.ttl")
+    )
+    import_graph(
+        REASON_ONTOLOGY_GRAPH_IRI_2, get_bytes_io(f"{FIXTURE_DIR}/test_reason_ontology_2.ttl")
+    )
+    import_graph(
+        REASON_ONTOLOGY_GRAPH_IRI_3, get_bytes_io(f"{FIXTURE_DIR}/test_reason_ontology_3.ttl")
+    )
+    import_graph(
+        ONTOLOGY_GRAPH_IMPORT_FAIL_IRI, get_bytes_io(f"{FIXTURE_DIR}/test_reason_ontology_4.ttl")
+    )
 
     yield
 
@@ -77,7 +82,11 @@ def test_reasoner(setup: None, reasoner_parameter: str) -> None:  # noqa: ARG001
     ).execute(inputs=(), context=TestExecutionContext())
 
     result = get_remote_graph(REASON_RESULT_GRAPH_IRI)
-    test = Graph().parse(f"{FIXTURE_DIR}/test_{reasoner_parameter}.ttl", format="turtle")
+    result.serialize("result.ttl", format="turtle")
+    test = Graph().parse(
+        data=replace_uuid(f"{FIXTURE_DIR}/test_{reasoner_parameter}.ttl"), format="turtle"
+    )
+    test.serialize("test.ttl", format="turtle")
     assert isomorphic(result, test)
 
 
@@ -116,8 +125,7 @@ def test_reasoner_import_not_exist_not_ignore(setup: None) -> None:  # noqa: ARG
     )
     with pytest.raises(
         ImportError,
-        match="Missing graph imports: "
-        "https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/not-exist/",
+        match=f"Missing graph imports: https://ns.eccenca.com/reasoning/{UID}/not-exist/",
     ):
         plugin.execute(inputs=(), context=TestExecutionContext())
 
@@ -138,7 +146,7 @@ def test_reasoner_import_not_exist_ignore(setup: None) -> None:  # noqa: ARG001
     ).execute(inputs=(), context=TestExecutionContext())
 
 
-def test_reasoner_ontology_import(setup: None) -> None:  # noqa: ARG001
+def test_reasoner_ontology_import(setup: None) -> None:
     """Test Reason remove ontology import"""
     ReasonPlugin(
         data_graph_iri=REASON_DATA_GRAPH_IRI,
@@ -156,7 +164,7 @@ def test_reasoner_ontology_import(setup: None) -> None:  # noqa: ARG001
     assert not json.loads(get(query=ASK_QUERY)).get("boolean")
 
 
-def test_reasoner_ontology_import_2(setup: None) -> None:  # noqa: ARG001
+def test_reasoner_ontology_import_2(setup: None) -> None:
     """Test Reason, do not remove ontology import if it exists in data graph"""
     ReasonPlugin(
         data_graph_iri=REASON_DATA_GRAPH_IRI_2,

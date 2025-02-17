@@ -3,24 +3,24 @@
 @prefix owl: <http://www.w3.org/2002/07/owl#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 
-<https://ns.eccenca.com/validateontology/e02aaed014c94e0c91bf960fed127750/output/> a owl:Ontology ;
+<https://ns.eccenca.com/validateontology/{uuid}/output/> a owl:Ontology ;
     rdfs:label "Eccenca Validate Vocabulary - Validation Result"@en ;
-    dcterms:source <https://ns.eccenca.com/validateontology/e02aaed014c94e0c91bf960fed127750/vocab/> ;
-    rdfs:comment "Ontology validation of <https://ns.eccenca.com/validateontology/e02aaed014c94e0c91bf960fed127750/vocab/>"@en .
+    dcterms:source <https://ns.eccenca.com/validateontology/{uuid}/vocab/> ;
+    rdfs:comment "Ontology validation of <https://ns.eccenca.com/validateontology/{uuid}/vocab/>"@en .
 
-<https://ns.eccenca.com/validateontology/e02aaed014c94e0c91bf960fed127750/vocab/D_6> a owl:NamedIndividual,
-        <https://ns.eccenca.com/validateontology/e02aaed014c94e0c91bf960fed127750/vocab/A> .
+<https://ns.eccenca.com/validateontology/{uuid}/vocab/D_6> a owl:NamedIndividual,
+        <https://ns.eccenca.com/validateontology/{uuid}/vocab/A> .
 
-<https://ns.eccenca.com/validateontology/e02aaed014c94e0c91bf960fed127750/vocab/> a owl:Ontology ;
+<https://ns.eccenca.com/validateontology/{uuid}/vocab/> a owl:Ontology ;
     ns1:profile "DL",
         "EL",
         "Full",
         "QL",
         "RL" .
 
-<https://ns.eccenca.com/validateontology/e02aaed014c94e0c91bf960fed127750/vocab/A> a owl:Class ;
-    rdfs:subClassOf <https://ns.eccenca.com/validateontology/e02aaed014c94e0c91bf960fed127750/vocab/B> ;
-    owl:disjointWith <https://ns.eccenca.com/validateontology/e02aaed014c94e0c91bf960fed127750/vocab/B> .
+<https://ns.eccenca.com/validateontology/{uuid}/vocab/A> a owl:Class ;
+    rdfs:subClassOf <https://ns.eccenca.com/validateontology/{uuid}/vocab/B> ;
+    owl:disjointWith <https://ns.eccenca.com/validateontology/{uuid}/vocab/B> .
 
-<https://ns.eccenca.com/validateontology/e02aaed014c94e0c91bf960fed127750/vocab/B> a owl:Class .
+<https://ns.eccenca.com/validateontology/{uuid}/vocab/B> a owl:Class .
 

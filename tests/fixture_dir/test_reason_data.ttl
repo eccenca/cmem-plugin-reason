@@ -1,13 +1,13 @@
-@prefix : <https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/data/> .
-@prefix vocab: <https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/> .
+@prefix : <https://ns.eccenca.com/reasoning/{uuid}/data/> .
+@prefix vocab: <https://ns.eccenca.com/reasoning/{uuid}/vocab/> .
 @prefix owl: <http://www.w3.org/2002/07/owl#> .
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix xml: <http://www.w3.org/XML/1998/namespace> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
-@base <https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/data/> .
+@base <https://ns.eccenca.com/reasoning/{uuid}/data/> .
 
-<https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/data/>
+<https://ns.eccenca.com/reasoning/{uuid}/data/>
                                                   rdfs:comment "Example data for a reasoning use case"@en ;
                                                   rdfs:label "Eccenca Reasoning Data"@en ;
                                                   rdfs:seeAlso <http://owl.man.ac.uk/2006/07/sssw/people> .
@@ -16,42 +16,42 @@
 #    Individuals
 #################################################################
 
-###  https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/data/Daily_Mirror
+###  https://ns.eccenca.com/reasoning/{uuid}/data/Daily_Mirror
 :Daily_Mirror rdf:type owl:NamedIndividual ,
                        owl:Thing ;
               rdfs:comment "The paper read by Mick."^^xsd:string ;
               rdfs:label "Daily Mirror"^^xsd:string .
 
 
-###  https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/data/Dewey
+###  https://ns.eccenca.com/reasoning/{uuid}/data/Dewey
 :Dewey rdf:type owl:NamedIndividual ,
                 vocab:duck ;
        rdfs:comment ""^^xsd:string ;
        rdfs:label "Dewey"^^xsd:string .
 
 
-###  https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/data/Fido
+###  https://ns.eccenca.com/reasoning/{uuid}/data/Fido
 :Fido rdf:type owl:NamedIndividual ,
                vocab:dog ;
       rdfs:comment ""^^xsd:string ;
       rdfs:label "Fido"^^xsd:string .
 
 
-###  https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/data/Flossie
+###  https://ns.eccenca.com/reasoning/{uuid}/data/Flossie
 :Flossie rdf:type owl:NamedIndividual ,
                   vocab:cow ;
          rdfs:comment ""^^xsd:string ;
          rdfs:label "Flossie"^^xsd:string .
 
 
-###  https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/data/Fluffy
+###  https://ns.eccenca.com/reasoning/{uuid}/data/Fluffy
 :Fluffy rdf:type owl:NamedIndividual ,
                  vocab:tiger ;
         rdfs:comment ""^^xsd:string ;
         rdfs:label "Fluffy"^^xsd:string .
 
 
-###  https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/data/Fred
+###  https://ns.eccenca.com/reasoning/{uuid}/data/Fred
 :Fred rdf:type owl:NamedIndividual ,
                vocab:person ;
       vocab:has_pet :Tibbs ;
@@ -59,14 +59,14 @@
       rdfs:label "Fred"^^xsd:string .
 
 
-###  https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/data/Huey
+###  https://ns.eccenca.com/reasoning/{uuid}/data/Huey
 :Huey rdf:type owl:NamedIndividual ,
                vocab:duck ;
       rdfs:comment ""^^xsd:string ;
       rdfs:label "Huey"^^xsd:string .
 
 
-###  https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/data/Joe
+###  https://ns.eccenca.com/reasoning/{uuid}/data/Joe
 :Joe rdf:type owl:NamedIndividual ,
               vocab:person ;
      vocab:has_pet :Fido ;
@@ -74,7 +74,7 @@
      rdfs:label "Joe"^^xsd:string .
 
 
-###  https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/data/Kevin
+###  https://ns.eccenca.com/reasoning/{uuid}/data/Kevin
 :Kevin rdf:type owl:NamedIndividual ,
                 vocab:person ;
        vocab:has_pet :Flossie ,
@@ -83,14 +83,14 @@
        rdfs:label "Kevin"^^xsd:string .
 
 
-###  https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/data/Louie
+###  https://ns.eccenca.com/reasoning/{uuid}/data/Louie
 :Louie rdf:type owl:NamedIndividual ,
                 vocab:duck ;
        rdfs:comment ""^^xsd:string ;
        rdfs:label "Louie"^^xsd:string .
 
 
-###  https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/data/Mick
+###  https://ns.eccenca.com/reasoning/{uuid}/data/Mick
 :Mick rdf:type owl:NamedIndividual ,
                vocab:male ;
       vocab:drives :Q123_ABC ;
@@ -99,7 +99,7 @@
       rdfs:label "Mick"^^xsd:string .
 
 
-###  https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/data/Minnie
+###  https://ns.eccenca.com/reasoning/{uuid}/data/Minnie
 :Minnie rdf:type owl:NamedIndividual ,
                  vocab:elderly ,
                  vocab:female ;
@@ -108,14 +108,14 @@
         rdfs:label "Minnie"^^xsd:string .
 
 
-###  https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/data/Pete
+###  https://ns.eccenca.com/reasoning/{uuid}/data/Pete
 :Pete rdf:type owl:NamedIndividual ,
                owl:Thing ;
       rdfs:comment ""^^xsd:string ;
       rdfs:label "Pete"^^xsd:string .
 
 
-###  https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/data/Q123_ABC
+###  https://ns.eccenca.com/reasoning/{uuid}/data/Q123_ABC
 :Q123_ABC rdf:type owl:NamedIndividual ,
                    vocab:van ,
                    vocab:white_thing ;
@@ -123,7 +123,7 @@
           rdfs:label "Q123 ABC"^^xsd:string .
 
 
-###  https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/data/Rex
+###  https://ns.eccenca.com/reasoning/{uuid}/data/Rex
 :Rex rdf:type owl:NamedIndividual ,
               vocab:dog ;
      vocab:is_pet_of :Mick ;
@@ -131,7 +131,7 @@
      rdfs:label "Rex"^^xsd:string .
 
 
-###  https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/data/Spike
+###  https://ns.eccenca.com/reasoning/{uuid}/data/Spike
 :Spike rdf:type owl:NamedIndividual ,
                 owl:Thing ;
        vocab:is_pet_of :Pete ;
@@ -139,42 +139,42 @@
        rdfs:label "Spike"^^xsd:string .
 
 
-###  https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/data/The_Guardian
+###  https://ns.eccenca.com/reasoning/{uuid}/data/The_Guardian
 :The_Guardian rdf:type owl:NamedIndividual ,
                        vocab:broadsheet ;
               rdfs:comment ""^^xsd:string ;
               rdfs:label "The Guardian"^^xsd:string .
 
 
-###  https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/data/The_Sun
+###  https://ns.eccenca.com/reasoning/{uuid}/data/The_Sun
 :The_Sun rdf:type owl:NamedIndividual ,
                   vocab:tabloid ;
          rdfs:comment ""^^xsd:string ;
          rdfs:label "The Sun"^^xsd:string .
 
 
-###  https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/data/The_Times
+###  https://ns.eccenca.com/reasoning/{uuid}/data/The_Times
 :The_Times rdf:type owl:NamedIndividual ,
                     vocab:broadsheet ;
            rdfs:comment ""^^xsd:string ;
            rdfs:label "The Times"^^xsd:string .
 
 
-###  https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/data/Tibbs
+###  https://ns.eccenca.com/reasoning/{uuid}/data/Tibbs
 :Tibbs rdf:type owl:NamedIndividual ,
                 vocab:cat ;
        rdfs:comment ""^^xsd:string ;
        rdfs:label "Tibbs"^^xsd:string .
 
 
-###  https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/data/Tom
+###  https://ns.eccenca.com/reasoning/{uuid}/data/Tom
 :Tom rdf:type owl:NamedIndividual ,
               owl:Thing ;
      rdfs:comment ""^^xsd:string ;
      rdfs:label "Tom"^^xsd:string .
 
 
-###  https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/data/Walt
+###  https://ns.eccenca.com/reasoning/{uuid}/data/Walt
 :Walt rdf:type owl:NamedIndividual ,
                vocab:person ;
       vocab:has_pet :Dewey ,

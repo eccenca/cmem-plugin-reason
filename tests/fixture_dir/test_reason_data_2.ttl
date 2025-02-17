@@ -1,23 +1,23 @@
-@prefix : <https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/data/> .
-@prefix vocab: <https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/> .
+@prefix : <https://ns.eccenca.com/reasoning/{uuid}/data2/> .
+@prefix vocab: <https://ns.eccenca.com/reasoning/{uuid}/vocab/> .
 @prefix owl: <http://www.w3.org/2002/07/owl#> .
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix xml: <http://www.w3.org/XML/1998/namespace> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
-@base <https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/data/> .
+@base <https://ns.eccenca.com/reasoning/{uuid}/data2/> .
 
-<https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/data2/>
+<https://ns.eccenca.com/reasoning/{uuid}/data2/>
                                                   rdfs:comment "Example data for a reasoning use case"@en ;
                                                   rdfs:label "Eccenca Reasoning Data"@en ;
                                                   rdfs:seeAlso <http://owl.man.ac.uk/2006/07/sssw/people> ;
-                                                  owl:imports <https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/> .
+                                                  owl:imports <https://ns.eccenca.com/reasoning/{uuid}/vocab/> .
 
 #################################################################
 #    Individuals
 #################################################################
 
-###  https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/data/Fred
+###  https://ns.eccenca.com/reasoning/{uuid}/data2/Fred
 :Fred rdf:type owl:NamedIndividual ,
                vocab:person ;
       vocab:has_pet :Tibbs ;
@@ -26,7 +26,7 @@
 
 
 
-###  https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/data/Tibbs
+###  https://ns.eccenca.com/reasoning/{uuid}/data2/Tibbs
 :Tibbs rdf:type owl:NamedIndividual ,
                 vocab:cat ;
        rdfs:comment ""^^xsd:string ;

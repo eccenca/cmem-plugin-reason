@@ -1,7 +1,6 @@
 """Plugin tests."""
 
 from collections.abc import Generator
-from contextlib import suppress
 from typing import Any
 
 import pytest
@@ -16,9 +15,8 @@ from cmem_plugin_reason.plugin_validate import ValidatePlugin
 from cmem_plugin_reason.utils import REASONERS
 from tests import FIXTURE_DIR
 from tests.utils import TestExecutionContext
-from tests.utils2 import get_remote_graph, import_graph
+from tests.utils2 import UID, get_bytes_io, get_remote_graph, import_graph, replace_uuid
 
-UID = "e02aaed014c94e0c91bf960fed127750"
 VALIDATE_ONTOLOGY_GRAPH_IRI_1 = f"https://ns.eccenca.com/validateontology/{UID}/vocab/"
 VALIDATE_ONTOLOGY_GRAPH_IRI_2 = f"https://ns.eccenca.com/validateontology/{UID}/vocab2/"
 VALIDATE_ONTOLOGY_GRAPH_IRI_3 = f"https://ns.eccenca.com/validateontology/{UID}/vocab3/"
@@ -46,15 +44,19 @@ def reasoner_parameter() -> str | None:
 @pytest.fixture
 def setup() -> Generator[None, Any, None]:
     """Set up Validate test"""
-    with suppress(Exception):
-        delete_project(PROJECT_ID)
-    delete(VALIDATE_RESULT_GRAPH_IRI)
-
     make_new_project(PROJECT_ID)
-    import_graph(VALIDATE_ONTOLOGY_GRAPH_IRI_1, f"{FIXTURE_DIR}/test_validate_ontology_1.ttl")
-    import_graph(VALIDATE_ONTOLOGY_GRAPH_IRI_2, f"{FIXTURE_DIR}/test_validate_ontology_2.ttl")
-    import_graph(VALIDATE_ONTOLOGY_GRAPH_IRI_3, f"{FIXTURE_DIR}/test_validate_ontology_3.ttl")
-    import_graph(ONTOLOGY_GRAPH_IMPORT_FAIL_IRI, f"{FIXTURE_DIR}/test_reason_ontology_4.ttl")
+    import_graph(
+        VALIDATE_ONTOLOGY_GRAPH_IRI_1, get_bytes_io(f"{FIXTURE_DIR}/test_validate_ontology_1.ttl")
+    )
+    import_graph(
+        VALIDATE_ONTOLOGY_GRAPH_IRI_2, get_bytes_io(f"{FIXTURE_DIR}/test_validate_ontology_2.ttl")
+    )
+    import_graph(
+        VALIDATE_ONTOLOGY_GRAPH_IRI_3, get_bytes_io(f"{FIXTURE_DIR}/test_validate_ontology_3.ttl")
+    )
+    import_graph(
+        ONTOLOGY_GRAPH_IMPORT_FAIL_IRI, get_bytes_io(f"{FIXTURE_DIR}/test_reason_ontology_4.ttl")
+    )
 
     yield
 
@@ -79,11 +81,12 @@ def test_validate(setup: None, reasoner_parameter: str) -> None:  # noqa: ARG001
         mode="inconsistency",
     ).execute(inputs=(), context=TestExecutionContext(PROJECT_ID))
 
-    md_test = (FIXTURE_DIR / f"test_validate_{reasoner_parameter}.md").read_text()
+    md_test = replace_uuid(f"{FIXTURE_DIR}/test_validate_{reasoner_parameter}.md")
     value_dict = get_value_dict(result)
     output_graph = get_remote_graph(VALIDATE_RESULT_GRAPH_IRI)
     test = Graph().parse(
-        f"{FIXTURE_DIR}/test_validate_output_{reasoner_parameter}.ttl", format="turtle"
+        data=replace_uuid(f"{FIXTURE_DIR}/test_validate_output_{reasoner_parameter}.ttl"),
+        format="turtle",
     )
     val_errors = ""
 
@@ -133,8 +136,7 @@ def test_validate_import_not_exist_not_ignore(setup: None) -> None:  # noqa: ARG
     )
     with pytest.raises(
         ImportError,
-        match="Missing graph imports: "
-        "https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/not-exist/",
+        match=f"Missing graph imports: https://ns.eccenca.com/reasoning/{UID}/not-exist/",
     ):
         plugin.execute(inputs=(), context=TestExecutionContext(PROJECT_ID))
 

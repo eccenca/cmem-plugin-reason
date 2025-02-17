@@ -5,19 +5,19 @@
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
 
-<https://ns.eccenca.com/validateontology/e02aaed014c94e0c91bf960fed127750/output/> a owl:Ontology ;
+<https://ns.eccenca.com/validateontology/{uuid}/output/> a owl:Ontology ;
     rdfs:label "Eccenca Validate Vocabulary - Validation Result"@en ;
-    rdfs:comment "Ontology validation of <https://ns.eccenca.com/validateontology/e02aaed014c94e0c91bf960fed127750/vocab/>"@en ;
-    dc:source <https://ns.eccenca.com/validateontology/e02aaed014c94e0c91bf960fed127750/vocab/> .
+    rdfs:comment "Ontology validation of <https://ns.eccenca.com/validateontology/{uuid}/vocab/>"@en ;
+    dc:source <https://ns.eccenca.com/validateontology/{uuid}/vocab/> .
 
-<https://ns.eccenca.com/validateontology/e02aaed014c94e0c91bf960fed127750/vocab/D_6> a owl:NamedIndividual,
-        <https://ns.eccenca.com/validateontology/e02aaed014c94e0c91bf960fed127750/vocab/A> .
+<https://ns.eccenca.com/validateontology/{uuid}/vocab/D_6> a owl:NamedIndividual,
+        <https://ns.eccenca.com/validateontology/{uuid}/vocab/A> .
 
-<https://ns.eccenca.com/validateontology/e02aaed014c94e0c91bf960fed127750/vocab/A> a owl:Class ;
-    rdfs:subClassOf <https://ns.eccenca.com/validateontology/e02aaed014c94e0c91bf960fed127750/vocab/B> ;
-    owl:disjointWith <https://ns.eccenca.com/validateontology/e02aaed014c94e0c91bf960fed127750/vocab/B> .
+<https://ns.eccenca.com/validateontology/{uuid}/vocab/A> a owl:Class ;
+    rdfs:subClassOf <https://ns.eccenca.com/validateontology/{uuid}/vocab/B> ;
+    owl:disjointWith <https://ns.eccenca.com/validateontology/{uuid}/vocab/B> .
 
-<https://ns.eccenca.com/validateontology/e02aaed014c94e0c91bf960fed127750/vocab/B> a owl:Class .
+<https://ns.eccenca.com/validateontology/{uuid}/vocab/B> a owl:Class .
 
-<https://ns.eccenca.com/validateontology/e02aaed014c94e0c91bf960fed127750/vocab/> a owl:Ontology ;
+<https://ns.eccenca.com/validateontology/{uuid}/vocab/> a owl:Ontology ;
     <https://vocab.eccenca.com/plugin/reason/profile> "Full", "DL", "EL", "QL", "RL" .
