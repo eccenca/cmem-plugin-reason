@@ -1,6 +1,7 @@
 """Plugin tests."""
 
 from collections.abc import Generator
+from contextlib import suppress
 from typing import Any
 
 import pytest
@@ -44,6 +45,10 @@ def reasoner_parameter() -> str | None:
 @pytest.fixture
 def setup() -> Generator[None, Any, None]:
     """Set up Validate test"""
+    with suppress(Exception):
+        delete_project(PROJECT_ID)
+    delete(VALIDATE_RESULT_GRAPH_IRI)
+
     make_new_project(PROJECT_ID)
     import_graph(
         VALIDATE_ONTOLOGY_GRAPH_IRI_1, get_bytes_io(f"{FIXTURE_DIR}/test_validate_ontology_1.ttl")

@@ -2,12 +2,11 @@
 
 from io import BytesIO
 from pathlib import Path
-from uuid import uuid4
 
 from cmem.cmempy.dp.proxy.graph import get, post_streamed
 from rdflib import DCTERMS, OWL, RDF, Graph, URIRef
 
-UID = "e02aaed0" + uuid4().hex[8:]
+UID = "e02aaed014c94e0c91bf960fed127750"
 
 
 def get_remote_graph(iri: str) -> Graph:
