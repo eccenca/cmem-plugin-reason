@@ -14,7 +14,7 @@ from rdflib.compare import isomorphic
 from cmem_plugin_reason.plugin_validate import ValidatePlugin
 from cmem_plugin_reason.utils import REASONERS
 from tests import FIXTURE_DIR
-from tests.utils import TestExecutionContext
+from tests.utils import TestExecutionContext, needs_cmem
 from tests.utils2 import UID, get_bytes_io, get_remote_graph, import_graph, replace_uuid
 
 VALIDATE_ONTOLOGY_GRAPH_IRI_1 = f"https://ns.eccenca.com/validateontology/{UID}/vocab/"
@@ -69,6 +69,7 @@ def setup() -> Generator[None, Any, None]:
 
 
 @pytest.mark.parametrize("reasoner_parameter", list(REASONERS.keys()))
+@needs_cmem
 def test_validate(setup: None, reasoner_parameter: str) -> None:  # noqa: ARG001
     """Test Validate"""
     result = ValidatePlugin(
@@ -110,7 +111,7 @@ def test_validate(setup: None, reasoner_parameter: str) -> None:  # noqa: ARG001
 def test_validate_input_not_exist(setup: None) -> None:  # noqa: ARG001
     """Test Validate with non-existing input graph"""
     plugin = ValidatePlugin(
-        ontology_graph_iri="http://not-exist1.org",
+        ontology_graph_iri=f"https://ns.eccenca.com/reasoning/{UID}/not-exist/",
         output_graph_iri=VALIDATE_RESULT_GRAPH_IRI,
         reasoner="elk",
         validate_profile=False,
@@ -118,7 +119,10 @@ def test_validate_input_not_exist(setup: None) -> None:  # noqa: ARG001
         output_entities=True,
         mode="inconsistency",
     )
-    with pytest.raises(ValueError, match="Ontology graph does not exist: http://not-exist1.org"):
+    with pytest.raises(
+        ValueError,
+        match=f"Ontology graph does not exist: https://ns.eccenca.com/reasoning/{UID}/not-exist/",
+    ):
         plugin.execute(inputs=(), context=TestExecutionContext(PROJECT_ID))
 
 
