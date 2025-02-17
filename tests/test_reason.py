@@ -146,7 +146,7 @@ def test_reasoner_import_not_exist_ignore(setup: None) -> None:  # noqa: ARG001
     ).execute(inputs=(), context=TestExecutionContext())
 
 
-def test_reasoner_ontology_import(setup: None) -> None:
+def test_reasoner_ontology_import(setup: None) -> None:  # noqa: ARG001
     """Test Reason remove ontology import"""
     ReasonPlugin(
         data_graph_iri=REASON_DATA_GRAPH_IRI,
@@ -164,7 +164,7 @@ def test_reasoner_ontology_import(setup: None) -> None:
     assert not json.loads(get(query=ASK_QUERY)).get("boolean")
 
 
-def test_reasoner_ontology_import_2(setup: None) -> None:
+def test_reasoner_ontology_import_2(setup: None) -> None:  # noqa: ARG001
     """Test Reason, do not remove ontology import if it exists in data graph"""
     ReasonPlugin(
         data_graph_iri=REASON_DATA_GRAPH_IRI_2,
