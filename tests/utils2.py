@@ -7,7 +7,7 @@ from uuid import uuid4
 from cmem.cmempy.dp.proxy.graph import get, post_streamed
 from rdflib import DCTERMS, OWL, RDF, Graph, URIRef
 
-UID = uuid4().hex
+UID = "e02aaed0" + uuid4().hex[8:]
 
 
 def get_remote_graph(iri: str) -> Graph:
