@@ -8,6 +8,10 @@ The plugin outputs the explanation as text in Markdown format on the path "markd
 
 The IRI of the input ontology graph. The graph IRI is selected from a list of graphs of type`owl:Ontology`.
 
+### Ignore missing imports
+
+Ignore missing `owl:imports` in the input graphs
+
 ### Reasoner
 
 The following reasoner options are supported: 

@@ -8,10 +8,9 @@ from secrets import token_hex
 from subprocess import CompletedProcess, run
 from xml.etree.ElementTree import Element, SubElement, tostring
 
-from cmem.cmempy.dp.proxy.graph import get_graph_import_tree, get_graphs_list, post_streamed
+from cmem.cmempy.dp.proxy.graph import get_graphs_list, post_streamed
 from cmem.cmempy.dp.proxy.sparql import post as post_select
 from cmem.cmempy.dp.proxy.update import post as post_update
-from cmem_plugin_base.dataintegration.context import ExecutionContext
 from cmem_plugin_base.dataintegration.description import PluginParameter
 from cmem_plugin_base.dataintegration.parameter.choice import ChoiceParameterType
 from cmem_plugin_base.dataintegration.parameter.graph import GraphParameterType
@@ -70,6 +69,14 @@ VALIDATE_PROFILES_PARAMETER = PluginParameter(
     default_value=False,
 )
 
+IGNORE_MISSING_IMPORTS_PARAMETER = PluginParameter(
+    param_type=BoolParameterType(),
+    name="ignore_missing_imports",
+    label="Ignore missing imports",
+    description="""Ignore missing graphs from the import tree of the input graphs.""",
+    default_value=True,
+)
+
 
 def create_xml_catalog_file(dir_: str, graphs: dict) -> None:
     """Create XML catalog file"""
@@ -86,20 +93,6 @@ def create_xml_catalog_file(dir_: str, graphs: dict) -> None:
     with Path(file_name).open("w", encoding="utf-8") as file:
         file.truncate(0)
         file.write(reparsed)
-
-
-def get_graphs_tree(graph_iris: tuple) -> dict:
-    """Get graph import tree. Last item in graph_iris is output_graph_iris which is excluded"""
-    graphs = {}
-    for graph_iri in graph_iris[:-1]:
-        if graph_iri not in graphs:
-            graphs[graph_iri] = f"{token_hex(8)}.nt"
-            tree = get_graph_import_tree(graph_iri)
-            for value in tree["tree"].values():
-                for iri in value:
-                    if iri not in graphs and iri != graph_iri[-1]:
-                        graphs[iri] = f"{token_hex(8)}.nt"
-    return graphs
 
 
 def send_result(iri: str, filepath: Path) -> None:
@@ -128,7 +121,7 @@ def post_provenance(plugin: WorkflowPlugin, prov: dict | None) -> None:
                     <{prov["plugin_iri"]}> a <{prov["plugin_type"]}>,
                         <https://vocab.eccenca.com/di/CustomTask> .
                     <{prov["plugin_iri"]}> <http://www.w3.org/2000/01/rdf-schema#label>
-                        "{prov['plugin_label']}" .
+                        "{prov["plugin_label"]}" .
                     {param_sparql}
                 }}
             }}
@@ -136,14 +129,10 @@ def post_provenance(plugin: WorkflowPlugin, prov: dict | None) -> None:
         post_update(query=insert_query)
 
 
-def get_provenance(
-    plugin: WorkflowPlugin, label_plugin: str, context: ExecutionContext
-) -> dict | None:
+def get_provenance(plugin: WorkflowPlugin, label_plugin: str) -> dict | None:
     """Get provenance information"""
-    plugin_iri = (
-        f"http://dataintegration.eccenca.com/{context.task.project_id()}/{context.task.task_id()}"
-    )
-    project_graph = f"http://di.eccenca.com/project/{context.task.project_id()}"
+    plugin_iri = f"http://dataintegration.eccenca.com/{plugin.context.task.project_id()}/{plugin.context.task.task_id()}"
+    project_graph = f"http://di.eccenca.com/project/{plugin.context.task.project_id()}"
 
     type_query = f"""
         SELECT ?type {{
@@ -179,7 +168,7 @@ def get_provenance(
         }}
     """
 
-    new_plugin_iri = f'{"_".join(plugin_iri.split("_")[:-1])}_{token_hex(8)}'
+    new_plugin_iri = f"{'_'.join(plugin_iri.split('_')[:-1])}_{token_hex(8)}"
     label = f"{label_plugin} plugin"
     result = json.loads(post_select(query=parameter_query))
 
@@ -234,9 +223,13 @@ def post_profiles(plugin: WorkflowPlugin, valid_profiles: list) -> None:
         post_update(query=query)
 
 
-def get_output_graph_label(iri: str, add_string: str) -> str:
+def get_output_graph_label(plugin: WorkflowPlugin, iri: str, add_string: str) -> str:
     """Create a label for the output graph"""
-    graphs = {_["iri"]: _ for _ in get_graphs_list()}
+    graphs = (
+        plugin.graphs_dict
+        if hasattr(plugin, "graphs_dict")
+        else {_["iri"]: _ for _ in get_graphs_list()}
+    )
     try:
         data_graph_label = graphs[iri]["label"]["title"]
         data_graph_label += " - "

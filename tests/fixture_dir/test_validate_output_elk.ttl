@@ -1,0 +1,23 @@
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix dc: <http://purl.org/dc/terms/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+
+<https://ns.eccenca.com/validateontology/{uuid}/output/> a owl:Ontology ;
+    rdfs:label "Eccenca Validate Vocabulary - Validation Result"@en ;
+    rdfs:comment "Ontology validation of <https://ns.eccenca.com/validateontology/{uuid}/vocab/>"@en ;
+    dc:source <https://ns.eccenca.com/validateontology/{uuid}/vocab/> .
+
+<https://ns.eccenca.com/validateontology/{uuid}/vocab/D_6> a owl:NamedIndividual,
+        <https://ns.eccenca.com/validateontology/{uuid}/vocab/A> .
+
+<https://ns.eccenca.com/validateontology/{uuid}/vocab/A> a owl:Class ;
+    rdfs:subClassOf <https://ns.eccenca.com/validateontology/{uuid}/vocab/B> ;
+    owl:disjointWith <https://ns.eccenca.com/validateontology/{uuid}/vocab/B> .
+
+<https://ns.eccenca.com/validateontology/{uuid}/vocab/B> a owl:Class .
+
+<https://ns.eccenca.com/validateontology/{uuid}/vocab/> a owl:Ontology ;
+    <https://vocab.eccenca.com/plugin/reason/profile> "Full", "DL", "EL", "QL", "RL" .

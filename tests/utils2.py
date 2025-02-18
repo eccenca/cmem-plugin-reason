@@ -1,11 +1,12 @@
 """Common functions"""
 
+from io import BytesIO
 from pathlib import Path
 
 from cmem.cmempy.dp.proxy.graph import get, post_streamed
 from rdflib import DCTERMS, OWL, RDF, Graph, URIRef
 
-from . import __path__
+UID = "e02aaed014c94e0c91bf960fed127750"
 
 
 def get_remote_graph(iri: str) -> Graph:
@@ -19,8 +20,18 @@ def get_remote_graph(iri: str) -> Graph:
     return graph
 
 
-def import_graph(iri: str, filename: str) -> None:
+def import_graph(iri: str, file: BytesIO) -> None:
     """Import graph to CMEM"""
-    res = post_streamed(iri, Path(__path__[0]) / filename, replace=True)
+    res = post_streamed(iri, file, replace=True)
     if res.status_code != 204:  # noqa: PLR2004
         raise ValueError(f"Response {res.status_code}: {res.url}")
+
+
+def replace_uuid(filepath: str) -> str:
+    """Replace {uuid} in input files"""
+    return Path(filepath).read_text().replace("{uuid}", UID)
+
+
+def get_bytes_io(filepath: str) -> BytesIO:
+    """Get BytesIO object from filepath"""
+    return BytesIO(replace_uuid(filepath).encode(encoding="utf-8"))

@@ -17,6 +17,10 @@ The IRI of the output graph for the reasoning result.
 
 ⚠️ Existing graphs will be overwritten.
 
+### Ignore missing imports
+
+Ignore missing `owl:imports` in the input graphs
+
 ### Reasoner
 
 The following reasoner options are supported: 

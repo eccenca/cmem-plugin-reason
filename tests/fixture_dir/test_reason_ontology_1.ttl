@@ -1,128 +1,128 @@
-@prefix : <https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/> .
+@prefix : <https://ns.eccenca.com/reasoning/{uuid}/vocab/> .
 @prefix owl: <http://www.w3.org/2002/07/owl#> .
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix xml: <http://www.w3.org/XML/1998/namespace> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
-@base <https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/> .
+@base <https://ns.eccenca.com/reasoning/{uuid}/vocab/> .
 
-<https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/> rdf:type owl:Ontology ;
+<https://ns.eccenca.com/reasoning/{uuid}/vocab/> rdf:type owl:Ontology ;
                                                    rdfs:comment "Vocabulary for a reasoning use case"@en ;
                                                    rdfs:label "Eccenca Reasoning Vocabulary"@en ;
                                                    rdfs:seeAlso <http://owl.man.ac.uk/2006/07/sssw/people> ;
-                                                   owl:imports <https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab2/> .
+                                                   owl:imports <https://ns.eccenca.com/reasoning/{uuid}/vocab2/> .
 
 #################################################################
 #    Object Properties
 #################################################################
 
-###  https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/drives
+###  https://ns.eccenca.com/reasoning/{uuid}/vocab/drives
 :drives rdf:type owl:ObjectProperty ;
         rdfs:comment ""^^xsd:string ;
-        rdfs:isDefinedBy <https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/> ;
+        rdfs:isDefinedBy <https://ns.eccenca.com/reasoning/{uuid}/vocab/> ;
         rdfs:label "drives"^^xsd:string .
 
 
-###  https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/eaten_by
+###  https://ns.eccenca.com/reasoning/{uuid}/vocab/eaten_by
 :eaten_by rdf:type owl:ObjectProperty ;
           owl:inverseOf :eats ;
           rdfs:comment ""^^xsd:string ;
-          rdfs:isDefinedBy <https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/> ;
+          rdfs:isDefinedBy <https://ns.eccenca.com/reasoning/{uuid}/vocab/> ;
           rdfs:label "eaten_by"^^xsd:string .
 
 
-###  https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/eats
+###  https://ns.eccenca.com/reasoning/{uuid}/vocab/eats
 :eats rdf:type owl:ObjectProperty ;
       rdfs:domain :animal ;
       rdfs:comment ""^^xsd:string ;
-      rdfs:isDefinedBy <https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/> ;
+      rdfs:isDefinedBy <https://ns.eccenca.com/reasoning/{uuid}/vocab/> ;
       rdfs:label "eats"^^xsd:string .
 
 
-###  https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/has_child
+###  https://ns.eccenca.com/reasoning/{uuid}/vocab/has_child
 :has_child rdf:type owl:ObjectProperty ;
            rdfs:comment ""^^xsd:string ;
-           rdfs:isDefinedBy <https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/> ;
+           rdfs:isDefinedBy <https://ns.eccenca.com/reasoning/{uuid}/vocab/> ;
            rdfs:label "has_child"^^xsd:string .
 
 
-###  https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/has_father
+###  https://ns.eccenca.com/reasoning/{uuid}/vocab/has_father
 :has_father rdf:type owl:ObjectProperty ;
             rdfs:subPropertyOf :has_parent ;
             rdfs:range :man ;
             rdfs:comment ""^^xsd:string ;
-            rdfs:isDefinedBy <https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/> ;
+            rdfs:isDefinedBy <https://ns.eccenca.com/reasoning/{uuid}/vocab/> ;
             rdfs:label "has_father"^^xsd:string .
 
 
-###  https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/has_mother
+###  https://ns.eccenca.com/reasoning/{uuid}/vocab/has_mother
 :has_mother rdf:type owl:ObjectProperty ;
             rdfs:subPropertyOf :has_parent ;
             rdfs:range :woman ;
             rdfs:comment ""^^xsd:string ;
-            rdfs:isDefinedBy <https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/> ;
+            rdfs:isDefinedBy <https://ns.eccenca.com/reasoning/{uuid}/vocab/> ;
             rdfs:label "has_mother"^^xsd:string .
 
 
-###  https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/has_parent
+###  https://ns.eccenca.com/reasoning/{uuid}/vocab/has_parent
 :has_parent rdf:type owl:ObjectProperty ;
             rdfs:comment ""^^xsd:string ;
-            rdfs:isDefinedBy <https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/> ;
+            rdfs:isDefinedBy <https://ns.eccenca.com/reasoning/{uuid}/vocab/> ;
             rdfs:label "has_parent"^^xsd:string .
 
 
-###  https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/has_part
+###  https://ns.eccenca.com/reasoning/{uuid}/vocab/has_part
 :has_part rdf:type owl:ObjectProperty ;
           owl:inverseOf :part_of ;
           rdfs:comment ""^^xsd:string ;
-          rdfs:isDefinedBy <https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/> ;
+          rdfs:isDefinedBy <https://ns.eccenca.com/reasoning/{uuid}/vocab/> ;
           rdfs:label "has_part"^^xsd:string .
 
 
-###  https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/has_pet
+###  https://ns.eccenca.com/reasoning/{uuid}/vocab/has_pet
 :has_pet rdf:type owl:ObjectProperty ;
          rdfs:subPropertyOf :likes ;
          owl:inverseOf :is_pet_of ;
          rdfs:domain :person ;
          rdfs:range :animal ;
          rdfs:comment "Anyone that has a pet must like that pet."^^xsd:string ;
-         rdfs:isDefinedBy <https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/> ;
+         rdfs:isDefinedBy <https://ns.eccenca.com/reasoning/{uuid}/vocab/> ;
          rdfs:label "has_pet"^^xsd:string .
 
 
-###  https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/is_pet_of
+###  https://ns.eccenca.com/reasoning/{uuid}/vocab/is_pet_of
 :is_pet_of rdf:type owl:ObjectProperty ;
            rdfs:comment ""^^xsd:string ;
-           rdfs:isDefinedBy <https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/> ;
+           rdfs:isDefinedBy <https://ns.eccenca.com/reasoning/{uuid}/vocab/> ;
            rdfs:label "is_pet_of"^^xsd:string .
 
 
-###  https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/likes
+###  https://ns.eccenca.com/reasoning/{uuid}/vocab/likes
 :likes rdf:type owl:ObjectProperty ;
        rdfs:comment ""^^xsd:string ;
-       rdfs:isDefinedBy <https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/> ;
+       rdfs:isDefinedBy <https://ns.eccenca.com/reasoning/{uuid}/vocab/> ;
        rdfs:label "likes"^^xsd:string .
 
 
-###  https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/part_of
+###  https://ns.eccenca.com/reasoning/{uuid}/vocab/part_of
 :part_of rdf:type owl:ObjectProperty ;
          rdfs:comment ""^^xsd:string ;
-         rdfs:isDefinedBy <https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/> ;
+         rdfs:isDefinedBy <https://ns.eccenca.com/reasoning/{uuid}/vocab/> ;
          rdfs:label "part_of"^^xsd:string .
 
 
-###  https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/reads
+###  https://ns.eccenca.com/reasoning/{uuid}/vocab/reads
 :reads rdf:type owl:ObjectProperty ;
        rdfs:range :publication ;
        rdfs:comment ""^^xsd:string ;
-       rdfs:isDefinedBy <https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/> ;
+       rdfs:isDefinedBy <https://ns.eccenca.com/reasoning/{uuid}/vocab/> ;
        rdfs:label "reads"^^xsd:string .
 
 
-###  https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/works_for
+###  https://ns.eccenca.com/reasoning/{uuid}/vocab/works_for
 :works_for rdf:type owl:ObjectProperty ;
            rdfs:comment ""^^xsd:string ;
-           rdfs:isDefinedBy <https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/> ;
+           rdfs:isDefinedBy <https://ns.eccenca.com/reasoning/{uuid}/vocab/> ;
            rdfs:label "works_for"^^xsd:string .
 
 
@@ -134,16 +134,16 @@
 owl:Thing rdf:type owl:Class .
 
 
-###  https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/adult
+###  https://ns.eccenca.com/reasoning/{uuid}/vocab/adult
 :adult rdf:type owl:Class ;
        owl:disjointWith :young ;
        rdfs:comment "Things that are adult."^^xsd:string ;
-       rdfs:isDefinedBy <https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/> ;
+       rdfs:isDefinedBy <https://ns.eccenca.com/reasoning/{uuid}/vocab/> ;
        rdfs:label "adult"^^xsd:string .
 
 
 
-###  https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/animal_lover
+###  https://ns.eccenca.com/reasoning/{uuid}/vocab/animal_lover
 :animal_lover rdf:type owl:Class ;
               owl:equivalentClass [ owl:intersectionOf ( :person
                                                          [ rdf:type owl:Restriction ;
@@ -154,58 +154,58 @@ owl:Thing rdf:type owl:Class .
                                     rdf:type owl:Class
                                   ] ;
               rdfs:comment "Someone who really likes animals"^^xsd:string ;
-              rdfs:isDefinedBy <https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/> ;
+              rdfs:isDefinedBy <https://ns.eccenca.com/reasoning/{uuid}/vocab/> ;
               rdfs:label "animal lover"^^xsd:string .
 
 
-###  https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/bicycle
+###  https://ns.eccenca.com/reasoning/{uuid}/vocab/bicycle
 :bicycle rdf:type owl:Class ;
          rdfs:subClassOf :vehicle ;
          rdfs:comment "A human propelled vehicle, with two wheels"^^xsd:string ;
-         rdfs:isDefinedBy <https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/> ;
+         rdfs:isDefinedBy <https://ns.eccenca.com/reasoning/{uuid}/vocab/> ;
          rdfs:label "bicycle"^^xsd:string .
 
 
-###  https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/bone
+###  https://ns.eccenca.com/reasoning/{uuid}/vocab/bone
 :bone rdf:type owl:Class ;
       rdfs:comment ""^^xsd:string ;
-      rdfs:isDefinedBy <https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/> ;
+      rdfs:isDefinedBy <https://ns.eccenca.com/reasoning/{uuid}/vocab/> ;
       rdfs:label "bone"^^xsd:string .
 
 
-###  https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/brain
+###  https://ns.eccenca.com/reasoning/{uuid}/vocab/brain
 :brain rdf:type owl:Class ;
        rdfs:comment ""^^xsd:string ;
-       rdfs:isDefinedBy <https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/> ;
+       rdfs:isDefinedBy <https://ns.eccenca.com/reasoning/{uuid}/vocab/> ;
        rdfs:label "brain"^^xsd:string .
 
 
-###  https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/broadsheet
+###  https://ns.eccenca.com/reasoning/{uuid}/vocab/broadsheet
 :broadsheet rdf:type owl:Class ;
             rdfs:subClassOf :newspaper ;
             owl:disjointWith :tabloid ;
             rdfs:comment "A newspaper. Broadsheets are usually considered to be more \"high-brow\" than tabloids."^^xsd:string ;
-            rdfs:isDefinedBy <https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/> ;
+            rdfs:isDefinedBy <https://ns.eccenca.com/reasoning/{uuid}/vocab/> ;
             rdfs:label "broadsheet"^^xsd:string .
 
 
-###  https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/bus
+###  https://ns.eccenca.com/reasoning/{uuid}/vocab/bus
 :bus rdf:type owl:Class ;
      rdfs:subClassOf :vehicle ;
      rdfs:comment ""^^xsd:string ;
-     rdfs:isDefinedBy <https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/> ;
+     rdfs:isDefinedBy <https://ns.eccenca.com/reasoning/{uuid}/vocab/> ;
      rdfs:label "bus"^^xsd:string .
 
 
-###  https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/bus_company
+###  https://ns.eccenca.com/reasoning/{uuid}/vocab/bus_company
 :bus_company rdf:type owl:Class ;
              rdfs:subClassOf :company ;
              rdfs:comment ""^^xsd:string ;
-             rdfs:isDefinedBy <https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/> ;
+             rdfs:isDefinedBy <https://ns.eccenca.com/reasoning/{uuid}/vocab/> ;
              rdfs:label "bus company"^^xsd:string .
 
 
-###  https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/bus_driver
+###  https://ns.eccenca.com/reasoning/{uuid}/vocab/bus_driver
 :bus_driver rdf:type owl:Class ;
             owl:equivalentClass [ owl:intersectionOf ( :person
                                                        [ rdf:type owl:Restriction ;
@@ -216,28 +216,28 @@ owl:Thing rdf:type owl:Class .
                                   rdf:type owl:Class
                                 ] ;
             rdfs:comment "Someone who drives a bus."^^xsd:string ;
-            rdfs:isDefinedBy <https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/> ;
+            rdfs:isDefinedBy <https://ns.eccenca.com/reasoning/{uuid}/vocab/> ;
             rdfs:label "bus driver"^^xsd:string .
 
 
-###  https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/car
+###  https://ns.eccenca.com/reasoning/{uuid}/vocab/car
 :car rdf:type owl:Class ;
      rdfs:subClassOf :vehicle ;
      rdfs:comment ""^^xsd:string ;
-     rdfs:isDefinedBy <https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/> ;
+     rdfs:isDefinedBy <https://ns.eccenca.com/reasoning/{uuid}/vocab/> ;
      rdfs:label "car"^^xsd:string .
 
 
-###  https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/cat
+###  https://ns.eccenca.com/reasoning/{uuid}/vocab/cat
 :cat rdf:type owl:Class ;
      rdfs:subClassOf :animal ;
      owl:disjointWith :dog ;
      rdfs:comment ""^^xsd:string ;
-     rdfs:isDefinedBy <https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/> ;
+     rdfs:isDefinedBy <https://ns.eccenca.com/reasoning/{uuid}/vocab/> ;
      rdfs:label "cat"^^xsd:string .
 
 
-###  https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/cat_liker
+###  https://ns.eccenca.com/reasoning/{uuid}/vocab/cat_liker
 :cat_liker rdf:type owl:Class ;
            owl:equivalentClass [ owl:intersectionOf ( :person
                                                       [ rdf:type owl:Restriction ;
@@ -248,39 +248,39 @@ owl:Thing rdf:type owl:Class .
                                  rdf:type owl:Class
                                ] ;
            rdfs:comment ""^^xsd:string ;
-           rdfs:isDefinedBy <https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/> ;
+           rdfs:isDefinedBy <https://ns.eccenca.com/reasoning/{uuid}/vocab/> ;
            rdfs:label "cat liker"^^xsd:string .
 
 
 
 
-###  https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/company
+###  https://ns.eccenca.com/reasoning/{uuid}/vocab/company
 :company rdf:type owl:Class ;
          rdfs:comment ""^^xsd:string ;
-         rdfs:isDefinedBy <https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/> ;
+         rdfs:isDefinedBy <https://ns.eccenca.com/reasoning/{uuid}/vocab/> ;
          rdfs:label "company"^^xsd:string .
 
 
-###  https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/cow
+###  https://ns.eccenca.com/reasoning/{uuid}/vocab/cow
 :cow rdf:type owl:Class ;
      rdfs:subClassOf :vegetarian ;
      rdfs:comment "Cows are naturally vegetarians."^^xsd:string ;
-     rdfs:isDefinedBy <https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/> ;
+     rdfs:isDefinedBy <https://ns.eccenca.com/reasoning/{uuid}/vocab/> ;
      rdfs:label "cow"^^xsd:string .
 
 
-###  https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/dog
+###  https://ns.eccenca.com/reasoning/{uuid}/vocab/dog
 :dog rdf:type owl:Class ;
      rdfs:subClassOf [ rdf:type owl:Restriction ;
                        owl:onProperty :eats ;
                        owl:someValuesFrom :bone
                      ] ;
      rdfs:comment ""^^xsd:string ;
-     rdfs:isDefinedBy <https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/> ;
+     rdfs:isDefinedBy <https://ns.eccenca.com/reasoning/{uuid}/vocab/> ;
      rdfs:label "dog"^^xsd:string .
 
 
-###  https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/dog_liker
+###  https://ns.eccenca.com/reasoning/{uuid}/vocab/dog_liker
 :dog_liker rdf:type owl:Class ;
            owl:equivalentClass [ owl:intersectionOf ( :person
                                                       [ rdf:type owl:Restriction ;
@@ -291,11 +291,11 @@ owl:Thing rdf:type owl:Class .
                                  rdf:type owl:Class
                                ] ;
            rdfs:comment ""^^xsd:string ;
-           rdfs:isDefinedBy <https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/> ;
+           rdfs:isDefinedBy <https://ns.eccenca.com/reasoning/{uuid}/vocab/> ;
            rdfs:label "dog liker"^^xsd:string .
 
 
-###  https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/dog_owner
+###  https://ns.eccenca.com/reasoning/{uuid}/vocab/dog_owner
 :dog_owner rdf:type owl:Class ;
            owl:equivalentClass [ owl:intersectionOf ( :person
                                                       [ rdf:type owl:Restriction ;
@@ -306,11 +306,11 @@ owl:Thing rdf:type owl:Class .
                                  rdf:type owl:Class
                                ] ;
            rdfs:comment ""^^xsd:string ;
-           rdfs:isDefinedBy <https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/> ;
+           rdfs:isDefinedBy <https://ns.eccenca.com/reasoning/{uuid}/vocab/> ;
            rdfs:label "dog owner"^^xsd:string .
 
 
-###  https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/driver
+###  https://ns.eccenca.com/reasoning/{uuid}/vocab/driver
 :driver rdf:type owl:Class ;
         owl:equivalentClass [ owl:intersectionOf ( :person
                                                    [ rdf:type owl:Restriction ;
@@ -322,34 +322,34 @@ owl:Thing rdf:type owl:Class .
                             ] ;
         rdfs:subClassOf :adult ;
         rdfs:comment ""^^xsd:string ;
-        rdfs:isDefinedBy <https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/> ;
+        rdfs:isDefinedBy <https://ns.eccenca.com/reasoning/{uuid}/vocab/> ;
         rdfs:label "driver"^^xsd:string .
 
 
-###  https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/duck
+###  https://ns.eccenca.com/reasoning/{uuid}/vocab/duck
 :duck rdf:type owl:Class ;
       rdfs:subClassOf :animal ;
       rdfs:comment ""^^xsd:string ;
-      rdfs:isDefinedBy <https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/> ;
+      rdfs:isDefinedBy <https://ns.eccenca.com/reasoning/{uuid}/vocab/> ;
       rdfs:label "duck"^^xsd:string .
 
 
-###  https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/elderly
+###  https://ns.eccenca.com/reasoning/{uuid}/vocab/elderly
 :elderly rdf:type owl:Class ;
          rdfs:subClassOf :adult ;
          rdfs:comment ""^^xsd:string ;
-         rdfs:isDefinedBy <https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/> ;
+         rdfs:isDefinedBy <https://ns.eccenca.com/reasoning/{uuid}/vocab/> ;
          rdfs:label "elderly"^^xsd:string .
 
 
-###  https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/female
+###  https://ns.eccenca.com/reasoning/{uuid}/vocab/female
 :female rdf:type owl:Class ;
         rdfs:comment ""^^xsd:string ;
-        rdfs:isDefinedBy <https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/> ;
+        rdfs:isDefinedBy <https://ns.eccenca.com/reasoning/{uuid}/vocab/> ;
         rdfs:label "female"^^xsd:string .
 
 
-###  https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/giraffe
+###  https://ns.eccenca.com/reasoning/{uuid}/vocab/giraffe
 :giraffe rdf:type owl:Class ;
          rdfs:subClassOf :animal ,
                          [ rdf:type owl:Restriction ;
@@ -357,19 +357,19 @@ owl:Thing rdf:type owl:Class .
                            owl:allValuesFrom :leaf
                          ] ;
          rdfs:comment ""^^xsd:string ;
-         rdfs:isDefinedBy <https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/> ;
+         rdfs:isDefinedBy <https://ns.eccenca.com/reasoning/{uuid}/vocab/> ;
          rdfs:label "giraffe"^^xsd:string .
 
 
-###  https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/grass
+###  https://ns.eccenca.com/reasoning/{uuid}/vocab/grass
 :grass rdf:type owl:Class ;
        rdfs:subClassOf :plant ;
        rdfs:comment ""^^xsd:string ;
-       rdfs:isDefinedBy <https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/> ;
+       rdfs:isDefinedBy <https://ns.eccenca.com/reasoning/{uuid}/vocab/> ;
        rdfs:label "grass"^^xsd:string .
 
 
-###  https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/grownup
+###  https://ns.eccenca.com/reasoning/{uuid}/vocab/grownup
 :grownup rdf:type owl:Class ;
          owl:equivalentClass [ owl:intersectionOf ( :adult
                                                     :person
@@ -377,19 +377,19 @@ owl:Thing rdf:type owl:Class .
                                rdf:type owl:Class
                              ] ;
          rdfs:comment ""^^xsd:string ;
-         rdfs:isDefinedBy <https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/> ;
+         rdfs:isDefinedBy <https://ns.eccenca.com/reasoning/{uuid}/vocab/> ;
          rdfs:label "grownup"^^xsd:string .
 
 
-###  https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/haulage_company
+###  https://ns.eccenca.com/reasoning/{uuid}/vocab/haulage_company
 :haulage_company rdf:type owl:Class ;
                  rdfs:subClassOf :company ;
                  rdfs:comment ""^^xsd:string ;
-                 rdfs:isDefinedBy <https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/> ;
+                 rdfs:isDefinedBy <https://ns.eccenca.com/reasoning/{uuid}/vocab/> ;
                  rdfs:label "haulage company"^^xsd:string .
 
 
-###  https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/haulage_truck_driver
+###  https://ns.eccenca.com/reasoning/{uuid}/vocab/haulage_truck_driver
 :haulage_truck_driver rdf:type owl:Class ;
                       owl:equivalentClass [ owl:intersectionOf ( :person
                                                                  [ rdf:type owl:Restriction ;
@@ -407,11 +407,11 @@ owl:Thing rdf:type owl:Class .
                                             rdf:type owl:Class
                                           ] ;
                       rdfs:comment ""^^xsd:string ;
-                      rdfs:isDefinedBy <https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/> ;
+                      rdfs:isDefinedBy <https://ns.eccenca.com/reasoning/{uuid}/vocab/> ;
                       rdfs:label "haulage truck driver"^^xsd:string .
 
 
-###  https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/haulage_worker
+###  https://ns.eccenca.com/reasoning/{uuid}/vocab/haulage_worker
 :haulage_worker rdf:type owl:Class ;
                 owl:equivalentClass [ rdf:type owl:Restriction ;
                                       owl:onProperty :works_for ;
@@ -425,11 +425,11 @@ owl:Thing rdf:type owl:Class .
                                                          ]
                                     ] ;
                 rdfs:comment ""^^xsd:string ;
-                rdfs:isDefinedBy <https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/> ;
+                rdfs:isDefinedBy <https://ns.eccenca.com/reasoning/{uuid}/vocab/> ;
                 rdfs:label "haulage worker"^^xsd:string .
 
 
-###  https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/kid
+###  https://ns.eccenca.com/reasoning/{uuid}/vocab/kid
 :kid rdf:type owl:Class ;
      owl:equivalentClass [ owl:intersectionOf ( :person
                                                 :young
@@ -437,30 +437,30 @@ owl:Thing rdf:type owl:Class .
                            rdf:type owl:Class
                          ] ;
      rdfs:comment ""^^xsd:string ;
-     rdfs:isDefinedBy <https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/> ;
+     rdfs:isDefinedBy <https://ns.eccenca.com/reasoning/{uuid}/vocab/> ;
      rdfs:label "kid"^^xsd:string .
 
 
-###  https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/leaf
+###  https://ns.eccenca.com/reasoning/{uuid}/vocab/leaf
 :leaf rdf:type owl:Class ;
       rdfs:subClassOf [ rdf:type owl:Restriction ;
                         owl:onProperty :part_of ;
                         owl:someValuesFrom :tree
                       ] ;
       rdfs:comment ""^^xsd:string ;
-      rdfs:isDefinedBy <https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/> ;
+      rdfs:isDefinedBy <https://ns.eccenca.com/reasoning/{uuid}/vocab/> ;
       rdfs:label "leaf"^^xsd:string .
 
 
-###  https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/lorry
+###  https://ns.eccenca.com/reasoning/{uuid}/vocab/lorry
 :lorry rdf:type owl:Class ;
        rdfs:subClassOf :vehicle ;
        rdfs:comment ""^^xsd:string ;
-       rdfs:isDefinedBy <https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/> ;
+       rdfs:isDefinedBy <https://ns.eccenca.com/reasoning/{uuid}/vocab/> ;
        rdfs:label "lorry"^^xsd:string .
 
 
-###  https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/lorry_driver
+###  https://ns.eccenca.com/reasoning/{uuid}/vocab/lorry_driver
 :lorry_driver rdf:type owl:Class ;
               owl:equivalentClass [ owl:intersectionOf ( :person
                                                          [ rdf:type owl:Restriction ;
@@ -471,26 +471,26 @@ owl:Thing rdf:type owl:Class .
                                     rdf:type owl:Class
                                   ] ;
               rdfs:comment ""^^xsd:string ;
-              rdfs:isDefinedBy <https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/> ;
+              rdfs:isDefinedBy <https://ns.eccenca.com/reasoning/{uuid}/vocab/> ;
               rdfs:label "lorry driver"^^xsd:string .
 
 
-###  https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/magazine
+###  https://ns.eccenca.com/reasoning/{uuid}/vocab/magazine
 :magazine rdf:type owl:Class ;
           rdfs:subClassOf :publication ;
           rdfs:comment ""^^xsd:string ;
-          rdfs:isDefinedBy <https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/> ;
+          rdfs:isDefinedBy <https://ns.eccenca.com/reasoning/{uuid}/vocab/> ;
           rdfs:label "magazine"^^xsd:string .
 
 
-###  https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/male
+###  https://ns.eccenca.com/reasoning/{uuid}/vocab/male
 :male rdf:type owl:Class ;
       rdfs:comment "The class of all male things."^^xsd:string ;
-      rdfs:isDefinedBy <https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/> ;
+      rdfs:isDefinedBy <https://ns.eccenca.com/reasoning/{uuid}/vocab/> ;
       rdfs:label "male"^^xsd:string .
 
 
-###  https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/man
+###  https://ns.eccenca.com/reasoning/{uuid}/vocab/man
 :man rdf:type owl:Class ;
      owl:equivalentClass [ owl:intersectionOf ( :adult
                                                 :male
@@ -499,11 +499,11 @@ owl:Thing rdf:type owl:Class .
                            rdf:type owl:Class
                          ] ;
      rdfs:comment ""^^xsd:string ;
-     rdfs:isDefinedBy <https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/> ;
+     rdfs:isDefinedBy <https://ns.eccenca.com/reasoning/{uuid}/vocab/> ;
      rdfs:label "man"^^xsd:string .
 
 
-###  https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/newspaper
+###  https://ns.eccenca.com/reasoning/{uuid}/vocab/newspaper
 :newspaper rdf:type owl:Class ;
            rdfs:subClassOf :publication ,
                            [ rdf:type owl:Class ;
@@ -512,11 +512,11 @@ owl:Thing rdf:type owl:Class .
                                          )
                            ] ;
            rdfs:comment "All newspapers are either broadsheets or tabloids."^^xsd:string ;
-           rdfs:isDefinedBy <https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/> ;
+           rdfs:isDefinedBy <https://ns.eccenca.com/reasoning/{uuid}/vocab/> ;
            rdfs:label "newspaper"^^xsd:string .
 
 
-###  https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/old_lady
+###  https://ns.eccenca.com/reasoning/{uuid}/vocab/old_lady
 :old_lady rdf:type owl:Class ;
           owl:equivalentClass [ owl:intersectionOf ( :elderly
                                                      :female
@@ -536,30 +536,30 @@ owl:Thing rdf:type owl:Class .
                             rdf:type owl:Class
                           ] ;
           rdfs:comment ""^^xsd:string ;
-          rdfs:isDefinedBy <https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/> ;
+          rdfs:isDefinedBy <https://ns.eccenca.com/reasoning/{uuid}/vocab/> ;
           rdfs:label "old lady"^^xsd:string .
 
 
-###  https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/person
+###  https://ns.eccenca.com/reasoning/{uuid}/vocab/person
 :person rdf:type owl:Class ;
         rdfs:subClassOf :animal ;
         rdfs:comment ""^^xsd:string ;
-        rdfs:isDefinedBy <https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/> ;
+        rdfs:isDefinedBy <https://ns.eccenca.com/reasoning/{uuid}/vocab/> ;
         rdfs:label "person"^^xsd:string .
 
 
-###  https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/pet
+###  https://ns.eccenca.com/reasoning/{uuid}/vocab/pet
 :pet rdf:type owl:Class ;
      owl:equivalentClass [ rdf:type owl:Restriction ;
                            owl:onProperty :is_pet_of ;
                            owl:someValuesFrom owl:Thing
                          ] ;
      rdfs:comment ""^^xsd:string ;
-     rdfs:isDefinedBy <https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/> ;
+     rdfs:isDefinedBy <https://ns.eccenca.com/reasoning/{uuid}/vocab/> ;
      rdfs:label "pet"^^xsd:string .
 
 
-###  https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/pet_owner
+###  https://ns.eccenca.com/reasoning/{uuid}/vocab/pet_owner
 :pet_owner rdf:type owl:Class ;
            owl:equivalentClass [ owl:intersectionOf ( :person
                                                       [ rdf:type owl:Restriction ;
@@ -570,41 +570,41 @@ owl:Thing rdf:type owl:Class .
                                  rdf:type owl:Class
                                ] ;
            rdfs:comment ""^^xsd:string ;
-           rdfs:isDefinedBy <https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/> ;
+           rdfs:isDefinedBy <https://ns.eccenca.com/reasoning/{uuid}/vocab/> ;
            rdfs:label "pet owner"^^xsd:string .
 
 
-###  https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/plant
+###  https://ns.eccenca.com/reasoning/{uuid}/vocab/plant
 :plant rdf:type owl:Class ;
        rdfs:comment ""^^xsd:string ;
-       rdfs:isDefinedBy <https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/> ;
+       rdfs:isDefinedBy <https://ns.eccenca.com/reasoning/{uuid}/vocab/> ;
        rdfs:label "plant"^^xsd:string .
 
 
-###  https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/publication
+###  https://ns.eccenca.com/reasoning/{uuid}/vocab/publication
 :publication rdf:type owl:Class ;
              rdfs:comment ""^^xsd:string ;
-             rdfs:isDefinedBy <https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/> ;
+             rdfs:isDefinedBy <https://ns.eccenca.com/reasoning/{uuid}/vocab/> ;
              rdfs:label "publication"^^xsd:string .
 
 
-###  https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/quality_broadsheet
+###  https://ns.eccenca.com/reasoning/{uuid}/vocab/quality_broadsheet
 :quality_broadsheet rdf:type owl:Class ;
                     rdfs:subClassOf :broadsheet ;
                     rdfs:comment ""^^xsd:string ;
-                    rdfs:isDefinedBy <https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/> ;
+                    rdfs:isDefinedBy <https://ns.eccenca.com/reasoning/{uuid}/vocab/> ;
                     rdfs:label "quality broadsheet"^^xsd:string .
 
 
-###  https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/red_top
+###  https://ns.eccenca.com/reasoning/{uuid}/vocab/red_top
 :red_top rdf:type owl:Class ;
          rdfs:subClassOf :tabloid ;
          rdfs:comment ""^^xsd:string ;
-         rdfs:isDefinedBy <https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/> ;
+         rdfs:isDefinedBy <https://ns.eccenca.com/reasoning/{uuid}/vocab/> ;
          rdfs:label "red top"^^xsd:string .
 
 
-###  https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/sheep
+###  https://ns.eccenca.com/reasoning/{uuid}/vocab/sheep
 :sheep rdf:type owl:Class ;
        rdfs:subClassOf :animal ,
                        [ rdf:type owl:Restriction ;
@@ -612,51 +612,51 @@ owl:Thing rdf:type owl:Class .
                          owl:allValuesFrom :grass
                        ] ;
        rdfs:comment ""^^xsd:string ;
-       rdfs:isDefinedBy <https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/> ;
+       rdfs:isDefinedBy <https://ns.eccenca.com/reasoning/{uuid}/vocab/> ;
        rdfs:label "sheep"^^xsd:string .
 
 
-###  https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/tabloid
+###  https://ns.eccenca.com/reasoning/{uuid}/vocab/tabloid
 :tabloid rdf:type owl:Class ;
          rdfs:subClassOf :newspaper ;
          rdfs:comment "A newspaper. Tabloids are usually thought of as more \"down-market\" than broadsheets."^^xsd:string ;
-         rdfs:isDefinedBy <https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/> ;
+         rdfs:isDefinedBy <https://ns.eccenca.com/reasoning/{uuid}/vocab/> ;
          rdfs:label "tabloid"^^xsd:string .
 
 
-###  https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/tiger
+###  https://ns.eccenca.com/reasoning/{uuid}/vocab/tiger
 :tiger rdf:type owl:Class ;
        rdfs:subClassOf :animal ;
        rdfs:comment ""^^xsd:string ;
-       rdfs:isDefinedBy <https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/> ;
+       rdfs:isDefinedBy <https://ns.eccenca.com/reasoning/{uuid}/vocab/> ;
        rdfs:label "tiger"^^xsd:string .
 
 
-###  https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/tree
+###  https://ns.eccenca.com/reasoning/{uuid}/vocab/tree
 :tree rdf:type owl:Class ;
       rdfs:subClassOf :plant ;
       rdfs:comment ""^^xsd:string ;
-      rdfs:isDefinedBy <https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/> ;
+      rdfs:isDefinedBy <https://ns.eccenca.com/reasoning/{uuid}/vocab/> ;
       rdfs:label "tree"^^xsd:string .
 
 
-###  https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/truck
+###  https://ns.eccenca.com/reasoning/{uuid}/vocab/truck
 :truck rdf:type owl:Class ;
        rdfs:subClassOf :vehicle ;
        rdfs:comment ""^^xsd:string ;
-       rdfs:isDefinedBy <https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/> ;
+       rdfs:isDefinedBy <https://ns.eccenca.com/reasoning/{uuid}/vocab/> ;
        rdfs:label "truck"^^xsd:string .
 
 
-###  https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/van
+###  https://ns.eccenca.com/reasoning/{uuid}/vocab/van
 :van rdf:type owl:Class ;
      rdfs:subClassOf :vehicle ;
      rdfs:comment ""^^xsd:string ;
-     rdfs:isDefinedBy <https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/> ;
+     rdfs:isDefinedBy <https://ns.eccenca.com/reasoning/{uuid}/vocab/> ;
      rdfs:label "van"^^xsd:string .
 
 
-###  https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/van_driver
+###  https://ns.eccenca.com/reasoning/{uuid}/vocab/van_driver
 :van_driver rdf:type owl:Class ;
             owl:equivalentClass [ owl:intersectionOf ( :person
                                                        [ rdf:type owl:Restriction ;
@@ -667,11 +667,11 @@ owl:Thing rdf:type owl:Class .
                                   rdf:type owl:Class
                                 ] ;
             rdfs:comment ""^^xsd:string ;
-            rdfs:isDefinedBy <https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/> ;
+            rdfs:isDefinedBy <https://ns.eccenca.com/reasoning/{uuid}/vocab/> ;
             rdfs:label "van driver"^^xsd:string .
 
 
-###  https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/vegetarian
+###  https://ns.eccenca.com/reasoning/{uuid}/vocab/vegetarian
 :vegetarian rdf:type owl:Class ;
             owl:equivalentClass [ owl:intersectionOf ( :animal
                                                        [ rdf:type owl:Restriction ;
@@ -693,25 +693,25 @@ owl:Thing rdf:type owl:Class .
                                   rdf:type owl:Class
                                 ] ;
             rdfs:comment "A vegetarian is defined as an animal that eats no other animals, or parts of animals."^^xsd:string ;
-            rdfs:isDefinedBy <https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/> ;
+            rdfs:isDefinedBy <https://ns.eccenca.com/reasoning/{uuid}/vocab/> ;
             rdfs:label "vegetarian"^^xsd:string .
 
 
-###  https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/vehicle
+###  https://ns.eccenca.com/reasoning/{uuid}/vocab/vehicle
 :vehicle rdf:type owl:Class ;
          rdfs:comment ""^^xsd:string ;
-         rdfs:isDefinedBy <https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/> ;
+         rdfs:isDefinedBy <https://ns.eccenca.com/reasoning/{uuid}/vocab/> ;
          rdfs:label "vehicle"^^xsd:string .
 
 
-###  https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/white_thing
+###  https://ns.eccenca.com/reasoning/{uuid}/vocab/white_thing
 :white_thing rdf:type owl:Class ;
              rdfs:comment ""^^xsd:string ;
-             rdfs:isDefinedBy <https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/> ;
+             rdfs:isDefinedBy <https://ns.eccenca.com/reasoning/{uuid}/vocab/> ;
              rdfs:label "white thing"^^xsd:string .
 
 
-###  https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/white_van_man
+###  https://ns.eccenca.com/reasoning/{uuid}/vocab/white_van_man
 :white_van_man rdf:type owl:Class ;
                owl:equivalentClass [ owl:intersectionOf ( :man
                                                           [ rdf:type owl:Restriction ;
@@ -730,11 +730,11 @@ owl:Thing rdf:type owl:Class .
                                  owl:allValuesFrom :tabloid
                                ] ;
                rdfs:comment "A white van man is a man who drives a white van."^^xsd:string ;
-               rdfs:isDefinedBy <https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/> ;
+               rdfs:isDefinedBy <https://ns.eccenca.com/reasoning/{uuid}/vocab/> ;
                rdfs:label "white van man"^^xsd:string .
 
 
-###  https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/woman
+###  https://ns.eccenca.com/reasoning/{uuid}/vocab/woman
 :woman rdf:type owl:Class ;
        owl:equivalentClass [ owl:intersectionOf ( :adult
                                                   :female
@@ -743,14 +743,14 @@ owl:Thing rdf:type owl:Class .
                              rdf:type owl:Class
                            ] ;
        rdfs:comment ""^^xsd:string ;
-       rdfs:isDefinedBy <https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/> ;
+       rdfs:isDefinedBy <https://ns.eccenca.com/reasoning/{uuid}/vocab/> ;
        rdfs:label "woman"^^xsd:string .
 
 
-###  https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/young
+###  https://ns.eccenca.com/reasoning/{uuid}/vocab/young
 :young rdf:type owl:Class ;
        rdfs:comment ""^^xsd:string ;
-       rdfs:isDefinedBy <https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/> ;
+       rdfs:isDefinedBy <https://ns.eccenca.com/reasoning/{uuid}/vocab/> ;
        rdfs:label "young"^^xsd:string .
 
 

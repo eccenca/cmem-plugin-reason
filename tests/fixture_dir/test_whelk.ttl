@@ -1,0 +1,195 @@
+@prefix : <https://ns.eccenca.com/reasoning/{uuid}/result/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix vocab: <https://ns.eccenca.com/reasoning/{uuid}/vocab/> .
+@base <https://ns.eccenca.com/reasoning/{uuid}/result/> .
+
+<https://ns.eccenca.com/reasoning/{uuid}/result/> rdf:type owl:Ontology ;
+                                                                             owl:imports <https://ns.eccenca.com/reasoning/{uuid}/vocab/> ;
+                                                                             <http://purl.org/dc/terms/source> <https://ns.eccenca.com/reasoning/{uuid}/data/> ,
+                                                                                                               <https://ns.eccenca.com/reasoning/{uuid}/vocab/> ;
+                                                                             rdfs:comment "Reasoning results of data graph <https://ns.eccenca.com/reasoning/{uuid}/data/> with ontology <https://ns.eccenca.com/reasoning/{uuid}/vocab/>"@en ;
+                                                                             rdfs:label "Eccenca Reasoning Data - Reasoning Results"@en .
+
+#################################################################
+#    Individuals
+#################################################################
+
+###  https://ns.eccenca.com/reasoning/{uuid}/data/Daily_Mirror
+<https://ns.eccenca.com/reasoning/{uuid}/data/Daily_Mirror> rdf:type owl:NamedIndividual ,
+                                                                                               <https://ns.eccenca.com/reasoning/{uuid}/vocab/newspaper> ,
+                                                                                               <https://ns.eccenca.com/reasoning/{uuid}/vocab/publication> ,
+                                                                                               <https://ns.eccenca.com/reasoning/{uuid}/vocab/tabloid> .
+
+
+###  https://ns.eccenca.com/reasoning/{uuid}/data/Dewey
+<https://ns.eccenca.com/reasoning/{uuid}/data/Dewey> rdf:type owl:NamedIndividual ,
+                                                                                        <https://ns.eccenca.com/reasoning/{uuid}/vocab/animal> ,
+                                                                                        <https://ns.eccenca.com/reasoning/{uuid}/vocab/pet> ;
+                                                                               <https://ns.eccenca.com/reasoning/{uuid}/vocab/is_pet_of> <https://ns.eccenca.com/reasoning/{uuid}/data/Walt> .
+
+
+###  https://ns.eccenca.com/reasoning/{uuid}/data/Fido
+<https://ns.eccenca.com/reasoning/{uuid}/data/Fido> rdf:type owl:NamedIndividual ,
+                                                                                       <https://ns.eccenca.com/reasoning/{uuid}/vocab/animal> ,
+                                                                                       <https://ns.eccenca.com/reasoning/{uuid}/vocab/pet> ;
+                                                                              <https://ns.eccenca.com/reasoning/{uuid}/vocab/is_pet_of> <https://ns.eccenca.com/reasoning/{uuid}/data/Joe> .
+
+
+###  https://ns.eccenca.com/reasoning/{uuid}/data/Flossie
+<https://ns.eccenca.com/reasoning/{uuid}/data/Flossie> rdf:type owl:NamedIndividual ,
+                                                                                          <https://ns.eccenca.com/reasoning/{uuid}/vocab/animal> ,
+                                                                                          <https://ns.eccenca.com/reasoning/{uuid}/vocab/pet> ,
+                                                                                          <https://ns.eccenca.com/reasoning/{uuid}/vocab/vegetarian> ;
+                                                                                 <https://ns.eccenca.com/reasoning/{uuid}/vocab/is_pet_of> <https://ns.eccenca.com/reasoning/{uuid}/data/Kevin> .
+
+
+###  https://ns.eccenca.com/reasoning/{uuid}/data/Fluffy
+<https://ns.eccenca.com/reasoning/{uuid}/data/Fluffy> rdf:type owl:NamedIndividual ,
+                                                                                         <https://ns.eccenca.com/reasoning/{uuid}/vocab/animal> ,
+                                                                                         <https://ns.eccenca.com/reasoning/{uuid}/vocab/pet> ;
+                                                                                <https://ns.eccenca.com/reasoning/{uuid}/vocab/is_pet_of> <https://ns.eccenca.com/reasoning/{uuid}/data/Kevin> .
+
+
+###  https://ns.eccenca.com/reasoning/{uuid}/data/Fred
+<https://ns.eccenca.com/reasoning/{uuid}/data/Fred> rdf:type owl:NamedIndividual ,
+                                                                                       <https://ns.eccenca.com/reasoning/{uuid}/vocab/animal> ,
+                                                                                       <https://ns.eccenca.com/reasoning/{uuid}/vocab/cat_liker> ,
+                                                                                       <https://ns.eccenca.com/reasoning/{uuid}/vocab/cat_owner> ,
+                                                                                       <https://ns.eccenca.com/reasoning/{uuid}/vocab/pet_owner> ;
+                                                                              <https://ns.eccenca.com/reasoning/{uuid}/vocab/likes> <https://ns.eccenca.com/reasoning/{uuid}/data/Tibbs> .
+
+
+###  https://ns.eccenca.com/reasoning/{uuid}/data/Huey
+<https://ns.eccenca.com/reasoning/{uuid}/data/Huey> rdf:type owl:NamedIndividual ,
+                                                                                       <https://ns.eccenca.com/reasoning/{uuid}/vocab/animal> ,
+                                                                                       <https://ns.eccenca.com/reasoning/{uuid}/vocab/pet> ;
+                                                                              <https://ns.eccenca.com/reasoning/{uuid}/vocab/is_pet_of> <https://ns.eccenca.com/reasoning/{uuid}/data/Walt> .
+
+
+###  https://ns.eccenca.com/reasoning/{uuid}/data/Joe
+<https://ns.eccenca.com/reasoning/{uuid}/data/Joe> rdf:type owl:NamedIndividual ,
+                                                                                      <https://ns.eccenca.com/reasoning/{uuid}/vocab/animal> ,
+                                                                                      <https://ns.eccenca.com/reasoning/{uuid}/vocab/dog_liker> ,
+                                                                                      <https://ns.eccenca.com/reasoning/{uuid}/vocab/dog_owner> ,
+                                                                                      <https://ns.eccenca.com/reasoning/{uuid}/vocab/pet_owner> ;
+                                                                             <https://ns.eccenca.com/reasoning/{uuid}/vocab/likes> <https://ns.eccenca.com/reasoning/{uuid}/data/Fido> .
+
+
+###  https://ns.eccenca.com/reasoning/{uuid}/data/Kevin
+<https://ns.eccenca.com/reasoning/{uuid}/data/Kevin> rdf:type owl:NamedIndividual ,
+                                                                                        <https://ns.eccenca.com/reasoning/{uuid}/vocab/animal> ,
+                                                                                        <https://ns.eccenca.com/reasoning/{uuid}/vocab/pet_owner> ;
+                                                                               <https://ns.eccenca.com/reasoning/{uuid}/vocab/likes> <https://ns.eccenca.com/reasoning/{uuid}/data/Flossie> ,
+                                                                                                                                                               <https://ns.eccenca.com/reasoning/{uuid}/data/Fluffy> .
+
+
+###  https://ns.eccenca.com/reasoning/{uuid}/data/Louie
+<https://ns.eccenca.com/reasoning/{uuid}/data/Louie> rdf:type owl:NamedIndividual ,
+                                                                                        <https://ns.eccenca.com/reasoning/{uuid}/vocab/animal> ,
+                                                                                        <https://ns.eccenca.com/reasoning/{uuid}/vocab/pet> ;
+                                                                               <https://ns.eccenca.com/reasoning/{uuid}/vocab/is_pet_of> <https://ns.eccenca.com/reasoning/{uuid}/data/Walt> .
+
+
+###  https://ns.eccenca.com/reasoning/{uuid}/data/Mick
+<https://ns.eccenca.com/reasoning/{uuid}/data/Mick> rdf:type owl:NamedIndividual ,
+                                                                                       <https://ns.eccenca.com/reasoning/{uuid}/vocab/adult> ,
+                                                                                       <https://ns.eccenca.com/reasoning/{uuid}/vocab/animal> ,
+                                                                                       <https://ns.eccenca.com/reasoning/{uuid}/vocab/dog_liker> ,
+                                                                                       <https://ns.eccenca.com/reasoning/{uuid}/vocab/dog_owner> ,
+                                                                                       <https://ns.eccenca.com/reasoning/{uuid}/vocab/driver> ,
+                                                                                       <https://ns.eccenca.com/reasoning/{uuid}/vocab/grownup> ,
+                                                                                       <https://ns.eccenca.com/reasoning/{uuid}/vocab/man> ,
+                                                                                       <https://ns.eccenca.com/reasoning/{uuid}/vocab/person> ,
+                                                                                       <https://ns.eccenca.com/reasoning/{uuid}/vocab/pet_owner> ,
+                                                                                       <https://ns.eccenca.com/reasoning/{uuid}/vocab/van_driver> ,
+                                                                                       <https://ns.eccenca.com/reasoning/{uuid}/vocab/white_van_man> ;
+                                                                              <https://ns.eccenca.com/reasoning/{uuid}/vocab/has_pet> <https://ns.eccenca.com/reasoning/{uuid}/data/Rex> ;
+                                                                              <https://ns.eccenca.com/reasoning/{uuid}/vocab/likes> <https://ns.eccenca.com/reasoning/{uuid}/data/Rex> .
+
+
+###  https://ns.eccenca.com/reasoning/{uuid}/data/Minnie
+<https://ns.eccenca.com/reasoning/{uuid}/data/Minnie> rdf:type owl:NamedIndividual ,
+                                                                                         <https://ns.eccenca.com/reasoning/{uuid}/vocab/adult> ,
+                                                                                         <https://ns.eccenca.com/reasoning/{uuid}/vocab/animal> ,
+                                                                                         <https://ns.eccenca.com/reasoning/{uuid}/vocab/cat_liker> ,
+                                                                                         <https://ns.eccenca.com/reasoning/{uuid}/vocab/cat_owner> ,
+                                                                                         <https://ns.eccenca.com/reasoning/{uuid}/vocab/grownup> ,
+                                                                                         <https://ns.eccenca.com/reasoning/{uuid}/vocab/old_lady> ,
+                                                                                         <https://ns.eccenca.com/reasoning/{uuid}/vocab/person> ,
+                                                                                         <https://ns.eccenca.com/reasoning/{uuid}/vocab/pet_owner> ,
+                                                                                         <https://ns.eccenca.com/reasoning/{uuid}/vocab/woman> ;
+                                                                                <https://ns.eccenca.com/reasoning/{uuid}/vocab/likes> <https://ns.eccenca.com/reasoning/{uuid}/data/Tom> .
+
+
+###  https://ns.eccenca.com/reasoning/{uuid}/data/Pete
+<https://ns.eccenca.com/reasoning/{uuid}/data/Pete> rdf:type owl:NamedIndividual ,
+                                                                                       <https://ns.eccenca.com/reasoning/{uuid}/vocab/animal> ,
+                                                                                       <https://ns.eccenca.com/reasoning/{uuid}/vocab/person> ,
+                                                                                       <https://ns.eccenca.com/reasoning/{uuid}/vocab/pet_owner> ;
+                                                                              <https://ns.eccenca.com/reasoning/{uuid}/vocab/has_pet> <https://ns.eccenca.com/reasoning/{uuid}/data/Spike> ;
+                                                                              <https://ns.eccenca.com/reasoning/{uuid}/vocab/likes> <https://ns.eccenca.com/reasoning/{uuid}/data/Spike> .
+
+
+###  https://ns.eccenca.com/reasoning/{uuid}/data/Q123_ABC
+<https://ns.eccenca.com/reasoning/{uuid}/data/Q123_ABC> rdf:type owl:NamedIndividual ,
+                                                                                           <https://ns.eccenca.com/reasoning/{uuid}/vocab/vehicle> .
+
+
+###  https://ns.eccenca.com/reasoning/{uuid}/data/Rex
+<https://ns.eccenca.com/reasoning/{uuid}/data/Rex> rdf:type owl:NamedIndividual ,
+                                                                                      <https://ns.eccenca.com/reasoning/{uuid}/vocab/animal> ,
+                                                                                      <https://ns.eccenca.com/reasoning/{uuid}/vocab/pet> .
+
+
+###  https://ns.eccenca.com/reasoning/{uuid}/data/Spike
+<https://ns.eccenca.com/reasoning/{uuid}/data/Spike> rdf:type owl:NamedIndividual ,
+                                                                                        <https://ns.eccenca.com/reasoning/{uuid}/vocab/animal> ,
+                                                                                        <https://ns.eccenca.com/reasoning/{uuid}/vocab/pet> .
+
+
+###  https://ns.eccenca.com/reasoning/{uuid}/data/The_Guardian
+<https://ns.eccenca.com/reasoning/{uuid}/data/The_Guardian> rdf:type owl:NamedIndividual ,
+                                                                                               <https://ns.eccenca.com/reasoning/{uuid}/vocab/newspaper> ,
+                                                                                               <https://ns.eccenca.com/reasoning/{uuid}/vocab/publication> .
+
+
+###  https://ns.eccenca.com/reasoning/{uuid}/data/The_Sun
+<https://ns.eccenca.com/reasoning/{uuid}/data/The_Sun> rdf:type owl:NamedIndividual ,
+                                                                                          <https://ns.eccenca.com/reasoning/{uuid}/vocab/newspaper> ,
+                                                                                          <https://ns.eccenca.com/reasoning/{uuid}/vocab/publication> .
+
+
+###  https://ns.eccenca.com/reasoning/{uuid}/data/The_Times
+<https://ns.eccenca.com/reasoning/{uuid}/data/The_Times> rdf:type owl:NamedIndividual ,
+                                                                                            <https://ns.eccenca.com/reasoning/{uuid}/vocab/newspaper> ,
+                                                                                            <https://ns.eccenca.com/reasoning/{uuid}/vocab/publication> .
+
+
+###  https://ns.eccenca.com/reasoning/{uuid}/data/Tibbs
+<https://ns.eccenca.com/reasoning/{uuid}/data/Tibbs> rdf:type owl:NamedIndividual ,
+                                                                                        <https://ns.eccenca.com/reasoning/{uuid}/vocab/animal> ,
+                                                                                        <https://ns.eccenca.com/reasoning/{uuid}/vocab/pet> ;
+                                                                               <https://ns.eccenca.com/reasoning/{uuid}/vocab/is_pet_of> <https://ns.eccenca.com/reasoning/{uuid}/data/Fred> .
+
+
+###  https://ns.eccenca.com/reasoning/{uuid}/data/Tom
+<https://ns.eccenca.com/reasoning/{uuid}/data/Tom> rdf:type owl:NamedIndividual ,
+                                                                                      <https://ns.eccenca.com/reasoning/{uuid}/vocab/animal> ,
+                                                                                      <https://ns.eccenca.com/reasoning/{uuid}/vocab/cat> ,
+                                                                                      <https://ns.eccenca.com/reasoning/{uuid}/vocab/pet> ;
+                                                                             <https://ns.eccenca.com/reasoning/{uuid}/vocab/is_pet_of> <https://ns.eccenca.com/reasoning/{uuid}/data/Minnie> .
+
+
+###  https://ns.eccenca.com/reasoning/{uuid}/data/Walt
+<https://ns.eccenca.com/reasoning/{uuid}/data/Walt> rdf:type owl:NamedIndividual ,
+                                                                                       <https://ns.eccenca.com/reasoning/{uuid}/vocab/animal> ,
+                                                                                       <https://ns.eccenca.com/reasoning/{uuid}/vocab/pet_owner> ;
+                                                                              <https://ns.eccenca.com/reasoning/{uuid}/vocab/likes> <https://ns.eccenca.com/reasoning/{uuid}/data/Dewey> ,
+                                                                                                                                                              <https://ns.eccenca.com/reasoning/{uuid}/data/Huey> ,
+                                                                                                                                                              <https://ns.eccenca.com/reasoning/{uuid}/data/Louie> .
+vocab: a owl:Ontology ;
+       <https://vocab.eccenca.com/plugin/reason/profile>  "DL" , "Full" .

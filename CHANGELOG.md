@@ -4,9 +4,28 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](https://semver.org/)
 
+## Unreleased
+
+### Fixed
+
+- Do not remove import of ontology in result graph if ontology is imported in data graph and "Output graph import" is not
+set to "Import ontology graph into output graph" in Reason plugin
+
+### Added
+
+- Parameter to check missing OWL imports. Missing imports can be ignored or lead to execution error.
+- Check if ontology graph and data graph exist before execution.
+
+### Changed
+
+- Throw error if output graph is imported by input graph in Reason plugin
+- Use UUIDs for temporary RDF files
+- Do not query list of graphs again for output graph label
+- 
+
 ## 2.0.0 2024-11-29
 
-## Changed
+### Changed
 
 - replaced the boolean parameters "Add ontology graph import to result graph" and "Add result graph import to ontology graph"
 with a pull down menu
@@ -14,18 +33,18 @@ with a pull down menu
 
 ## 1.1.0beta2 2024-11-08
 
-## Fixed
+### Fixed
 
 - error caused by plugin parameter provenance generation
 
 ## 1.1.0beta1 2024-11-04
 
-## Added
+### Added
 
 - support for directories in filepath for output filename in Validate plugin
 - axiom generators for object property characteristics and data property characteristics (needs testing)
 
-## Changed
+### Changed
 
 - compatibility with cmem-plugin-base 4.5.0 
 - update ROBOT to 1.9.7

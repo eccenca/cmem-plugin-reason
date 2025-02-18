@@ -1,17 +1,19 @@
 """Reasoning workflow plugin module"""
 
 from collections import OrderedDict
+from collections.abc import Sequence
 from datetime import UTC, datetime
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from time import time
-from warnings import simplefilter
+from uuid import uuid4
 
 import validators.url
-from cmem.cmempy.dp.proxy.graph import get
+from cmem.cmempy.dp.proxy.graph import get, get_graph_import_tree, get_graphs_list
 from cmem.cmempy.dp.proxy.update import post
 from cmem_plugin_base.dataintegration.context import ExecutionContext, ExecutionReport
 from cmem_plugin_base.dataintegration.description import Icon, Plugin, PluginParameter
+from cmem_plugin_base.dataintegration.entity import Entities
 from cmem_plugin_base.dataintegration.parameter.choice import ChoiceParameterType
 from cmem_plugin_base.dataintegration.parameter.graph import GraphParameterType
 from cmem_plugin_base.dataintegration.plugins import WorkflowPlugin
@@ -19,10 +21,10 @@ from cmem_plugin_base.dataintegration.ports import FixedNumberOfInputs
 from cmem_plugin_base.dataintegration.types import BoolParameterType, StringParameterType
 from cmem_plugin_base.dataintegration.utils import setup_cmempy_user_access
 from inflection import underscore
-from urllib3.exceptions import InsecureRequestWarning
 
 from cmem_plugin_reason.doc import REASON_DOC
 from cmem_plugin_reason.utils import (
+    IGNORE_MISSING_IMPORTS_PARAMETER,
     MAX_RAM_PERCENTAGE_DEFAULT,
     MAX_RAM_PERCENTAGE_PARAMETER,
     ONTOLOGY_GRAPH_IRI_PARAMETER,
@@ -30,7 +32,6 @@ from cmem_plugin_reason.utils import (
     REASONERS,
     VALIDATE_PROFILES_PARAMETER,
     create_xml_catalog_file,
-    get_graphs_tree,
     get_output_graph_label,
     get_provenance,
     post_profiles,
@@ -39,8 +40,6 @@ from cmem_plugin_reason.utils import (
     send_result,
     validate_profiles,
 )
-
-simplefilter("ignore", category=InsecureRequestWarning)
 
 SUBCLASS_DESC = """The reasoner will infer assertions about the hierarchy of classes, i.e.
 `SubClassOf:` statements.\n
@@ -149,6 +148,7 @@ Person`.
     description="Performs OWL reasoning.",
     documentation=REASON_DOC,
     parameters=[
+        IGNORE_MISSING_IMPORTS_PARAMETER,
         ONTOLOGY_GRAPH_IRI_PARAMETER,
         VALIDATE_PROFILES_PARAMETER,
         REASONER_PARAMETER,
@@ -321,6 +321,7 @@ class ReasonPlugin(WorkflowPlugin):
         ontology_graph_iri: str,
         output_graph_iri: str,
         reasoner: str,
+        ignore_missing_imports: bool = True,
         class_assertion: bool = True,
         property_assertion: bool = True,
         sub_class: bool = False,
@@ -397,38 +398,65 @@ class ReasonPlugin(WorkflowPlugin):
         self.input_profiles = input_profiles
         self.max_ram_percentage = max_ram_percentage
         self.valid_profiles = valid_profiles
+        self.ignore_missing_imports = ignore_missing_imports
         # self.data_property_characteristic = data_property_characteristic
         # self.object_property_characteristic = object_property_characteristic
 
         for k, v in self.axioms.items():
             self.__dict__[underscore(k)] = v
 
+        self.data_imports_ontology = False
+
         self.input_ports = FixedNumberOfInputs([])
         self.output_port = None
 
-    def get_graphs(self, graphs: dict, context: ExecutionContext) -> None:
+    def get_graphs(self, graphs: dict, missing: list) -> None:
         """Get graphs from CMEM"""
         for iri, filename in graphs.items():
-            self.log.info(f"Fetching graph {iri}.")
             with (Path(self.temp) / filename).open("w", encoding="utf-8") as file:
-                setup_cmempy_user_access(context.user)
-                for line in get(iri).text.splitlines():
-                    if not line.endswith(
-                        f"<http://www.w3.org/2002/07/owl#imports> <{self.output_graph_iri}> ."
-                    ):
-                        file.write(line + "\n")
+                if iri not in missing:
+                    self.log.info(f"Fetching graph {iri}.")
+                    setup_cmempy_user_access(self.context.user)
+                    file.write(get(iri).text)
                     if iri == self.data_graph_iri:
                         file.write(
-                            f"<{iri}> "
-                            f"<http://www.w3.org/2002/07/owl#imports> <{self.ontology_graph_iri}> ."
+                            f"\n<{iri}> "
+                            "<http://www.w3.org/2002/07/owl#imports> "
+                            f"<{self.ontology_graph_iri}> ."
                         )
+
+    def get_graphs_tree(self) -> tuple[dict, list]:  # noqa: C901
+        """Get graph import tree. Last item in graph_iris is output_graph_iri which is excluded"""
+        missing = []
+        graphs = {}
+        for graph_iri in [self.data_graph_iri, self.ontology_graph_iri]:
+            if graph_iri not in graphs:
+                graphs[graph_iri] = f"{uuid4().hex}.nt"
+                tree = get_graph_import_tree(graph_iri)
+                for value in tree["tree"].values():
+                    for iri in value:
+                        if iri not in graphs:
+                            if iri == self.ontology_graph_iri:
+                                self.data_imports_ontology = True
+                            elif iri == self.output_graph_iri:
+                                raise ImportError("Input graph imports output graph.")
+                            if iri not in self.graphs_dict:
+                                missing.append(iri)
+                            graphs[iri] = f"{uuid4().hex}.nt"
+        if missing:
+            if self.ignore_missing_imports:
+                [self.log.warning(f"Missing graph import: {iri}") for iri in missing]
+            else:
+                raise ImportError(f"Missing graph imports: {', '.join(missing)}")
+
+        return graphs, missing
 
     def reason(self, graphs: dict) -> None:
         """Reason"""
         axioms = " ".join(k for k, v in self.axioms.items() if v)
         data_location = f"{self.temp}/{graphs[self.data_graph_iri]}"
         utctime = str(datetime.fromtimestamp(int(time()), tz=UTC))[:-6].replace(" ", "T") + "Z"
-        label = get_output_graph_label(self.data_graph_iri, "Reasoning Results")
+        label = get_output_graph_label(self, self.data_graph_iri, "Reasoning Results")
         cmd = (
             f'reason --input "{data_location}" '
             f"--reasoner {self.reasoner} "
@@ -483,16 +511,15 @@ class ReasonPlugin(WorkflowPlugin):
         """
         post(query=query)
 
-    def _execute(self, context: ExecutionContext) -> None:
+    def _execute(self) -> None:
         """`Execute plugin"""
-        setup_cmempy_user_access(context.user)
-        graphs = get_graphs_tree(
-            (self.data_graph_iri, self.ontology_graph_iri, self.output_graph_iri)
-        )
-        self.get_graphs(graphs, context)
+        setup_cmempy_user_access(self.context.user)
+
+        graphs, missing = self.get_graphs_tree()
+        self.get_graphs(graphs, missing)
         create_xml_catalog_file(self.temp, graphs)
         self.reason(graphs)
-        setup_cmempy_user_access(context.user)
+        setup_cmempy_user_access(self.context.user)
         send_result(self.output_graph_iri, Path(self.temp) / "result.ttl")
         if self.validate_profile:
             if self.input_profiles:
@@ -500,16 +527,15 @@ class ReasonPlugin(WorkflowPlugin):
             else:
                 valid_profiles = validate_profiles(self, graphs)
             post_profiles(self, valid_profiles)
-        post_provenance(self, get_provenance(self, "Reason", context))
+        post_provenance(self, get_provenance(self, "Reason"))
 
-        if self.imports == "import_result" or self.imports != "import_ontology":
-            setup_cmempy_user_access(context.user)
-            if self.imports == "import_result":
-                self.add_result_import()
-            if self.imports != "import_ontology":
-                self.remove_ontology_import()
+        setup_cmempy_user_access(self.context.user)
+        if self.imports == "import_result":
+            self.add_result_import()
+        if self.imports != "import_ontology" and not self.data_imports_ontology:
+            self.remove_ontology_import()
 
-        context.report.update(
+        self.context.report.update(
             ExecutionReport(
                 operation="reason",
                 operation_desc="ontology and data graph processed.",
@@ -517,13 +543,25 @@ class ReasonPlugin(WorkflowPlugin):
             )
         )
 
-    def execute(self, inputs: None, context: ExecutionContext) -> None:  # noqa: ARG002
+    def execute(self, inputs: Sequence[Entities], context: ExecutionContext) -> None:  # noqa: ARG002
         """Execute plugin with temporary directory"""
+        setup_cmempy_user_access(context.user)
+        self.graphs_dict = {_["iri"]: _ for _ in get_graphs_list()}
+        not_exist = []
+        if self.data_graph_iri not in self.graphs_dict:
+            not_exist.append(self.data_graph_iri)
+        if self.ontology_graph_iri not in self.graphs_dict:
+            not_exist.append(self.ontology_graph_iri)
+        if not_exist:
+            raise ValueError(f"Graphs do not exist: {', '.join(not_exist)}")
+
+        self.context = context
         context.report.update(
             ExecutionReport(
                 operation="reason",
                 operation_desc="ontologies and data graphs processed.",
+                entity_count=0,
             )
         )
         with TemporaryDirectory() as self.temp:
-            self._execute(context)
+            self._execute()
