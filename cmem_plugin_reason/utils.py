@@ -107,8 +107,9 @@ def send_result(iri: str | None, filepath: Path) -> None:
         raise OSError(f"Error posting result graph (status code {res.status_code}).")
 
 
-def post_provenance(plugin: WorkflowPlugin, prov: dict | None) -> None:
+def post_provenance(plugin: WorkflowPlugin) -> None:
     """Post provenance"""
+    prov = get_provenance(plugin)
     if prov:
         param_sparql = ""
         for name, iri in prov["parameters"].items():
@@ -129,7 +130,7 @@ def post_provenance(plugin: WorkflowPlugin, prov: dict | None) -> None:
         post_update(query=insert_query)
 
 
-def get_provenance(plugin: WorkflowPlugin, label_plugin: str) -> dict | None:
+def get_provenance(plugin: WorkflowPlugin) -> dict | None:
     """Get provenance information"""
     plugin_iri = (
         f"http://dataintegration.eccenca.com/{plugin.context.task.project_id()}/"
@@ -172,7 +173,7 @@ def get_provenance(plugin: WorkflowPlugin, label_plugin: str) -> dict | None:
     """
 
     new_plugin_iri = f"{'_'.join(plugin_iri.split('_')[:-1])}_{token_hex(8)}"
-    label = f"{label_plugin} plugin"
+    label = f"{plugin.label} plugin"
     result = json.loads(post_select(query=parameter_query))
 
     prov = {

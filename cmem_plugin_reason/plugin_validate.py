@@ -33,7 +33,6 @@ from cmem_plugin_reason.utils import (
     VALIDATE_PROFILES_PARAMETER,
     create_xml_catalog_file,
     get_output_graph_label,
-    get_provenance,
     post_profiles,
     post_provenance,
     robot,
@@ -41,9 +40,11 @@ from cmem_plugin_reason.utils import (
     validate_profiles,
 )
 
+LABEL = "Validate OWL consistency"
+
 
 @Plugin(
-    label="Validate OWL consistency",
+    label=LABEL,
     description="Validates the consistency of an OWL ontology.",
     documentation=VALIDATE_DOC,
     icon=Icon(file_name="file-icons--owl.svg", package=__package__),
@@ -162,6 +163,8 @@ class ValidatePlugin(WorkflowPlugin):
         self.output_entities = output_entities
         self.max_ram_percentage = max_ram_percentage
         self.ignore_missing_imports = ignore_missing_imports
+
+        self.label = LABEL
 
         self.input_ports = FixedNumberOfInputs([])
         if self.output_entities:
@@ -283,7 +286,7 @@ class ValidatePlugin(WorkflowPlugin):
             setup_cmempy_user_access(self.context.user)
             send_result(self.output_graph_iri, Path(self.temp) / "output.ttl")
             setup_cmempy_user_access(self.context.user)
-            post_provenance(self, get_provenance(self, "Validate"))
+            post_provenance(self)
 
         valid_profiles = (
             self.add_profiles(validate_profiles(self, graphs)) if self.validate_profile else []
@@ -332,5 +335,6 @@ class ValidatePlugin(WorkflowPlugin):
                 operation_desc="ontologies validated.",
             )
         )
+
         with TemporaryDirectory() as self.temp:
             return self._execute()
