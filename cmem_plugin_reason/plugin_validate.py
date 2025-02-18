@@ -118,13 +118,13 @@ class ValidatePlugin(WorkflowPlugin):
     def __init__(  # noqa: PLR0912 PLR0913 C901
         self,
         ontology_graph_iri: str,
-        reasoner: str,
-        ignore_missing_imports: bool = True,
-        output_graph_iri: str = "",
+        ignore_missing_imports: bool = False,
+        output_graph_iri: str | None = None,
+        output_entities: bool = False,
+        reasoner: str | None = None,
         md_filename: str = "",
         mode: str = "inconsistency",
         validate_profile: bool = False,
-        output_entities: bool = False,
         stop_at_inconsistencies: bool = False,
         max_ram_percentage: int = MAX_RAM_PERCENTAGE_DEFAULT,
     ) -> None:

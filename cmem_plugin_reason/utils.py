@@ -74,7 +74,7 @@ IGNORE_MISSING_IMPORTS_PARAMETER = PluginParameter(
     name="ignore_missing_imports",
     label="Ignore missing imports",
     description="""Ignore missing graphs from the import tree of the input graphs.""",
-    default_value=True,
+    default_value=False,
 )
 
 
@@ -95,7 +95,7 @@ def create_xml_catalog_file(dir_: str, graphs: dict) -> None:
         file.write(reparsed)
 
 
-def send_result(iri: str, filepath: Path) -> None:
+def send_result(iri: str | None, filepath: Path) -> None:
     """Send result"""
     res = post_streamed(
         iri,
@@ -131,7 +131,10 @@ def post_provenance(plugin: WorkflowPlugin, prov: dict | None) -> None:
 
 def get_provenance(plugin: WorkflowPlugin, label_plugin: str) -> dict | None:
     """Get provenance information"""
-    plugin_iri = f"http://dataintegration.eccenca.com/{plugin.context.task.project_id()}/{plugin.context.task.task_id()}"
+    plugin_iri = (
+        f"http://dataintegration.eccenca.com/{plugin.context.task.project_id()}/"
+        f"{plugin.context.task.task_id()}"
+    )
     project_graph = f"http://di.eccenca.com/project/{plugin.context.task.project_id()}"
 
     type_query = f"""

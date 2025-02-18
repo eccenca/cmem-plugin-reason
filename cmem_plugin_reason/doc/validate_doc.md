@@ -8,6 +8,10 @@ The plugin outputs the explanation as text in Markdown format on the path "markd
 
 The IRI of the input ontology graph. The graph IRI is selected from a list of graphs of type`owl:Ontology`.
 
+### Ignore missing imports
+
+If enabled, missing imports (`owl:imports`) in the input graphs are ignored.
+
 ### Reasoner
 
 The following reasoner options are supported: 
@@ -17,10 +21,6 @@ The following reasoner options are supported:
 - [JFact](http://jfact.sourceforge.net/) (jfact)
 - [Structural Reasoner](http://owlcs.github.io/owlapi/apidocs_4/org/semanticweb/owlapi/reasoner/structural/StructuralReasoner.html) (structural)
 - [Whelk](https://github.com/balhoff/whelk) (whelk)
-
-### Ignore missing imports
-
-If enabled, missing imports (`owl:imports`) in the input graphs are ignored.
 
 ### Produce output graph
 
