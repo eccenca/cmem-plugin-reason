@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](https://semver.org/)
 
-## Unreleased
+## [2.1.0] 2025-02-18
 
 ### Fixed
 
@@ -21,9 +21,9 @@ set to "Import ontology graph into output graph" in Reason plugin
 - Throw error if output graph is imported by input graph in Reason plugin
 - Use UUIDs for temporary RDF files
 - Do not query list of graphs again for output graph label
-- 
 
-## 2.0.0 2024-11-29
+
+## [2.0.0] 2024-11-29
 
 ### Changed
 
@@ -31,13 +31,15 @@ set to "Import ontology graph into output graph" in Reason plugin
 with a pull down menu
 - removed axiom generators for object property characteristics and data property characteristics (not working)
 
-## 1.1.0beta2 2024-11-08
+
+## [1.1.0beta2] 2024-11-08
 
 ### Fixed
 
 - error caused by plugin parameter provenance generation
 
-## 1.1.0beta1 2024-11-04
+
+## [1.1.0beta1] 2024-11-04
 
 ### Added
 
@@ -49,11 +51,13 @@ with a pull down menu
 - compatibility with cmem-plugin-base 4.5.0 
 - update ROBOT to 1.9.7
 
+
 ## [1.0.1] 2024-09-05
 
 ### Fixed
 
 - fix installation issue for platform encodings other than UTF-8
+
 
 ## [1.0.0] 2024-09-03
 
@@ -65,6 +69,7 @@ with a pull down menu
 
 - output graph label derived from input graph
 - create plugin label in provenance data
+
 
 ## [1.0.0rc1] 2024-08-28
 
@@ -82,6 +87,7 @@ with a pull down menu
  - detailed axiom generator documentation
  - The axiom generator ObjectPropertyCharacteristic does not yield results. Currently, this axiom generator and its
 (working) counterpart DataPropertyCharacteristic are removed from the Reason plugin.
+
 
 ## [1.0.0beta5] 2024-08-15
 
@@ -107,6 +113,7 @@ The ontology IRI on the input overrides the plugin setting.
 - When "input_profiles" is enabled the ontology IRI and list of valid OWL2 profiles is now taken from the config port.
 The list of valid profiles is a comma-separated string (e.g. "Full,DL").
 
+
 ## [1.0.0beta4] 2024-07-12
 
 ### Fixed
@@ -122,6 +129,7 @@ The list of valid profiles is a comma-separated string (e.g. "Full,DL").
 - use DCMI Metadata Terms for provenance
 - new icons
 
+
 ## [1.0.0beta3] 2024-07-09
 
 ### Fixed
@@ -136,6 +144,7 @@ The list of valid profiles is a comma-separated string (e.g. "Full,DL").
 ### Changed
 
 - Validate plugin outputs the Markdown result with path "markdown"
+
 
 ## [1.0.0beta2] 2024-07-04
 
@@ -161,6 +170,7 @@ The list of valid profiles is a comma-separated string (e.g. "Full,DL").
 - complete validation for IRI parameters
 - remove "Annnotate inferred subclass axioms" parameter in Reason plugin
 
+
 ## [1.0.0alpha3] 2024-06-28
 
 ### Added
@@ -172,7 +182,9 @@ The list of valid profiles is a comma-separated string (e.g. "Full,DL").
 
 - axiom generators are now not advanced parameters
 
+
 ## [1.0.0alpha2] (skipped)
+
 
 ## [1.0.0alpha1] 2024-06-27
 
