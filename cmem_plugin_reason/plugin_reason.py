@@ -33,13 +33,14 @@ from cmem_plugin_reason.utils import (
     VALIDATE_PROFILES_PARAMETER,
     create_xml_catalog_file,
     get_output_graph_label,
-    get_provenance,
     post_profiles,
     post_provenance,
     robot,
     send_result,
     validate_profiles,
 )
+
+LABEL = "Reason"
 
 SUBCLASS_DESC = """The reasoner will infer assertions about the hierarchy of classes, i.e.
 `SubClassOf:` statements.\n
@@ -143,7 +144,7 @@ Person`.
 
 
 @Plugin(
-    label="Reason",
+    label=LABEL,
     icon=Icon(file_name="fluent--brain-circuit-24-regular.svg", package=__package__),
     description="Performs OWL reasoning.",
     documentation=REASON_DOC,
@@ -319,9 +320,9 @@ class ReasonPlugin(WorkflowPlugin):
         self,
         data_graph_iri: str,
         ontology_graph_iri: str,
-        output_graph_iri: str,
-        reasoner: str,
-        ignore_missing_imports: bool = True,
+        ignore_missing_imports: bool = False,
+        output_graph_iri: str | None = None,
+        reasoner: str | None = None,
         class_assertion: bool = True,
         property_assertion: bool = True,
         sub_class: bool = False,
@@ -406,6 +407,8 @@ class ReasonPlugin(WorkflowPlugin):
             self.__dict__[underscore(k)] = v
 
         self.data_imports_ontology = False
+
+        self.label = LABEL
 
         self.input_ports = FixedNumberOfInputs([])
         self.output_port = None
@@ -514,7 +517,6 @@ class ReasonPlugin(WorkflowPlugin):
     def _execute(self) -> None:
         """`Execute plugin"""
         setup_cmempy_user_access(self.context.user)
-
         graphs, missing = self.get_graphs_tree()
         self.get_graphs(graphs, missing)
         create_xml_catalog_file(self.temp, graphs)
@@ -527,7 +529,7 @@ class ReasonPlugin(WorkflowPlugin):
             else:
                 valid_profiles = validate_profiles(self, graphs)
             post_profiles(self, valid_profiles)
-        post_provenance(self, get_provenance(self, "Reason"))
+        post_provenance(self)
 
         setup_cmempy_user_access(self.context.user)
         if self.imports == "import_result":

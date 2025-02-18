@@ -4,12 +4,19 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](https://semver.org/)
 
+## [2.1.1] 2025-02-18
+
+### Changed
+
+- Default value for "ignore missing imports" is False.
+- Change order of parameters in UI.
+
 ## [2.1.0] 2025-02-18
 
 ### Fixed
 
 - Do not remove import of ontology in result graph if ontology is imported in data graph and "Output graph import" is not
-set to "Import ontology graph into output graph" in Reason plugin
+set to "Import ontology graph into output graph" in Reason plugin.
 
 ### Added
 
