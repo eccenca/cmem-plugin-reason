@@ -40,6 +40,8 @@ def reasoner_parameter() -> str | None:
 @pytest.fixture
 def setup() -> Generator[None, Any, None]:
     """Set up Reason test"""
+    delete(REASON_RESULT_GRAPH_IRI)
+
     import_graph(REASON_DATA_GRAPH_IRI, get_bytes_io(f"{FIXTURE_DIR}/test_reason_data.ttl"))
     import_graph(REASON_DATA_GRAPH_IRI_2, get_bytes_io(f"{FIXTURE_DIR}/test_reason_data_2.ttl"))
     import_graph(
