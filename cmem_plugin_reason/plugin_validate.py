@@ -2,7 +2,6 @@
 
 from collections import OrderedDict
 from collections.abc import Sequence
-from io import BytesIO
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from uuid import uuid4
@@ -31,7 +30,7 @@ from cmem_plugin_reason.utils import (
     REASONERS,
     VALIDATE_PROFILES_PARAMETER,
     create_xml_catalog_file,
-    get_datetime,
+    get_file_with_datetime,
     get_output_graph_label,
     post_profiles,
     post_provenance,
@@ -281,13 +280,8 @@ class ValidatePlugin(WorkflowPlugin):
         self.explain(graphs)
 
         if self.output_graph_iri:
-            file_content = (
-                (Path(self.temp) / "result.ttl").read_text()
-                + f'\n<{self.output_graph_iri}> <http://purl.org/dc/terms/created> "'
-                f'{get_datetime()}"^^xsd:dateTime .'
-            )
             setup_cmempy_user_access(self.context.user)
-            send_result(self.output_graph_iri, BytesIO(file_content.encode()))
+            send_result(self.output_graph_iri, get_file_with_datetime(self))
             setup_cmempy_user_access(self.context.user)
             post_provenance(self)
 

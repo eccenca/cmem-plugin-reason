@@ -245,6 +245,13 @@ def get_output_graph_label(plugin: WorkflowPlugin, iri: str, add_string: str) ->
     return f"{data_graph_label}{add_string}"
 
 
-def get_datetime() -> str:
-    """Return current date and time"""
-    return str(datetime.fromtimestamp(int(time()), tz=UTC))[:-6].replace(" ", "T") + "Z"
+def get_file_with_datetime(plugin: WorkflowPlugin) -> BytesIO:
+    """Return result file with dcterms:created datetime"""
+    utctime = str(datetime.fromtimestamp(int(time()), tz=UTC))[:-6].replace(" ", "T") + "Z"
+    file_content = (
+        (Path(plugin.temp) / "result.ttl").read_text()
+        + f"\n<{plugin.output_graph_iri}> <http://purl.org/dc/terms/created> "
+        f'"{utctime}"^^xsd:dateTime .'
+    ).encode("utf-8")
+
+    return BytesIO(file_content)
