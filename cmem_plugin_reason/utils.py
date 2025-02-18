@@ -14,6 +14,7 @@ from xml.etree.ElementTree import Element, SubElement, tostring
 from cmem.cmempy.dp.proxy.graph import get_graphs_list, post_streamed
 from cmem.cmempy.dp.proxy.sparql import post as post_select
 from cmem.cmempy.dp.proxy.update import post as post_update
+from cmem_plugin_base.dataintegration.context import ExecutionReport
 from cmem_plugin_base.dataintegration.description import PluginParameter
 from cmem_plugin_base.dataintegration.parameter.choice import ChoiceParameterType
 from cmem_plugin_base.dataintegration.parameter.graph import GraphParameterType
@@ -255,3 +256,12 @@ def get_file_with_datetime(plugin: WorkflowPlugin) -> BytesIO:
     ).encode("utf-8")
 
     return BytesIO(file_content)
+
+
+def cancel_workflow(plugin: WorkflowPlugin) -> bool:
+    """Cancel workflow"""
+    if hasattr(plugin.context, "workflow") and  plugin.context.workflow.status() != "Running":
+        plugin.log.info("End task (cancelled workflow).")
+        plugin.context.report.update(ExecutionReport(entity_count=0, operation_desc="(cancelled)"))
+        return True
+    return False

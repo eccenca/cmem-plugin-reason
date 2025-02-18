@@ -29,6 +29,7 @@ from cmem_plugin_reason.utils import (
     REASONER_PARAMETER,
     REASONERS,
     VALIDATE_PROFILES_PARAMETER,
+    cancel_workflow,
     create_xml_catalog_file,
     get_file_with_datetime,
     get_output_graph_label,
@@ -276,19 +277,24 @@ class ValidatePlugin(WorkflowPlugin):
         setup_cmempy_user_access(self.context.user)
         graphs, missing = self.get_graphs_tree()
         self.get_graphs(graphs, missing)
+        if cancel_workflow(self):
+            return None
         create_xml_catalog_file(self.temp, graphs)
         self.explain(graphs)
-
+        if cancel_workflow(self):
+            return None
         if self.output_graph_iri:
             setup_cmempy_user_access(self.context.user)
             send_result(self.output_graph_iri, get_file_with_datetime(self))
             setup_cmempy_user_access(self.context.user)
             post_provenance(self)
-
+        if cancel_workflow(self):
+            return None
         valid_profiles = (
             self.add_profiles(validate_profiles(self, graphs)) if self.validate_profile else []
         )
-
+        if cancel_workflow(self):
+            return None
         if self.write_md:
             setup_cmempy_user_access(self.context.user)
             self.make_resource(self.context)

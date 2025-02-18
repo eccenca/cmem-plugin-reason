@@ -29,6 +29,7 @@ from cmem_plugin_reason.utils import (
     REASONER_PARAMETER,
     REASONERS,
     VALIDATE_PROFILES_PARAMETER,
+    cancel_workflow,
     create_xml_catalog_file,
     get_file_with_datetime,
     get_output_graph_label,
@@ -516,8 +517,12 @@ class ReasonPlugin(WorkflowPlugin):
         setup_cmempy_user_access(self.context.user)
         graphs, missing = self.get_graphs_tree()
         self.get_graphs(graphs, missing)
+        if cancel_workflow(self):
+            return
         create_xml_catalog_file(self.temp, graphs)
         self.reason(graphs)
+        if cancel_workflow(self):
+            return
         setup_cmempy_user_access(self.context.user)
         send_result(self.output_graph_iri, get_file_with_datetime(self))
         if self.validate_profile:

@@ -6,9 +6,14 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 ## [Unreleased]
 
+### Added
+
+- Handle canceling of workflow
+
 ### Changed
 
 - Get creation date and time after processing.
+
 
 ## [2.1.1] 2025-02-18
 
