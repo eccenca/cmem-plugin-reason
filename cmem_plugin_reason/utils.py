@@ -3,9 +3,12 @@
 import json
 import shlex
 from collections import OrderedDict
+from datetime import UTC, datetime
+from io import BytesIO
 from pathlib import Path
 from secrets import token_hex
 from subprocess import CompletedProcess, run
+from time import time
 from xml.etree.ElementTree import Element, SubElement, tostring
 
 from cmem.cmempy.dp.proxy.graph import get_graphs_list, post_streamed
@@ -95,11 +98,11 @@ def create_xml_catalog_file(dir_: str, graphs: dict) -> None:
         file.write(reparsed)
 
 
-def send_result(iri: str | None, filepath: Path) -> None:
+def send_result(iri: str | None, file: BytesIO) -> None:
     """Send result"""
     res = post_streamed(
         iri,
-        str(filepath),
+        file,
         replace=True,
         content_type="text/turtle",
     )
@@ -240,3 +243,8 @@ def get_output_graph_label(plugin: WorkflowPlugin, iri: str, add_string: str) ->
     except KeyError:
         data_graph_label = ""
     return f"{data_graph_label}{add_string}"
+
+
+def get_datetime() -> str:
+    """Return current date and time"""
+    return str(datetime.fromtimestamp(int(time()), tz=UTC))[:-6].replace(" ", "T") + "Z"
