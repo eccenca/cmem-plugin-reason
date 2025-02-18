@@ -17,10 +17,6 @@ The IRI of the output graph for the reasoning result.
 
 ⚠️ Existing graphs will be overwritten.
 
-### Ignore missing imports
-
-Ignore missing `owl:imports` in the input graphs
-
 ### Reasoner
 
 The following reasoner options are supported: 
@@ -30,6 +26,10 @@ The following reasoner options are supported:
 - [JFact](http://jfact.sourceforge.net/) (jfact)
 - [Structural Reasoner](http://owlcs.github.io/owlapi/apidocs_4/org/semanticweb/owlapi/reasoner/structural/StructuralReasoner.html) (structural)
 - [Whelk](https://github.com/balhoff/whelk) (whelk)
+
+### Ignore missing imports
+
+If enabled, missing imports (`owl:imports`) in the input graphs are ignored.
 
 ### Generated Axioms
 
