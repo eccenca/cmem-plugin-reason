@@ -21,7 +21,7 @@ set to "Import ontology graph into output graph" in Reason plugin
 - Throw error if output graph is imported by input graph in Reason plugin
 - Use UUIDs for temporary RDF files
 - Do not query list of graphs again for output graph label
-- Added and improved tests, randomise filenames, IRIs, resource names and project name in tests
+- 
 
 ## 2.0.0 2024-11-29
 
