@@ -260,7 +260,7 @@ def get_file_with_datetime(plugin: WorkflowPlugin) -> BytesIO:
 
 def cancel_workflow(plugin: WorkflowPlugin) -> bool:
     """Cancel workflow"""
-    if hasattr(plugin.context, "workflow") and  plugin.context.workflow.status() != "Running":
+    if hasattr(plugin.context, "workflow") and plugin.context.workflow.status() != "Running":
         plugin.log.info("End task (cancelled workflow).")
         plugin.context.report.update(ExecutionReport(entity_count=0, operation_desc="(cancelled)"))
         return True
