@@ -8,11 +8,13 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 ### Added
 
-- Handle canceling of workflow
+- Handle canceling of workflow.
 
 ### Changed
 
 - Get creation date and time after processing.
+- Update ROBOT to v1.9.8.
+- Update dependencies.
 
 
 ## [2.1.1] 2025-02-18
