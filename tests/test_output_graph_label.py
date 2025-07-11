@@ -3,10 +3,8 @@
 from cmem_plugin_reason.plugin_reason import ReasonPlugin
 from cmem_plugin_reason.plugin_validate import ValidatePlugin
 from cmem_plugin_reason.utils import get_output_graph_label
-from tests.utils import needs_cmem
 
 
-@needs_cmem
 def test_reason_output_graph_label() -> None:
     """Test creating the output graph label"""
     plugin = ReasonPlugin(
@@ -26,7 +24,6 @@ def test_reason_output_graph_label() -> None:
     )
 
 
-@needs_cmem
 def test_reason_output_graph_label_fail() -> None:
     """Test creating the output graph label - fails"""
     plugin = ReasonPlugin(
@@ -46,7 +43,6 @@ def test_reason_output_graph_label_fail() -> None:
     )
 
 
-@needs_cmem
 def test_validate_output_graph_label() -> None:
     """Test creating the output graph label"""
     plugin = ValidatePlugin(
@@ -60,7 +56,6 @@ def test_validate_output_graph_label() -> None:
     )
 
 
-@needs_cmem
 def test_validate_output_graph_label_fail() -> None:
     """Test creating the output graph label"""
     plugin = ValidatePlugin(

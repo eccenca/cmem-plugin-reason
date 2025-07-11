@@ -9,13 +9,13 @@ from cmem.cmempy.dp.proxy.graph import delete
 from cmem.cmempy.workspace.projects.project import delete_project, make_new_project
 from cmem.cmempy.workspace.projects.resources.resource import get_resource
 from cmem_plugin_base.dataintegration.entity import Entities
+from cmem_plugin_base.testing import TestExecutionContext
 from rdflib import Graph
 from rdflib.compare import isomorphic
 
 from cmem_plugin_reason.plugin_validate import ValidatePlugin
 from cmem_plugin_reason.utils import REASONERS
 from tests import FIXTURE_DIR
-from tests.utils import TestExecutionContext, needs_cmem
 from tests.utils2 import UID, get_bytes_io, get_remote_graph, import_graph, replace_uuid
 
 VALIDATE_ONTOLOGY_GRAPH_IRI_1 = f"https://ns.eccenca.com/validateontology/{UID}/vocab/"
@@ -74,7 +74,6 @@ def setup() -> Generator[None, Any, None]:
 
 
 @pytest.mark.parametrize("reasoner_parameter", list(REASONERS.keys()))
-@needs_cmem
 def test_validate(setup: None, reasoner_parameter: str) -> None:  # noqa: ARG001
     """Test Validate"""
     result = ValidatePlugin(
