@@ -14,7 +14,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 - Get creation date and time after processing.
 - Update ROBOT to v1.9.8.
-- Update dependencies.
+- Update dependencies, including cmem-cmempy to ^25.4.0.
 
 
 ## [2.1.1] 2025-02-18
