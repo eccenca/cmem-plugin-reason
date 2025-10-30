@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "cmem-plugin-reason"
-version = "2.1.2.dev7+ebe72ac.dirty"
+version = "0.0.0"
 license = "Apache-2.0"
 description = "Perform reasoning tasks and validate OWL consistency."
 authors = ["eccenca GmbH <cmempy-developer@eccenca.com>"]
@@ -47,7 +47,7 @@ requires = ["poetry-core>=1.0.0", "poetry-dynamic-versioning"]
 build-backend = "poetry_dynamic_versioning.backend"
 
 [tool.poetry-dynamic-versioning]
-enable = false
+enable = true
 vcs = "git"
 dirty = true
 bump = true
