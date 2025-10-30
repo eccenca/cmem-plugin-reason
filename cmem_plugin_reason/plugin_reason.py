@@ -2,10 +2,8 @@
 
 from collections import OrderedDict
 from collections.abc import Sequence
-from datetime import UTC, datetime
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from time import time
 from uuid import uuid4
 
 import validators.url
@@ -31,7 +29,9 @@ from cmem_plugin_reason.utils import (
     REASONER_PARAMETER,
     REASONERS,
     VALIDATE_PROFILES_PARAMETER,
+    cancel_workflow,
     create_xml_catalog_file,
+    get_file_with_datetime,
     get_output_graph_label,
     post_profiles,
     post_provenance,
@@ -458,7 +458,6 @@ class ReasonPlugin(WorkflowPlugin):
         """Reason"""
         axioms = " ".join(k for k, v in self.axioms.items() if v)
         data_location = f"{self.temp}/{graphs[self.data_graph_iri]}"
-        utctime = str(datetime.fromtimestamp(int(time()), tz=UTC))[:-6].replace(" ", "T") + "Z"
         label = get_output_graph_label(self, self.data_graph_iri, "Reasoning Results")
         cmd = (
             f'reason --input "{data_location}" '
@@ -479,7 +478,6 @@ class ReasonPlugin(WorkflowPlugin):
             f'<{self.ontology_graph_iri}>" en '
             f'--link-annotation dc:source "{self.data_graph_iri}" '
             f'--link-annotation dc:source "{self.ontology_graph_iri}" '
-            f'--typed-annotation dc:created "{utctime}" xsd:dateTime '
             f'--output "{self.temp}/result.ttl"'
         )
         response = robot(cmd, self.max_ram_percentage)
@@ -519,10 +517,14 @@ class ReasonPlugin(WorkflowPlugin):
         setup_cmempy_user_access(self.context.user)
         graphs, missing = self.get_graphs_tree()
         self.get_graphs(graphs, missing)
+        if cancel_workflow(self):
+            return
         create_xml_catalog_file(self.temp, graphs)
         self.reason(graphs)
+        if cancel_workflow(self):
+            return
         setup_cmempy_user_access(self.context.user)
-        send_result(self.output_graph_iri, Path(self.temp) / "result.ttl")
+        send_result(self.output_graph_iri, get_file_with_datetime(self))
         if self.validate_profile:
             if self.input_profiles:
                 valid_profiles = self.valid_profiles.split(",")

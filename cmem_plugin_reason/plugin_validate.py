@@ -2,10 +2,8 @@
 
 from collections import OrderedDict
 from collections.abc import Sequence
-from datetime import UTC, datetime
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from time import time
 from uuid import uuid4
 
 import validators.url
@@ -31,7 +29,9 @@ from cmem_plugin_reason.utils import (
     REASONER_PARAMETER,
     REASONERS,
     VALIDATE_PROFILES_PARAMETER,
+    cancel_workflow,
     create_xml_catalog_file,
+    get_file_with_datetime,
     get_output_graph_label,
     post_profiles,
     post_provenance,
@@ -216,7 +216,6 @@ class ValidatePlugin(WorkflowPlugin):
     def explain(self, graphs: dict) -> None:
         """Reason"""
         data_location = f"{self.temp}/{graphs[self.ontology_graph_iri]}"
-        utctime = str(datetime.fromtimestamp(int(time()), tz=UTC))[:-6].replace(" ", "T") + "Z"
         label = get_output_graph_label(self, self.ontology_graph_iri, "Validation Result")
         cmd = (
             f'explain --input "{data_location}" '
@@ -230,8 +229,7 @@ class ValidatePlugin(WorkflowPlugin):
                 f"--language-annotation rdfs:comment "
                 f'"Ontology validation of <{self.ontology_graph_iri}>" en '
                 f'--link-annotation dc:source "{self.ontology_graph_iri}" '
-                f'--typed-annotation dc:created "{utctime}" xsd:dateTime '
-                f'--output "{self.temp}/output.ttl"'
+                f'--output "{self.temp}/result.ttl"'
             )
         response = robot(cmd, self.max_ram_percentage)
         if response.returncode != 0:
@@ -279,19 +277,24 @@ class ValidatePlugin(WorkflowPlugin):
         setup_cmempy_user_access(self.context.user)
         graphs, missing = self.get_graphs_tree()
         self.get_graphs(graphs, missing)
+        if cancel_workflow(self):
+            return None
         create_xml_catalog_file(self.temp, graphs)
         self.explain(graphs)
-
+        if cancel_workflow(self):
+            return None
         if self.output_graph_iri:
             setup_cmempy_user_access(self.context.user)
-            send_result(self.output_graph_iri, Path(self.temp) / "output.ttl")
+            send_result(self.output_graph_iri, get_file_with_datetime(self))
             setup_cmempy_user_access(self.context.user)
             post_provenance(self)
-
+        if cancel_workflow(self):
+            return None
         valid_profiles = (
             self.add_profiles(validate_profiles(self, graphs)) if self.validate_profile else []
         )
-
+        if cancel_workflow(self):
+            return None
         if self.write_md:
             setup_cmempy_user_access(self.context.user)
             self.make_resource(self.context)

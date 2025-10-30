@@ -4,6 +4,19 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](https://semver.org/)
 
+## [2.2.0] 2025-10-30
+
+### Added
+
+- Handle canceling of workflow.
+
+### Changed
+
+- Get creation date and time after processing.
+- Update ROBOT to v1.9.8.
+- Update dependencies.
+
+
 ## [2.1.1] 2025-02-18
 
 ### Changed

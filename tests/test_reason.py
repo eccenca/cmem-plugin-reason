@@ -7,13 +7,13 @@ from typing import Any
 import pytest
 from cmem.cmempy.dp.proxy.graph import delete
 from cmem.cmempy.dp.proxy.sparql import get
+from cmem_plugin_base.testing import TestExecutionContext
 from rdflib import Graph
 from rdflib.compare import isomorphic
 
 from cmem_plugin_reason.plugin_reason import ReasonPlugin
 from cmem_plugin_reason.utils import REASONERS
 from tests import FIXTURE_DIR
-from tests.utils import TestExecutionContext, needs_cmem
 from tests.utils2 import UID, get_bytes_io, get_remote_graph, import_graph, replace_uuid
 
 REASON_DATA_GRAPH_IRI = f"https://ns.eccenca.com/reasoning/{UID}/data/"
@@ -69,7 +69,6 @@ def setup() -> Generator[None, Any, None]:
 
 
 @pytest.mark.parametrize("reasoner_parameter", list(REASONERS.keys()))
-@needs_cmem
 def test_reason(setup: None, reasoner_parameter: str) -> None:  # noqa: ARG001
     """Test reasoning"""
     ReasonPlugin(
