@@ -172,14 +172,14 @@ files = [
 
 [[package]]
 name = "click"
-version = "8.3.0"
+version = "8.1.8"
 description = "Composable command line interface toolkit"
 optional = false
-python-versions = ">=3.10"
+python-versions = ">=3.7"
 groups = ["dev"]
 files = [
-    {file = "click-8.3.0-py3-none-any.whl", hash = "sha256:9b9f285302c6e3064f4330c05f05b81945b2a39544279343e6e7c5f27a9baddc"},
-    {file = "click-8.3.0.tar.gz", hash = "sha256:e7b8232224eba16f4ebe410c25ced9f7875cb5f3263ffc93cc3e8da705e229c4"},
+    {file = "click-8.1.8-py3-none-any.whl", hash = "sha256:63c132bbbed01578a06712a2d1f497bb62d9c1c0d329b7903a866228027263b2"},
+    {file = "click-8.1.8.tar.gz", hash = "sha256:ed53c9d8990d83c2a27deae68e4ee337473f6330c040a31d4225c9574d16096a"},
 ]
 
 [package.dependencies]
@@ -220,23 +220,23 @@ dev = ["mypy", "pytest"]
 
 [[package]]
 name = "cmem-cmemc"
-version = "25.5.0rc1"
+version = "25.4.0"
 description = "Command line client for eccenca Corporate Memory"
 optional = false
 python-versions = "<4.0,>=3.10"
 groups = ["dev"]
 files = [
-    {file = "cmem_cmemc-25.5.0rc1-py3-none-any.whl", hash = "sha256:0ddcc83afee7da952d96552c5bf73e0f3b69f960a3876434686e49856dbc2c43"},
-    {file = "cmem_cmemc-25.5.0rc1.tar.gz", hash = "sha256:fd71681bfaf5049abf9c5ef5376bee384be7ca20ca348244a5f9036d0e67f55d"},
+    {file = "cmem_cmemc-25.4.0-py3-none-any.whl", hash = "sha256:68e6ffea3d102f0480f5ceeb87578182018a829c057c2ab256b713c2f0b34e76"},
+    {file = "cmem_cmemc-25.4.0.tar.gz", hash = "sha256:aa04dc3f0354d62cbbf0bf421512a483a63b0e4dceb6c104bf89d140bd4f5790"},
 ]
 
 [package.dependencies]
 beautifulsoup4 = ">=4.13.3,<5.0.0"
 certifi = ">=2024.2.2"
-click = ">=8.3.0,<9.0.0"
+click = ">=8.1.8,<8.2.0"
 click-didyoumean = ">=0.3.1,<0.4.0"
 click-help-colors = ">=0.9.4,<0.10.0"
-cmem-cmempy = "25.4.0"
+cmem-cmempy = "25.3.0"
 configparser = ">=7.2.0,<8.0.0"
 jinja2 = ">=3.1.6,<4.0.0"
 junit-xml = ">=1.9,<2.0"
@@ -256,14 +256,14 @@ urllib3 = ">=2.3.0,<3.0.0"
 
 [[package]]
 name = "cmem-cmempy"
-version = "25.4.0"
+version = "25.3.0"
 description = "API for eccenca Corporate Memory"
 optional = false
 python-versions = "<4.0,>=3.9"
 groups = ["main", "dev"]
 files = [
-    {file = "cmem_cmempy-25.4.0-py3-none-any.whl", hash = "sha256:ae68e978ad3c3b6e7713760ba89ddd9825fe1cf1f668a78e79f0ce5bccecda9c"},
-    {file = "cmem_cmempy-25.4.0.tar.gz", hash = "sha256:c1fedf566c1784a6142d319a2580e0a9a8d2255144bb12237ac3761b3842ccaa"},
+    {file = "cmem_cmempy-25.3.0-py3-none-any.whl", hash = "sha256:75f9c6900661b5573615b43086897eb4b5fccdb1ec953fa9e20cdaecaeea75c2"},
+    {file = "cmem_cmempy-25.3.0.tar.gz", hash = "sha256:ccef1410bde7e248d4b89b37366e7c386c8a1558190a07090f0d3c11e3b16ff4"},
 ]
 
 [package.dependencies]
@@ -1965,4 +1965,4 @@ dev = ["pytest", "setuptools"]
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.11"
-content-hash = "dd9e616a3ee53f1df69ffc7cb14d0257e65799ffdab4253725618984760aa1e2"
+content-hash = "56ded43bfa0bd304a50f9775aa4e2fbf7f21c19156bdbc60d81b1955e7e6a22b"

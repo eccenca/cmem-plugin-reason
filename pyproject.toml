@@ -20,7 +20,7 @@ validators = "^0.35.0"
 pathvalidate = "^3.3.1"
 inflection = "^0.5.1"
 defusedxml = "^0.7.1"
-cmem-cmempy = "^25.4.0"
+cmem-cmempy = "^25.3.0"
 
 [tool.poetry.dependencies.cmem-plugin-base]
 version = "^4.10"
