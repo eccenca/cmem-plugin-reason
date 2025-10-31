@@ -9,7 +9,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 ### Changed
 
-- Update ROBOT to 1.10.0-SNAPSHOT (ce96d399e7688acaf7b553526b7468d920a78129) compiled with 
+- Update ROBOT with edited 1.10.0-SNAPSHOT (ce96d399e7688acaf7b553526b7468d920a78129) compiled with 
 updated dependencies without vulnerablities (see diff).
 
 ## [2.2.0] 2025-10-30
