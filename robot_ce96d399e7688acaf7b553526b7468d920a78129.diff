@@ -138,7 +138,7 @@ index 78a2b401..362135f6 100644
    </dependencies>
  </project>
 diff --git a/robot-core/pom.xml b/robot-core/pom.xml
-index 2a824868..d109fec7 100644
+index 2a824868..d968cdde 100644
 --- a/robot-core/pom.xml
 +++ b/robot-core/pom.xml
 @@ -81,7 +81,7 @@
@@ -216,15 +216,6 @@ index 2a824868..d109fec7 100644
      </dependency>
      <dependency>
        <groupId>org.geneontology</groupId>
-@@ -209,7 +236,7 @@
-     <dependency>
-       <groupId>org.geneontology.obographs</groupId>
-       <artifactId>obographs-owlapi</artifactId>
--      <version>0.3.2</version>
-+      <version>0.3.1</version>
-       <exclusions>
-         <exclusion>
-           <groupId>net.sourceforge.owlapi</groupId>
 @@ -220,17 +247,22 @@
      <dependency>
        <groupId>com.fasterxml.jackson.core</groupId>
