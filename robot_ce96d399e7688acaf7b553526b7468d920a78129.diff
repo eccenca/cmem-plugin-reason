@@ -1,0 +1,282 @@
+diff --git a/pom.xml b/pom.xml
+index 5fa89645..8464ae18 100644
+--- a/pom.xml
++++ b/pom.xml
+@@ -72,6 +72,87 @@
+     <module>robot-mock-plugin</module>
+   </modules>
+ 
++  <dependencyManagement>
++    <dependencies>
++      <!-- Force updated versions to override transitive dependencies -->
++      <dependency>
++        <groupId>com.google.guava</groupId>
++        <artifactId>guava</artifactId>
++        <version>32.0.0-jre</version>
++      </dependency>
++      <dependency>
++        <groupId>ch.qos.logback</groupId>
++        <artifactId>logback-core</artifactId>
++        <version>1.5.19</version>
++      </dependency>
++      <dependency>
++        <groupId>ch.qos.logback</groupId>
++        <artifactId>logback-classic</artifactId>
++        <version>1.5.19</version>
++      </dependency>
++      <dependency>
++        <groupId>org.yaml</groupId>
++        <artifactId>snakeyaml</artifactId>
++        <version>2.0</version>
++      </dependency>
++      <dependency>
++        <groupId>com.fasterxml.jackson.core</groupId>
++        <artifactId>jackson-core</artifactId>
++        <version>2.18.2</version>
++      </dependency>
++      <dependency>
++        <groupId>com.fasterxml.jackson.core</groupId>
++        <artifactId>jackson-databind</artifactId>
++        <version>2.18.2</version>
++      </dependency>
++      <dependency>
++        <groupId>com.fasterxml.jackson.core</groupId>
++        <artifactId>jackson-annotations</artifactId>
++        <version>2.18.2</version>
++      </dependency>
++      <dependency>
++        <groupId>com.fasterxml.jackson.dataformat</groupId>
++        <artifactId>jackson-dataformat-yaml</artifactId>
++        <version>2.18.2</version>
++      </dependency>
++      <dependency>
++        <groupId>commons-beanutils</groupId>
++        <artifactId>commons-beanutils</artifactId>
++        <version>1.11.0</version>
++      </dependency>
++      <dependency>
++        <groupId>org.apache.commons</groupId>
++        <artifactId>commons-lang3</artifactId>
++        <version>3.18.0</version>
++      </dependency>
++      <dependency>
++        <groupId>org.apache.commons</groupId>
++        <artifactId>commons-text</artifactId>
++        <version>1.12.0</version>
++      </dependency>
++      <dependency>
++        <groupId>org.apache.james</groupId>
++        <artifactId>apache-mime4j-core</artifactId>
++        <version>0.8.11</version>
++      </dependency>
++      <dependency>
++        <groupId>org.apache.jena</groupId>
++        <artifactId>jena-arq</artifactId>
++        <version>4.10.0</version>
++      </dependency>
++      <dependency>
++        <groupId>org.apache.jena</groupId>
++        <artifactId>jena-core</artifactId>
++        <version>4.10.0</version>
++      </dependency>
++      <dependency>
++        <groupId>org.apache.jena</groupId>
++        <artifactId>jena-tdb</artifactId>
++        <version>4.10.0</version>
++      </dependency>
++    </dependencies>
++  </dependencyManagement>
++
+   <profiles>
+     <profile>
+       <id>release</id>
+@@ -161,7 +242,7 @@
+     <dependency>
+       <groupId>com.google.guava</groupId>
+       <artifactId>guava</artifactId>
+-      <version>31.1-jre</version>
++      <version>32.0.0-jre</version>
+     </dependency>
+     <dependency>
+       <groupId>net.sourceforge.owlapi</groupId>
+@@ -204,7 +285,7 @@
+     <dependency>
+       <groupId>ch.qos.logback</groupId>
+       <artifactId>logback-classic</artifactId>
+-      <version>1.5.6</version>
++      <version>1.5.19</version>
+     </dependency>
+     <dependency>
+       <groupId>org.slf4j</groupId>
+diff --git a/robot-command/pom.xml b/robot-command/pom.xml
+index 78a2b401..362135f6 100644
+--- a/robot-command/pom.xml
++++ b/robot-command/pom.xml
+@@ -129,6 +129,12 @@
+       <groupId>org.obolibrary.robot</groupId>
+       <artifactId>robot-core</artifactId>
+       <version>${project.parent.version}</version>
++      <exclusions>
++        <exclusion>
++          <groupId>commons-lang</groupId>
++          <artifactId>commons-lang</artifactId>
++        </exclusion>
++      </exclusions>
+     </dependency>
+     <dependency>
+       <groupId>commons-cli</groupId>
+@@ -140,5 +146,11 @@
+       <artifactId>commons-io</artifactId>
+       <version>2.14.0</version>
+     </dependency>
++    <!-- Explicitly use commons-lang3 instead of commons-lang -->
++    <dependency>
++      <groupId>org.apache.commons</groupId>
++      <artifactId>commons-lang3</artifactId>
++      <version>3.18.0</version>
++    </dependency>
+   </dependencies>
+ </project>
+diff --git a/robot-core/pom.xml b/robot-core/pom.xml
+index 2a824868..d109fec7 100644
+--- a/robot-core/pom.xml
++++ b/robot-core/pom.xml
+@@ -81,7 +81,7 @@
+     <dependency>
+       <groupId>com.google.guava</groupId>
+       <artifactId>guava</artifactId>
+-      <version>31.1-jre</version>
++      <version>32.0.0-jre</version>
+     </dependency>
+     <dependency>
+       <groupId>net.sourceforge.owlapi</groupId>
+@@ -119,7 +119,7 @@
+     <dependency>
+       <groupId>org.apache.jena</groupId>
+       <artifactId>jena-arq</artifactId>
+-      <version>3.17.0</version>
++      <version>4.10.0</version>
+       <exclusions>
+         <exclusion>
+           <groupId>com.github.jsonld-java</groupId>
+@@ -134,7 +134,7 @@
+     <dependency>
+       <groupId>org.apache.jena</groupId>
+       <artifactId>jena-tdb</artifactId>
+-      <version>3.17.0</version>
++      <version>4.10.0</version>
+     </dependency>
+     <dependency>
+       <groupId>org.apache.poi</groupId>
+@@ -147,6 +147,27 @@
+         </exclusion>
+       </exclusions>
+     </dependency>
++    <!-- Explicitly include updated versions to override transitive dependencies -->
++    <dependency>
++      <groupId>commons-beanutils</groupId>
++      <artifactId>commons-beanutils</artifactId>
++      <version>1.11.0</version>
++    </dependency>
++    <dependency>
++      <groupId>org.apache.commons</groupId>
++      <artifactId>commons-lang3</artifactId>
++      <version>3.18.0</version>
++    </dependency>
++    <dependency>
++      <groupId>org.apache.commons</groupId>
++      <artifactId>commons-text</artifactId>
++      <version>1.12.0</version>
++    </dependency>
++    <dependency>
++      <groupId>org.apache.james</groupId>
++      <artifactId>apache-mime4j-core</artifactId>
++      <version>0.8.11</version>
++    </dependency>
+     <dependency>
+       <groupId>org.apache.poi</groupId>
+       <artifactId>poi-ooxml</artifactId>
+@@ -188,12 +209,18 @@
+     <dependency>
+       <groupId>org.yaml</groupId>
+       <artifactId>snakeyaml</artifactId>
+-      <version>1.31</version>
++      <version>2.0</version>
+     </dependency>
+     <dependency>
+       <groupId>com.opencsv</groupId>
+       <artifactId>opencsv</artifactId>
+       <version>5.3</version>
++      <exclusions>
++        <exclusion>
++          <groupId>commons-lang</groupId>
++          <artifactId>commons-lang</artifactId>
++        </exclusion>
++      </exclusions>
+     </dependency>
+     <dependency>
+       <groupId>org.geneontology</groupId>
+@@ -209,7 +236,7 @@
+     <dependency>
+       <groupId>org.geneontology.obographs</groupId>
+       <artifactId>obographs-owlapi</artifactId>
+-      <version>0.3.2</version>
++      <version>0.3.1</version>
+       <exclusions>
+         <exclusion>
+           <groupId>net.sourceforge.owlapi</groupId>
+@@ -220,17 +247,22 @@
+     <dependency>
+       <groupId>com.fasterxml.jackson.core</groupId>
+       <artifactId>jackson-core</artifactId>
+-      <version>2.15.0</version>
++      <version>2.18.2</version>
+     </dependency>
+     <dependency>
+       <groupId>com.fasterxml.jackson.dataformat</groupId>
+       <artifactId>jackson-dataformat-yaml</artifactId>
+-      <version>2.12.2</version>
++      <version>2.18.2</version>
+     </dependency>
+     <dependency>
+       <groupId>com.fasterxml.jackson.core</groupId>
+       <artifactId>jackson-annotations</artifactId>
+-      <version>2.12.2</version>
++      <version>2.18.2</version>
++    </dependency>
++    <dependency>
++      <groupId>com.fasterxml.jackson.core</groupId>
++      <artifactId>jackson-databind</artifactId>
++      <version>2.18.2</version>
+     </dependency>
+     <dependency>
+       <groupId>net.sourceforge.owlapi</groupId>
+diff --git a/robot-core/src/main/java/org/obolibrary/robot/QueryOperation.java b/robot-core/src/main/java/org/obolibrary/robot/QueryOperation.java
+index 9362530c..6b831828 100644
+--- a/robot-core/src/main/java/org/obolibrary/robot/QueryOperation.java
++++ b/robot-core/src/main/java/org/obolibrary/robot/QueryOperation.java
+@@ -1,5 +1,6 @@
+ package org.obolibrary.robot;
+ 
++// import com.apple.laf.ClientPropertyApplicator.Property;
+ import java.io.*;
+ import java.nio.file.Path;
+ import java.util.HashSet;
+@@ -486,7 +487,7 @@ public class QueryOperation {
+     formatName = formatName.toLowerCase();
+     switch (formatName) {
+       case "tsv":
+-        format = ResultSetLang.SPARQLResultSetTSV;
++        format = ResultSetLang.RS_TSV;
+         break;
+       case "ttl":
+         format = Lang.TTL;
+@@ -507,7 +508,7 @@ public class QueryOperation {
+         format = Lang.RDFXML;
+         break;
+       case "sxml":
+-        format = ResultSetLang.SPARQLResultSetXML;
++        format = ResultSetLang.RS_XML;
+         break;
+       default:
+         format = null;
