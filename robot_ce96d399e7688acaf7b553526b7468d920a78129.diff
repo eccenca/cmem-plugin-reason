@@ -246,13 +246,6 @@ diff --git a/robot-core/src/main/java/org/obolibrary/robot/QueryOperation.java b
 index 9362530c..6b831828 100644
 --- a/robot-core/src/main/java/org/obolibrary/robot/QueryOperation.java
 +++ b/robot-core/src/main/java/org/obolibrary/robot/QueryOperation.java
-@@ -1,5 +1,6 @@
- package org.obolibrary.robot;
- 
-+// import com.apple.laf.ClientPropertyApplicator.Property;
- import java.io.*;
- import java.nio.file.Path;
- import java.util.HashSet;
 @@ -486,7 +487,7 @@ public class QueryOperation {
      formatName = formatName.toLowerCase();
      switch (formatName) {
