@@ -33,22 +33,22 @@ index 5fa89645..8464ae18 100644
 +      <dependency>
 +        <groupId>com.fasterxml.jackson.core</groupId>
 +        <artifactId>jackson-core</artifactId>
-+        <version>2.18.2</version>
++        <version>2.20.1</version>
 +      </dependency>
 +      <dependency>
 +        <groupId>com.fasterxml.jackson.core</groupId>
 +        <artifactId>jackson-databind</artifactId>
-+        <version>2.18.2</version>
++        <version>2.20.1</version>
 +      </dependency>
 +      <dependency>
 +        <groupId>com.fasterxml.jackson.core</groupId>
 +        <artifactId>jackson-annotations</artifactId>
-+        <version>2.18.2</version>
++        <version>2.20</version>
 +      </dependency>
 +      <dependency>
 +        <groupId>com.fasterxml.jackson.dataformat</groupId>
 +        <artifactId>jackson-dataformat-yaml</artifactId>
-+        <version>2.18.2</version>
++        <version>2.20.1</version>
 +      </dependency>
 +      <dependency>
 +        <groupId>commons-beanutils</groupId>
@@ -58,17 +58,17 @@ index 5fa89645..8464ae18 100644
 +      <dependency>
 +        <groupId>org.apache.commons</groupId>
 +        <artifactId>commons-lang3</artifactId>
-+        <version>3.18.0</version>
++        <version>3.19.0</version>
 +      </dependency>
 +      <dependency>
 +        <groupId>org.apache.commons</groupId>
 +        <artifactId>commons-text</artifactId>
-+        <version>1.12.0</version>
++        <version>1.14.0</version>
 +      </dependency>
 +      <dependency>
 +        <groupId>org.apache.james</groupId>
 +        <artifactId>apache-mime4j-core</artifactId>
-+        <version>0.8.11</version>
++        <version>0.8.13</version>
 +      </dependency>
 +      <dependency>
 +        <groupId>org.apache.jena</groupId>
@@ -143,7 +143,7 @@ index 78a2b401..a91722b5 100644
 +    <dependency>
 +      <groupId>org.apache.commons</groupId>
 +      <artifactId>commons-lang3</artifactId>
-+      <version>3.18.0</version>
++      <version>3.19.0</version>
 +    </dependency>
    </dependencies>
  </project>
@@ -191,17 +191,17 @@ index c759b84c..fd70d2c3 100644
 +    <dependency>
 +      <groupId>org.apache.commons</groupId>
 +      <artifactId>commons-lang3</artifactId>
-+      <version>3.18.0</version>
++      <version>3.19.0</version>
 +    </dependency>
 +    <dependency>
 +      <groupId>org.apache.commons</groupId>
 +      <artifactId>commons-text</artifactId>
-+      <version>1.12.0</version>
++      <version>1.14.0</version>
 +    </dependency>
 +    <dependency>
 +      <groupId>org.apache.james</groupId>
 +      <artifactId>apache-mime4j-core</artifactId>
-+      <version>0.8.11</version>
++      <version>0.8.13</version>
 +    </dependency>
      <dependency>
        <groupId>org.apache.poi</groupId>
@@ -240,24 +240,24 @@ index c759b84c..fd70d2c3 100644
        <groupId>com.fasterxml.jackson.core</groupId>
        <artifactId>jackson-core</artifactId>
 -      <version>2.12.2</version>
-+      <version>2.18.2</version>
++      <version>2.20.1</version>
      </dependency>
      <dependency>
        <groupId>com.fasterxml.jackson.dataformat</groupId>
        <artifactId>jackson-dataformat-yaml</artifactId>
 -      <version>2.12.2</version>
-+      <version>2.18.2</version>
++      <version>2.20.1</version>
      </dependency>
      <dependency>
        <groupId>com.fasterxml.jackson.core</groupId>
        <artifactId>jackson-annotations</artifactId>
 -      <version>2.12.2</version>
-+      <version>2.18.2</version>
++      <version>2.20</version>
 +    </dependency>
 +    <dependency>
 +      <groupId>com.fasterxml.jackson.core</groupId>
 +      <artifactId>jackson-databind</artifactId>
-+      <version>2.18.2</version>
++      <version>2.20.1</version>
      </dependency>
      <dependency>
        <groupId>net.sourceforge.owlapi</groupId>
