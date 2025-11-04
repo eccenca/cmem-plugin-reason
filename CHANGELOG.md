@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](https://semver.org/)
 
+
+## [Unreleased]
+
+### Changed
+
+- Update ROBOT with edited v1.9.8 compiled with updated dependencies without vulnerablities
+(https://github.com/eccenca/robot/tree/feature/updateDependenciesV1.9.8).
+
 ## [2.2.0] 2025-10-30
 
 ### Added
