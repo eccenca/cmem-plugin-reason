@@ -9,7 +9,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 ### Changed
 
-- Update ROBOT with edited v1.9.8 compiled with updated dependencies without vulnerablities (see diff).
+- Update ROBOT with edited v1.9.8 compiled with updated dependencies without vulnerablities
+(https://github.com/eccenca/robot/tree/feature/updateDependenciesV1.9.8).
 
 ## [2.2.0] 2025-10-30
 
