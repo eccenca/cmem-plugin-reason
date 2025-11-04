@@ -1680,14 +1680,14 @@ files = [
 
 [[package]]
 name = "smart-open"
-version = "7.4.2"
+version = "7.4.3"
 description = "Utils for streaming large files (S3, HDFS, GCS, SFTP, Azure Blob Storage, gzip, bz2, zst...)"
 optional = false
 python-versions = "<4.0,>=3.9"
 groups = ["dev"]
 files = [
-    {file = "smart_open-7.4.2-py3-none-any.whl", hash = "sha256:5e53a2604d62979a3940f80472c3d42c508250cec709ad4d25854f597d15036f"},
-    {file = "smart_open-7.4.2.tar.gz", hash = "sha256:648b5619297cb32720cdfed4ffbcb15209defb531e0904497721a9b24fdcdcac"},
+    {file = "smart_open-7.4.3-py3-none-any.whl", hash = "sha256:58380011d58d98975abf73f8d2cd576d9d98115346f57d8380a5f78326c0ac84"},
+    {file = "smart_open-7.4.3.tar.gz", hash = "sha256:f32839234a287e2cb2ecdccc5b315de34a8e79db4db729e1a864ab3b359f9fee"},
 ]
 
 [package.dependencies]
@@ -1965,4 +1965,4 @@ dev = ["pytest", "setuptools"]
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.11"
-content-hash = "adf38c4df8a9acef30d6e57dcd871913c567e8161a9190cfc2ac08cbd3da718c"
+content-hash = "583ed63c4db7eac5fd1b2b8c2abead902dd8bb1bf1579745acf96a2bde58cd88"
