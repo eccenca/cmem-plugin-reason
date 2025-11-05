@@ -59,7 +59,7 @@ LABEL = "Validate OWL consistency"
             name="md_filename",
             label="Output filename",
             description="The filename of the Markdown file with the explanation of "
-            "inconsistencies.⚠️ Existing files will be overwritten.",
+            "inconsistencies. ⚠️ Existing files will be overwritten.",
             default_value="",
         ),
         PluginParameter(
