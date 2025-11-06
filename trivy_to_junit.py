@@ -2,7 +2,6 @@
 import json
 import sys
 from xml.etree.ElementTree import Element, SubElement, ElementTree
-from datetime import datetime
 
 
 def convert_trivy_to_junit(json_file, xml_file):
@@ -16,8 +15,7 @@ def convert_trivy_to_junit(json_file, xml_file):
     artifact_type = trivy_data.get('ArtifactType', 'unknown')
 
     testsuite = SubElement(testsuites, 'testsuite', {
-        'name': f'Trivy Security Scan: {artifact_name}',
-        'timestamp': datetime.utcnow().isoformat(),
+        'name': f'trivy',
         'tests': '0',
         'failures': '0',
         'errors': '0',
