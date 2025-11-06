@@ -7,6 +7,9 @@ version: '3'
 
 dotenv: ['.copier-answers.env', '.env']
 
+includes:
+  custom: ./TaskfileCustom.yaml
+
 .preparation: &preparation
   deps:
     - poetry:install
@@ -103,6 +106,7 @@ tasks:
       - task: check:mypy
       - task: check:deptry
       - task: check:safety
+      - task: custom:check:trivy
 
   check:pytest:
     desc: Run unit and integration tests

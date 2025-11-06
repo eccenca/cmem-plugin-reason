@@ -42,6 +42,13 @@ jobs:
         run: |
           poetry self add "poetry-dynamic-versioning[plugin]"
 
+      - name: Install Trivy
+        run: |
+          wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | sudo apt-key add -
+          echo "deb https://aquasecurity.github.io/trivy-repo/deb $(lsb_release -sc) main" | sudo tee -a /etc/apt/sources.list.d/trivy.list
+          sudo apt-get update
+          sudo apt-get install trivy
+
       - name: mypy
         run: |
           task check:mypy
@@ -64,6 +71,10 @@ jobs:
       - name: safety
         run: |
           task check:safety
+
+      - name: trivy
+        run: |
+          task custom:check:trivy
 
       - name: Publish Test Report in Action
         uses: mikepenz/action-junit-report@v4
