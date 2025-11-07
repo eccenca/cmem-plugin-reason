@@ -75,7 +75,7 @@ jobs:
 
       - name: trivy
         run: |
-          task custom:check:trivy
+          task check:trivy
 
       - name: Publish Test Report in Action
         uses: mikepenz/action-junit-report@v4
