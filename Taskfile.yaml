@@ -16,6 +16,16 @@ vars:
   PACKAGE: $package_dir
   DIST_DIR: dist
 
+includes:
+  custom:
+    taskfile: ./TaskfileCustom.yaml
+    optional: true
+    flatten: true
+  plugin:
+    taskfile: .tasks-plugin.yml
+    optional: true
+    flatten: true
+
 tasks:
 
   default:
@@ -116,11 +126,13 @@ tasks:
           poetry run pytest --junitxml={{.JUNIT_FILE}}
           --cov-report term  --cov-report xml:{{.COVERAGE_FILE}}
           --cov-report html:{{.COVERAGE_DIR}} --cov={{.PACKAGE}}
+          --html={{.HTML_FILE}} --self-contained-html
       - platforms: [darwin, linux]
         cmd: >
           poetry run pytest --memray --junitxml={{.JUNIT_FILE}}
           --cov-report term --cov-report xml:{{.COVERAGE_FILE}}
           --cov-report html:{{.COVERAGE_DIR}} --cov={{.PACKAGE}}
+          --html={{.HTML_FILE}} --self-contained-html
       - cmd: >
           poetry run genbadge coverage -l
           -i {{.COVERAGE_FILE}} -o {{.BADGE_COVERAGE}}
@@ -128,11 +140,12 @@ tasks:
           poetry run genbadge tests -l
           -i {{.JUNIT_FILE}} -o {{.BADGE_TESTS}}
     vars:
-      JUNIT_FILE: ./{{.DIST_DIR}}/junit-pytest.xml
-      COVERAGE_FILE: ./{{.DIST_DIR}}/coverage.xml
-      COVERAGE_DIR: ./{{.DIST_DIR}}/coverage
       BADGE_COVERAGE: ./{{.DIST_DIR}}/badge-coverage.svg
       BADGE_TESTS: ./{{.DIST_DIR}}/badge-tests.svg
+      COVERAGE_DIR: ./{{.DIST_DIR}}/coverage
+      COVERAGE_FILE: ./{{.DIST_DIR}}/coverage.xml
+      HTML_FILE: ./{{.DIST_DIR}}/pytest.html
+      JUNIT_FILE: ./{{.DIST_DIR}}/junit-pytest.xml
 
   check:mypy:
     desc: Complain about typing errors
@@ -146,6 +159,7 @@ tasks:
     desc: Complain about vulnerabilities in dependencies
     <<: *preparation
     cmds:
+      # ignore 51358 safety - dev dependency only
       - poetry run safety check -i 51358
 
   check:deptry:
