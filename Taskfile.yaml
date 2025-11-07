@@ -17,10 +17,7 @@ vars:
   DIST_DIR: dist
 
 includes:
-  custom:
-    taskfile: ./TaskfileCustom.yaml
-    optional: true
-    flatten: true
+
   plugin:
     taskfile: .tasks-plugin.yml
     optional: true
