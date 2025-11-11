@@ -8,6 +8,8 @@ from rdflib import DCTERMS, OWL, RDF, Graph, URIRef
 
 UID = "e02aaed014c94e0c91bf960fed127750"
 
+FIXTURE_DIR = Path(__file__).parent / "fixture_dir"
+
 
 def get_remote_graph(iri: str) -> Graph:
     """Get remote graph IRI"""

@@ -2,24 +2,16 @@
 
 Perform reasoning tasks and validate OWL consistency.
 
+[![eccenca Corporate Memory][cmem-shield]][cmem-link][![workflow](https://github.com/eccenca/cmem-plugin-reason
+/actions/workflows/check.yml/badge.svg)](https://github.com/eccenca/cmem-plugin-reason
+/actions) [![pypi version](https://img.shields.io/pypi/v/cmem-plugin-reason)](https://pypi.org/project/cmem-plugin-reason) [![license](https://img.shields.io/pypi/l/cmem-plugin-reason)](https://pypi.org/project/cmem-plugin-reason)
+[![poetry][poetry-shield]][poetry-link] [![ruff][ruff-shield]][ruff-link] [![mypy][mypy-shield]][mypy-link] [![copier][copier-shield]][copier] 
 
-## Build
+## Development
 
-```
-➜ task clean build
-```
-
-## Installation
-
-```
-➜ cmemc admin workspace python install dist/*.tar.gz
-```
-
-Alternatively, the _build_ and _installation_ process can be initiated with the single command:
-
-```
-➜ task deploy
-```
+- Run [task](https://taskfile.dev/) to see all major development tasks.
+- Use [pre-commit](https://pre-commit.com/) to avoid errors before commit.
+- This repository was created with [this copier template](https://github.com/eccenca/cmem-plugin-template).
 
 [cmem-link]: https://documentation.eccenca.com
 [cmem-shield]: https://img.shields.io/endpoint?url=https://dev.documentation.eccenca.com/badge.json
@@ -31,7 +23,3 @@ Alternatively, the _build_ and _installation_ process can be initiated with the 
 [mypy-shield]: https://www.mypy-lang.org/static/mypy_badge.svg
 [copier]: https://copier.readthedocs.io/
 [copier-shield]: https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/copier-org/copier/master/img/badge/badge-grayscale-inverted-border-purple.json
-
-
-ROBOT is published under the [BSD 3-Clause "New" or "Revised" License](https://choosealicense.com/licenses/bsd-3-clause/).
-Copyright © 2015, the authors. All rights reserved.
