@@ -17,7 +17,10 @@ vars:
   DIST_DIR: dist
 
 includes:
-
+  custom:
+    taskfile: ./TaskfileCustom.yaml
+    optional: true
+    flatten: true
   plugin:
     taskfile: .tasks-plugin.yml
     optional: true
@@ -110,7 +113,6 @@ tasks:
       - task: check:mypy
       - task: check:deptry
       - task: check:safety
-      - task: check:trivy
 
   check:pytest:
     desc: Run unit and integration tests
@@ -175,24 +177,6 @@ tasks:
     vars:
       JUNIT_FILE: ./{{.DIST_DIR}}/junit-ruff.xml
       XML_PARAMS: --output-format junit --output-file {{.JUNIT_FILE}}
-
-  check:trivy:
-    desc: Scan JAR binary for vulnerabilities using Trivy
-    <<: *preparation
-    cmds:
-      - trivy rootfs --scanners vuln --format json --output {{.JSON_FILE}} {{.JAR_PATH}}
-      - defer: rm -f {{.JSON_FILE}}
-      - poetry run python trivy_to_junit.py {{.JSON_FILE}} {{.JUNIT_FILE}}
-      - trivy rootfs --scanners vuln --severity HIGH,CRITICAL --exit-code 1 {{.JAR_PATH}}
-    vars:
-      JAR_PATH: cmem_plugin_reason/robot.jar
-      JSON_FILE: ./{{.DIST_DIR}}/trivy-report.json
-      JUNIT_FILE: ./{{.DIST_DIR}}/junit-trivy.xml
-    preconditions:
-      - sh: command -v trivy
-        msg: "Trivy is not installed. Install it from https://trivy.dev/latest/getting-started/installation/"
-      - sh: test -f {{.JAR_PATH}}
-        msg: "JAR file not found at {{.JAR_PATH}}"
 
   # }}}
 

@@ -40,7 +40,6 @@ pytest-html = "^4.1.1"
 pytest-memray = { version = "^1.8.0",  markers = "platform_system != 'Windows'" }
 ruff = "^0.13.3"
 safety = "^1.10.3"
-rdflib = "^7.4.0"
 
 [build-system]
 requires = ["poetry-core>=1.0.0", "poetry-dynamic-versioning"]
@@ -97,5 +96,4 @@ ignore = [
     "PD",      # opinionated linting for pandas code
     "S101",    # use of assert detected
     "TRY003",  # Avoid specifying long messages outside the exception class
-    "ERA001",  # Found commented-out code
 ]
