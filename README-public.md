@@ -2,15 +2,16 @@
 
 Perform reasoning tasks and validate OWL consistency.
 
-
 [![eccenca Corporate Memory][cmem-shield]][cmem-link]
 
 This is a plugin for [eccenca](https://eccenca.com) [Corporate Memory](https://documentation.eccenca.com). You can install it with the [cmemc](https://eccenca.com/go/cmemc) command line client like this:
 
 ```
-➜ cmemc admin workspace python install cmem-plugin-reason
+cmemc admin workspace python install cmem-plugin-reason
 ```
-[![workflow](https://github.com/eccenca/cmem-plugin-reason/actions/workflows/check.yml/badge.svg)](https://github.com/eccenca/cmem-plugin-reason/actions) [![pypi version](https://img.shields.io/pypi/v/cmem-plugin-reason)](https://pypi.org/project/cmem-plugin-reason) [![license](https://img.shields.io/pypi/l/cmem-plugin-reason)](https://pypi.org/project/cmem-plugin-reason)
+[![workflow](https://github.com/eccenca/cmem-plugin-reason
+/actions/workflows/check.yml/badge.svg)](https://github.com/eccenca/cmem-plugin-reason
+/actions) [![pypi version](https://img.shields.io/pypi/v/cmem-plugin-reason)](https://pypi.org/project/cmem-plugin-reason) [![license](https://img.shields.io/pypi/l/cmem-plugin-reason)](https://pypi.org/project/cmem-plugin-reason)
 [![poetry][poetry-shield]][poetry-link] [![ruff][ruff-shield]][ruff-link] [![mypy][mypy-shield]][mypy-link] [![copier][copier-shield]][copier] 
 
 [cmem-link]: https://documentation.eccenca.com
@@ -24,5 +25,3 @@ This is a plugin for [eccenca](https://eccenca.com) [Corporate Memory](https://d
 [copier]: https://copier.readthedocs.io/
 [copier-shield]: https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/copier-org/copier/master/img/badge/badge-grayscale-inverted-border-purple.json
 
-ROBOT is published under the [BSD 3-Clause "New" or "Revised" License](https://choosealicense.com/licenses/bsd-3-clause/).
-Copyright © 2015, the authors. All rights reserved.

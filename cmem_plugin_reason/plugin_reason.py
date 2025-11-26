@@ -197,13 +197,6 @@ Person`.
             description=DISJOINT_DESC,
             default_value=False,
         ),
-        # PluginParameter(
-        #     param_type=BoolParameterType(),
-        #     name="data_property_characteristic",
-        #     label="Data property characteristics (Axiomatic triples)",
-        #     description=DATA_PROP_CHAR_DESC,
-        #     default_value=False,
-        # ),
         PluginParameter(
             param_type=BoolParameterType(),
             name="equivalent_data_properties",
@@ -246,13 +239,6 @@ Person`.
             description=OBJECT_PROP_INV_DESC,
             default_value=False,
         ),
-        # PluginParameter(
-        #     param_type=BoolParameterType(),
-        #     name="object_property_characteristic",
-        #     label="Object property characteristic (Axiomatic triples)",
-        #     description=OBJECT_PROP_CHAR_DESC,
-        #     default_value=False,
-        # ),
         PluginParameter(
             param_type=BoolParameterType(),
             name="sub_object_property",
@@ -330,16 +316,11 @@ class ReasonPlugin(WorkflowPlugin):
         disjoint_classes: bool = False,
         sub_object_property: bool = False,
         equivalent_object_property: bool = False,
-        #   This axiom generator does not yield any results.
-        #   Issue: https://github.com/eccenca/cmem-plugin-reason/issues/10
-        #   object_property_characteristic: bool = False,
         object_property_domain: bool = False,
         object_property_range: bool = False,
         inverse_object_properties: bool = False,
         sub_data_property: bool = False,
         equivalent_data_properties: bool = False,
-        #   Removed because the object property counterpart does not work
-        #   data_property_characteristic: bool = False,
         validate_profile: bool = False,
         imports: str = "none",
         input_profiles: bool = False,
@@ -350,14 +331,12 @@ class ReasonPlugin(WorkflowPlugin):
             "SubClass": sub_class,
             "EquivalentClass": equivalent_class,
             "DisjointClasses": disjoint_classes,
-            # "DataPropertyCharacteristic": data_property_characteristic,
             "EquivalentDataProperties": equivalent_data_properties,
             "SubDataProperty": sub_data_property,
             "ClassAssertion": class_assertion,
             "PropertyAssertion": property_assertion,
             "EquivalentObjectProperty": equivalent_object_property,
             "InverseObjectProperties": inverse_object_properties,
-            # "ObjectPropertyCharacteristic": object_property_characteristic,
             "SubObjectProperty": sub_object_property,
             "ObjectPropertyRange": object_property_range,
             "ObjectPropertyDomain": object_property_domain,
@@ -400,8 +379,6 @@ class ReasonPlugin(WorkflowPlugin):
         self.max_ram_percentage = max_ram_percentage
         self.valid_profiles = valid_profiles
         self.ignore_missing_imports = ignore_missing_imports
-        # self.data_property_characteristic = data_property_characteristic
-        # self.object_property_characteristic = object_property_characteristic
 
         for k, v in self.axioms.items():
             self.__dict__[underscore(k)] = v
