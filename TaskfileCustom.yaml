@@ -13,6 +13,7 @@ tasks:
     cmds:
       - trivy rootfs --scanners vuln --format json --output {{.JSON_FILE}} {{.JAR_PATH}}
       - defer: rm -f {{.JSON_FILE}}
+      - defer: rm -rf /tmp/trivy
       - poetry run python trivy_to_junit.py {{.JSON_FILE}} {{.JUNIT_FILE}}
       - trivy rootfs --scanners vuln --severity HIGH,CRITICAL --exit-code 1 {{.JAR_PATH}}
     vars:
