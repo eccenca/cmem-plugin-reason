@@ -9,8 +9,9 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 ### Changed
 
-- Update ROBOT with edited v1.9.8 compiled with updated dependencies without vulnerablities
+- Update ROBOT with edited v1.9.8 compiled with updated dependencies without vulnerabilities
 (https://github.com/eccenca/robot/tree/feature/updateDependenciesV1.9.8).
+- Update plugin template and dependencies.
 
 ## [2.2.0] 2025-10-30
 
