@@ -2,9 +2,7 @@
 
 Perform reasoning tasks and validate OWL consistency.
 
-[![eccenca Corporate Memory][cmem-shield]][cmem-link][![workflow](https://github.com/eccenca/cmem-plugin-reason
-/actions/workflows/check.yml/badge.svg)](https://github.com/eccenca/cmem-plugin-reason
-/actions) [![pypi version](https://img.shields.io/pypi/v/cmem-plugin-reason)](https://pypi.org/project/cmem-plugin-reason) [![license](https://img.shields.io/pypi/l/cmem-plugin-reason)](https://pypi.org/project/cmem-plugin-reason)
+[![eccenca Corporate Memory][cmem-shield]][cmem-link] [![workflow](https://github.com/eccenca/cmem-plugin-reason/actions/workflows/check.yml/badge.svg)](https://github.com/eccenca/cmem-plugin-reason/actions) [![pypi version](https://img.shields.io/pypi/v/cmem-plugin-reason)](https://pypi.org/project/cmem-plugin-reason) [![license](https://img.shields.io/pypi/l/cmem-plugin-reason)](https://pypi.org/project/cmem-plugin-reason)
 [![poetry][poetry-shield]][poetry-link] [![ruff][ruff-shield]][ruff-link] [![mypy][mypy-shield]][mypy-link] [![copier][copier-shield]][copier] 
 
 ## Development
