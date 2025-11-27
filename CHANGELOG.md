@@ -1,16 +1,16 @@
+<!-- markdownlint-disable MD012 MD013 MD024 MD033 -->
 # Changelog
 
 All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](https://semver.org/)
 
+## [2.2.1] 2025-11-27
 
-## [Unreleased]
+### Fixed
 
-### Changed
+- use ROBOT v1.9.8 compiled with [updated dependencies without vulnerablities](https://github.com/eccenca/robot/tree/feature/updateDependenciesV1.9.8)
 
-- Update ROBOT with edited v1.9.8 compiled with updated dependencies without vulnerablities
-(https://github.com/eccenca/robot/tree/feature/updateDependenciesV1.9.8).
 
 ## [2.2.0] 2025-10-30
 
