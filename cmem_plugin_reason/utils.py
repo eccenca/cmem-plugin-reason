@@ -6,11 +6,13 @@ from collections import OrderedDict
 from datetime import UTC, datetime
 from io import BytesIO
 from pathlib import Path
+from re import IGNORECASE, match
 from secrets import token_hex
 from subprocess import CompletedProcess, run
 from time import time
 from xml.etree.ElementTree import Element, SubElement, tostring
 
+import validators.url
 from cmem.cmempy.dp.proxy.graph import get_graphs_list, post_streamed
 from cmem.cmempy.dp.proxy.sparql import post as post_select
 from cmem.cmempy.dp.proxy.update import post as post_update
@@ -265,3 +267,11 @@ def cancel_workflow(plugin: WorkflowPlugin) -> bool:
         plugin.context.report.update(ExecutionReport(entity_count=0, operation_desc="(cancelled)"))
         return True
     return False
+
+
+def is_valid_uri(uri: str | None) -> bool:
+    """Validate URI"""
+    if not isinstance(uri, str):
+        return False
+    urn_pattern = r"^urn:[a-zA-Z][a-zA-Z0-9-]{0,31}:.+$"
+    return validators.url(uri) is True or bool(match(urn_pattern, uri, IGNORECASE))
