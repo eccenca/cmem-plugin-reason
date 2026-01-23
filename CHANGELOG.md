@@ -7,6 +7,10 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 ## [Unreleased]
 
+### Fixed
+
+- Fix robot.jar vulnerability CVE-2026-1225
+
 ### Changed
 
 - Update template to 8.2.1.
