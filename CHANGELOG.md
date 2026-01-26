@@ -13,7 +13,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 ### Changed
 
-- Update template to 8.2.1.
+- Update template to 8.3.0.
 - Allow urn URIs in graph parameters.
 
 ## [2.2.1] 2025-11-27
