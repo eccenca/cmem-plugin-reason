@@ -7,8 +7,14 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 ## [Unreleased]
 
-TODO: add at least one Added, Changed, Deprecated, Removed, Fixed or Security section
+### Fixed
 
+- Fix robot.jar vulnerability CVE-2026-1225
+
+### Changed
+
+- Update template to 8.3.0.
+- Allow urn URIs in graph parameters.
 
 ## [2.2.1] 2025-11-27
 

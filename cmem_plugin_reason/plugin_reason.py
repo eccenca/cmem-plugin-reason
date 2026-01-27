@@ -6,7 +6,6 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 from uuid import uuid4
 
-import validators.url
 from cmem.cmempy.dp.proxy.graph import get, get_graph_import_tree, get_graphs_list
 from cmem.cmempy.dp.proxy.update import post
 from cmem_plugin_base.dataintegration.context import ExecutionContext, ExecutionReport
@@ -33,6 +32,7 @@ from cmem_plugin_reason.utils import (
     create_xml_catalog_file,
     get_file_with_datetime,
     get_output_graph_label,
+    is_valid_uri,
     post_profiles,
     post_provenance,
     robot,
@@ -342,11 +342,11 @@ class ReasonPlugin(WorkflowPlugin):
             "ObjectPropertyDomain": object_property_domain,
         }
         errors = ""
-        if not validators.url(data_graph_iri):
+        if not is_valid_uri(data_graph_iri):
             errors += 'Invalid IRI for parameter "Data graph IRI". '
-        if not validators.url(ontology_graph_iri):
+        if not is_valid_uri(ontology_graph_iri):
             errors += 'Invalid IRI for parameter "Ontology graph IRI". '
-        if not validators.url(output_graph_iri):
+        if not is_valid_uri(output_graph_iri):
             errors += 'Invalid IRI for parameter "Result graph IRI". '
         if output_graph_iri == data_graph_iri:
             errors += "Result graph IRI cannot be the same as the data graph IRI. "
