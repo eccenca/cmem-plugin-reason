@@ -1,12 +1,12 @@
 """Common constants and functions"""
 
 import json
+import re
 import shlex
 from collections import OrderedDict
 from datetime import UTC, datetime
 from io import BytesIO
 from pathlib import Path
-from re import IGNORECASE, match
 from secrets import token_hex
 from subprocess import CompletedProcess, run
 from time import time
@@ -40,7 +40,7 @@ REASONERS = OrderedDict(
 )
 
 MAX_RAM_PERCENTAGE_DEFAULT = 20
-
+URN_PATTERN = re.compile(r"^urn:[a-zA-Z0-9][a-zA-Z0-9-]*(:.+)?$", re.IGNORECASE)
 
 REASONER_PARAMETER = PluginParameter(
     param_type=ChoiceParameterType(REASONERS),
@@ -273,5 +273,8 @@ def is_valid_uri(uri: str | None) -> bool:
     """Validate URI"""
     if not isinstance(uri, str):
         return False
-    urn_pattern = r"^urn:[a-zA-Z0-9][a-zA-Z0-9-]{1,31}:.+$"
-    return validators.url(uri) is True or bool(match(urn_pattern, uri, IGNORECASE))
+
+    if uri.lower().startswith("urn:"):
+        return bool(URN_PATTERN.match(uri))
+
+    return validators.url(uri) is True
