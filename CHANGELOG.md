@@ -6,7 +6,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](https://semver.org/)
 
 
-## [2.2.3] 2026-01-27
+## [2.2.3] 2026-02-17
 
 ### Changed
 
@@ -22,7 +22,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 ### Changed
 
 - Update template to 8.3.0.
-- Allow urn URIs in graph parameters.
+- Allow URN URIs in graph parameters.
 
 ## [2.2.1] 2025-11-27
 
