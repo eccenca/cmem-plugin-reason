@@ -167,7 +167,6 @@ tasks:
       - >
         poetry run trivy rootfs
         --scanners vuln
-        --severity HIGH,CRITICAL
         --exit-code 1
         cmem_plugin_reason/robot.jar
 
