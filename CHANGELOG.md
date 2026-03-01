@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](https://semver.org/)
 
+## [Unreleased]
+
+### Fixed
+
+- Fix robot.jar vulnerability GHSA-72hv-8253-57qq
+
+
 ## [2.2.4] 2026-02-20
 
 ### Changed
