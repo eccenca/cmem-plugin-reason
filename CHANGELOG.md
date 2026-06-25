@@ -9,7 +9,11 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 ### Fixed
 
-- Fix robot.jar vulnerabilities CVE-2026-54512, CVE-2026-54513, CVE-2026-54514, CVE-2026-54515
+- Fix robot.jar vulnerabilities CVE-2026-54512, CVE-2026-54513, CVE-2026-54514, CVE-2026-54515.
+
+### Changed
+
+- Update template to 8.5.0.
 
 ## [2.2.5] 2026-03-01
 
