@@ -37,7 +37,7 @@ def reasoner_parameter() -> str | None:
 
 
 @pytest.fixture
-def setup() -> Generator[None, Any, None]:
+def setup() -> Generator[None, Any]:
     """Set up Reason test"""
     delete(REASON_RESULT_GRAPH_IRI)
 

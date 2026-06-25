@@ -42,7 +42,7 @@ def reasoner_parameter() -> str | None:
 
 
 @pytest.fixture
-def setup() -> Generator[None, Any, None]:
+def setup() -> Generator[None, Any]:
     """Set up Validate test"""
     with suppress(Exception):
         delete_project(PROJECT_ID)
