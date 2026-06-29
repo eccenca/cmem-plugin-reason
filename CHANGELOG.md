@@ -7,6 +7,11 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 ## [Unreleased]
 
+TODO: add at least one Added, Changed, Deprecated, Removed, Fixed or Security section
+
+
+## [2.2.5] 2026-03-01
+
 ### Fixed
 
 - Fix robot.jar vulnerabilities CVE-2026-54512, CVE-2026-54513, CVE-2026-54514, CVE-2026-54515.
@@ -15,11 +20,13 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 - Update template to 8.5.0.
 
+
 ## [2.2.5] 2026-03-01
 
 ### Fixed
 
 - Fix robot.jar vulnerability GHSA-72hv-8253-57qq
+
 
 ## [2.2.4] 2026-02-20
 
@@ -27,12 +34,14 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 - use ROBOT v1.9.10 compiled with [updated dependencies without vulnerablities](https://github.com/eccenca/robot/tree/feature/updateDependenciesV1.9.10)
 
+
 ## [2.2.3] 2026-02-17
 
 ### Changed
 
 - Update template to 8.3.1.
 - Relax URN URI validation.
+
 
 ## [2.2.2] 2026-01-27
 
@@ -44,6 +53,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 - Update template to 8.3.0.
 - Allow URN URIs in graph parameters.
+
 
 ## [2.2.1] 2025-11-27
 
