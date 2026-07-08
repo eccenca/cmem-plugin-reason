@@ -14,7 +14,7 @@ from rdflib import Graph
 from rdflib.compare import isomorphic
 
 from cmem_plugin_reason.plugin_validate import ValidatePlugin
-from cmem_plugin_reason.utils import REASONERS
+from cmem_plugin_reason.utils import VALIDATE_REASONERS
 from tests.utils import FIXTURE_DIR, UID, get_bytes_io, get_remote_graph, import_graph, replace_uuid
 
 VALIDATE_ONTOLOGY_GRAPH_IRI_1 = f"https://ns.eccenca.com/validateontology/{UID}/vocab/"
@@ -72,7 +72,7 @@ def setup() -> Generator[None, Any]:
     delete_project(PROJECT_ID)
 
 
-@pytest.mark.parametrize("reasoner_parameter", list(REASONERS.keys()))
+@pytest.mark.parametrize("reasoner_parameter", VALIDATE_REASONERS)
 def test_validate(setup: None, reasoner_parameter: str) -> None:  # noqa: ARG001
     """Test Validate"""
     result = ValidatePlugin(

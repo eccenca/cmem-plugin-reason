@@ -25,8 +25,8 @@ from cmem_plugin_reason.utils import (
     MAX_RAM_PERCENTAGE_DEFAULT,
     MAX_RAM_PERCENTAGE_PARAMETER,
     ONTOLOGY_GRAPH_IRI_PARAMETER,
-    REASONER_PARAMETER,
-    REASONERS,
+    REASON_REASONER_PARAMETER,
+    REASON_REASONERS,
     VALIDATE_PROFILES_PARAMETER,
     cancel_workflow,
     create_xml_catalog_file,
@@ -152,7 +152,7 @@ Person`.
         IGNORE_MISSING_IMPORTS_PARAMETER,
         ONTOLOGY_GRAPH_IRI_PARAMETER,
         VALIDATE_PROFILES_PARAMETER,
-        REASONER_PARAMETER,
+        REASON_REASONER_PARAMETER,
         MAX_RAM_PERCENTAGE_PARAMETER,
         PluginParameter(
             param_type=GraphParameterType(
@@ -352,7 +352,7 @@ class ReasonPlugin(WorkflowPlugin):
             errors += "Result graph IRI cannot be the same as the data graph IRI. "
         if output_graph_iri == ontology_graph_iri:
             errors += "Result graph IRI cannot be the same as the ontology graph IRI. "
-        if reasoner not in REASONERS:
+        if reasoner not in REASON_REASONERS:
             errors += 'Invalid value for parameter "Reasoner". '
         if True not in self.axioms.values():
             errors += "No axiom generator selected. "

@@ -25,9 +25,9 @@ from cmem_plugin_reason.utils import (
     MAX_RAM_PERCENTAGE_DEFAULT,
     MAX_RAM_PERCENTAGE_PARAMETER,
     ONTOLOGY_GRAPH_IRI_PARAMETER,
-    REASONER_PARAMETER,
-    REASONERS,
     VALIDATE_PROFILES_PARAMETER,
+    VALIDATE_REASONER_PARAMETER,
+    VALIDATE_REASONERS,
     cancel_workflow,
     create_xml_catalog_file,
     get_file_with_datetime,
@@ -53,7 +53,7 @@ LABEL = "Validate OWL consistency"
         ONTOLOGY_GRAPH_IRI_PARAMETER,
         MAX_RAM_PERCENTAGE_PARAMETER,
         VALIDATE_PROFILES_PARAMETER,
-        REASONER_PARAMETER,
+        VALIDATE_REASONER_PARAMETER,
         PluginParameter(
             param_type=StringParameterType(),
             name="md_filename",
@@ -136,7 +136,7 @@ class ValidatePlugin(WorkflowPlugin):
             errors += 'Invalid IRI for parameter "Output graph IRI". '
         if output_graph_iri and output_graph_iri == ontology_graph_iri:
             errors += "Output graph IRI cannot be the same as the Ontology graph IRI. "
-        if reasoner not in REASONERS:
+        if reasoner not in VALIDATE_REASONERS:
             errors += 'Invalid value for parameter "Reasoner". '
         if md_filename and not is_valid_filepath(md_filename):
             errors += 'Invalid filename for parameter "Output filename". '

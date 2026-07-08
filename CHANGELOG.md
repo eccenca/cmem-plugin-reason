@@ -7,10 +7,15 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 ## [Unreleased]
 
-TODO: add at least one Added, Changed, Deprecated, Removed, Fixed or Security section
+### Fixed
 
+- Fix robot.jar vulnerability CVE-2026-54515
 
-## [2.2.5] 2026-03-01
+### Changed
+
+- Validate: remove "structural" option from Reasoner parameter.
+
+## [2.2.6] 2026-06-29
 
 ### Fixed
 

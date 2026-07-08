@@ -28,7 +28,7 @@ from . import __path__
 
 ROBOT = Path(__path__[0]) / "robot.jar"
 
-REASONERS = OrderedDict(
+REASON_REASONERS = OrderedDict(
     {
         "elk": "ELK",
         "emr": "Expression Materializing Reasoner",
@@ -39,11 +39,28 @@ REASONERS = OrderedDict(
     }
 )
 
+VALIDATE_REASONERS = OrderedDict(
+    {
+        "elk": "ELK",
+        "emr": "Expression Materializing Reasoner",
+        "hermit": "HermiT",
+        "jfact": "JFact",
+        "whelk": "Whelk",
+    }
+)
+
 MAX_RAM_PERCENTAGE_DEFAULT = 20
 URN_PATTERN = re.compile(r"^urn:[a-zA-Z0-9][a-zA-Z0-9-]*(:.+)?$", re.IGNORECASE)
 
-REASONER_PARAMETER = PluginParameter(
-    param_type=ChoiceParameterType(REASONERS),
+REASON_REASONER_PARAMETER = PluginParameter(
+    param_type=ChoiceParameterType(REASON_REASONERS),
+    name="reasoner",
+    label="Reasoner",
+    description="Reasoner option.",
+)
+
+VALIDATE_REASONER_PARAMETER = PluginParameter(
+    param_type=ChoiceParameterType(VALIDATE_REASONERS),
     name="reasoner",
     label="Reasoner",
     description="Reasoner option.",
