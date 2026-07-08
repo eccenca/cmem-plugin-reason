@@ -11,8 +11,7 @@ from cmem_plugin_base.testing import TestExecutionContext
 from rdflib import Graph
 from rdflib.compare import isomorphic
 
-from cmem_plugin_reason.plugin_reason import ReasonPlugin
-from cmem_plugin_reason.utils import REASONERS
+from cmem_plugin_reason.plugin_reason import REASON_REASONERS, ReasonPlugin
 from tests.utils import FIXTURE_DIR, UID, get_bytes_io, get_remote_graph, import_graph, replace_uuid
 
 REASON_DATA_GRAPH_IRI = f"https://ns.eccenca.com/reasoning/{UID}/data/"
@@ -67,7 +66,7 @@ def setup() -> Generator[None, Any]:
     delete(REASON_RESULT_GRAPH_IRI)
 
 
-@pytest.mark.parametrize("reasoner_parameter", list(REASONERS.keys()))
+@pytest.mark.parametrize("reasoner_parameter", REASON_REASONERS)
 def test_reason(setup: None, reasoner_parameter: str) -> None:  # noqa: ARG001
     """Test reasoning"""
     ReasonPlugin(
@@ -78,14 +77,14 @@ def test_reason(setup: None, reasoner_parameter: str) -> None:  # noqa: ARG001
         sub_class=False,
         class_assertion=True,
         property_assertion=True,
-        validate_profile=True,
-        imports="import_ontology",
+        imports=True,
     ).execute(inputs=(), context=TestExecutionContext())
 
     result = get_remote_graph(REASON_RESULT_GRAPH_IRI)
     test = Graph().parse(
         data=replace_uuid(f"{FIXTURE_DIR}/test_{reasoner_parameter}.ttl"), format="turtle"
     )
+
     assert isomorphic(result, test)
 
 
@@ -99,8 +98,6 @@ def test_reason_input_not_exist(setup: None) -> None:  # noqa: ARG001
         sub_class=False,
         class_assertion=True,
         property_assertion=False,
-        validate_profile=False,
-        imports="import_ontology",
     )
     with pytest.raises(
         ValueError,
@@ -121,8 +118,6 @@ def test_reason_import_not_exist_not_ignore(setup: None) -> None:  # noqa: ARG00
         sub_class=False,
         class_assertion=True,
         property_assertion=False,
-        validate_profile=False,
-        imports="import_ontology",
         ignore_missing_imports=False,
     )
     with pytest.raises(
@@ -142,8 +137,6 @@ def test_reason_import_not_exist_ignore(setup: None) -> None:  # noqa: ARG001
         sub_class=False,
         class_assertion=True,
         property_assertion=False,
-        validate_profile=False,
-        imports="import_ontology",
         ignore_missing_imports=True,
     ).execute(inputs=(), context=TestExecutionContext())
 
@@ -158,8 +151,6 @@ def test_reason_ontology_import(setup: None) -> None:  # noqa: ARG001
         sub_class=False,
         class_assertion=True,
         property_assertion=False,
-        validate_profile=False,
-        imports="none",
         ignore_missing_imports=True,
     ).execute(inputs=(), context=TestExecutionContext())
 
@@ -176,8 +167,6 @@ def test_reason_ontology_import_2(setup: None) -> None:  # noqa: ARG001
         sub_class=False,
         class_assertion=True,
         property_assertion=False,
-        validate_profile=False,
-        imports="none",
         ignore_missing_imports=True,
     ).execute(inputs=(), context=TestExecutionContext())
 

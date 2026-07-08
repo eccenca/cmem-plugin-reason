@@ -1,0 +1,76 @@
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+<https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/data/Dewey> a <https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/animal> .
+
+<https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/data/Fido> a <https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/animal> .
+
+<https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/data/Flossie> a <https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/vegetarian> .
+
+<https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/data/Fluffy> a <https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/animal> .
+
+<https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/data/Fred> a <https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/animal>,
+        <https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/cat_liker>,
+        <https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/cat_owner>,
+        <https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/pet_owner> .
+
+<https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/data/Huey> a <https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/animal> .
+
+<https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/data/Joe> a <https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/animal>,
+        <https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/dog_liker>,
+        <https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/dog_owner>,
+        <https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/pet_owner> .
+
+<https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/data/Kevin> a <https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/animal>,
+        <https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/pet_owner> .
+
+<https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/data/Louie> a <https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/animal> .
+
+<https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/data/Minnie> a <https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/adult>,
+        <https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/animal>,
+        <https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/grownup>,
+        <https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/old_lady>,
+        <https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/person>,
+        <https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/pet_owner>,
+        <https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/woman> .
+
+<https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/data/Q123_ABC> a <https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/vehicle> .
+
+<https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/data/Rex> a <https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/animal>,
+        <https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/pet> .
+
+<https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/data/Spike> a <https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/pet> .
+
+<https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/data/The_Guardian> a <https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/newspaper>,
+        <https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/publication> .
+
+<https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/data/The_Sun> a <https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/newspaper>,
+        <https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/publication> .
+
+<https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/data/The_Times> a <https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/newspaper>,
+        <https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/publication> .
+
+<https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/data/Tibbs> a <https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/animal> .
+
+<https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/data/Walt> a <https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/animal>,
+        <https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/pet_owner> .
+
+<https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/result/> a owl:Ontology ;
+    rdfs:label "Eccenca Reasoning Data - Reasoning Results"@en ;
+    dcterms:source <https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/data/>,
+        <https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/> ;
+    rdfs:comment "Reasoning results of data graph <https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/data/> with ontology <https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/>"@en ;
+    owl:imports <https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/> .
+
+<https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/van_driver> rdfs:subClassOf _:n44061bbc45dc45f8834d04479761b77fb1 .
+
+<https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/white_van_man> rdfs:subClassOf _:n44061bbc45dc45f8834d04479761b77fb1,
+        [ a owl:Restriction ;
+            owl:onProperty <https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/drives> ;
+            owl:someValuesFrom <https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/white_thing> ] .
+
+_:n44061bbc45dc45f8834d04479761b77fb1 a owl:Restriction ;
+    owl:onProperty <https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/drives> ;
+    owl:someValuesFrom <https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/van> .
+

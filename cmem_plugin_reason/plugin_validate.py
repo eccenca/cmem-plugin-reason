@@ -6,18 +6,15 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 from uuid import uuid4
 
-from cmem.cmempy.dp.proxy.graph import get, get_graph_import_tree, get_graphs_list
-from cmem.cmempy.workspace.projects.resources.resource import create_resource
+from cmem.cmempy.dp.proxy.graph import get_graph_import_tree, get_graphs_list, get_streamed
 from cmem_plugin_base.dataintegration.context import ExecutionContext, ExecutionReport
 from cmem_plugin_base.dataintegration.description import Icon, Plugin, PluginParameter
 from cmem_plugin_base.dataintegration.entity import Entities, Entity, EntityPath, EntitySchema
 from cmem_plugin_base.dataintegration.parameter.choice import ChoiceParameterType
-from cmem_plugin_base.dataintegration.parameter.graph import GraphParameterType
 from cmem_plugin_base.dataintegration.plugins import WorkflowPlugin
 from cmem_plugin_base.dataintegration.ports import FixedNumberOfInputs, FixedSchemaPort
-from cmem_plugin_base.dataintegration.types import BoolParameterType, StringParameterType
+from cmem_plugin_base.dataintegration.types import BoolParameterType
 from cmem_plugin_base.dataintegration.utils import setup_cmempy_user_access
-from pathvalidate import is_valid_filepath
 
 from cmem_plugin_reason.doc import VALIDATE_DOC
 from cmem_plugin_reason.utils import (
@@ -25,22 +22,54 @@ from cmem_plugin_reason.utils import (
     MAX_RAM_PERCENTAGE_DEFAULT,
     MAX_RAM_PERCENTAGE_PARAMETER,
     ONTOLOGY_GRAPH_IRI_PARAMETER,
-    REASONER_PARAMETER,
-    REASONERS,
-    VALIDATE_PROFILES_PARAMETER,
     cancel_workflow,
     create_xml_catalog_file,
-    get_file_with_datetime,
-    get_output_graph_label,
+    eccenca_reasoner,
     is_valid_uri,
-    post_profiles,
-    post_provenance,
-    robot,
-    send_result,
-    validate_profiles,
 )
 
 LABEL = "Validate OWL consistency"
+
+VALIDATE_REASONERS = OrderedDict(
+    {
+        "elk": "ELK",
+        "elk_emr": "ELK (EMR)",
+        "hermit": "HermiT",
+        "jfact": "JFact",
+    }
+)
+
+VALIDATE_PROFILES_PARAMETER = PluginParameter(
+    param_type=BoolParameterType(),
+    name="validate_profile",
+    label="Validate OWL2 profiles",
+    description="""Validate the input ontology against OWL profiles (DL, EL, QL, RL, and Full) and
+    annotate the result graph.""",
+    default_value=False,
+)
+
+
+def validate_profiles(plugin: WorkflowPlugin, graphs: dict) -> list[str]:
+    """Validate OWL2 profiles.
+
+    The reasoner jar checks the whole imports closure (imports resolved via the catalog),
+    so no separate "merge" step is needed. It prints the profiles the ontology conforms to
+    to stdout, one per line, in the order Full, DL, EL, QL, RL.
+    """
+    ontology_location = f"{plugin.temp}/{graphs[plugin.ontology_graph_iri]}"
+    catalog_location = f"{plugin.temp}/catalog-v001.xml"
+    cmd = [
+        "validate-profile",
+        "--input",
+        ontology_location,
+        "--catalog",
+        catalog_location,
+    ]
+    response = eccenca_reasoner(cmd, plugin.max_ram_percentage)
+    if response.returncode != 0:
+        message = response.stderr.decode().strip() or response.stdout.decode().strip()
+        raise OSError(message)
+    return response.stdout.decode().split()
 
 
 @Plugin(
@@ -53,29 +82,11 @@ LABEL = "Validate OWL consistency"
         ONTOLOGY_GRAPH_IRI_PARAMETER,
         MAX_RAM_PERCENTAGE_PARAMETER,
         VALIDATE_PROFILES_PARAMETER,
-        REASONER_PARAMETER,
         PluginParameter(
-            param_type=StringParameterType(),
-            name="md_filename",
-            label="Output filename",
-            description="The filename of the Markdown file with the explanation of "
-            "inconsistencies. ⚠️ Existing files will be overwritten.",
-            default_value="",
-        ),
-        PluginParameter(
-            param_type=GraphParameterType(
-                allow_only_autocompleted_values=False,
-                classes=[
-                    "https://vocab.eccenca.com/di/Dataset",
-                    "http://rdfs.org/ns/void#Dataset",
-                    "http://www.w3.org/2002/07/owl#Ontology",
-                ],
-            ),
-            name="output_graph_iri",
-            label="Output graph IRI",
-            description="""The IRI of the output graph for the inconsistency validation. ⚠️ Existing
-            graphs will be overwritten.""",
-            default_value="",
+            param_type=ChoiceParameterType(VALIDATE_REASONERS),
+            name="reasoner",
+            label="Reasoner",
+            description="Reasoner option.",
         ),
         PluginParameter(
             param_type=BoolParameterType(),
@@ -83,16 +94,6 @@ LABEL = "Validate OWL consistency"
             label="Stop at inconsistencies",
             description="Raise an error if inconsistencies are found. If enabled, the plugin does "
             "not output entities.",
-            default_value=False,
-        ),
-        PluginParameter(
-            param_type=BoolParameterType(),
-            name="output_entities",
-            label="Output entities",
-            description="""Output entities. The plugin outputs the explanation as text in Markdown
-            format on the path "markdown", the ontology IRI on the path "ontology_graph_iri", the
-            reasoner option on the path "reasoner", and, if enabled, the valid OWL2 profiles on the
-            path "valid_profiles".""",
             default_value=False,
         ),
         PluginParameter(
@@ -116,14 +117,11 @@ LABEL = "Validate OWL consistency"
 class ValidatePlugin(WorkflowPlugin):
     """Validate plugin"""
 
-    def __init__(  # noqa: PLR0912 PLR0913 C901
+    def __init__(  # noqa: PLR0913
         self,
         ontology_graph_iri: str,
         ignore_missing_imports: bool = False,
-        output_graph_iri: str | None = None,
-        output_entities: bool = False,
-        reasoner: str | None = None,
-        md_filename: str = "",
+        reasoner: str = "hermit",
         mode: str = "inconsistency",
         validate_profile: bool = False,
         stop_at_inconsistencies: bool = False,
@@ -132,16 +130,8 @@ class ValidatePlugin(WorkflowPlugin):
         errors = ""
         if not is_valid_uri(ontology_graph_iri):
             errors += 'Invalid IRI for parameter "Ontology graph IRI." '
-        if output_graph_iri and not is_valid_uri(output_graph_iri):
-            errors += 'Invalid IRI for parameter "Output graph IRI". '
-        if output_graph_iri and output_graph_iri == ontology_graph_iri:
-            errors += "Output graph IRI cannot be the same as the Ontology graph IRI. "
-        if reasoner not in REASONERS:
+        if reasoner not in VALIDATE_REASONERS:
             errors += 'Invalid value for parameter "Reasoner". '
-        if md_filename and not is_valid_filepath(md_filename):
-            errors += 'Invalid filename for parameter "Output filename". '
-        if not output_graph_iri and not md_filename and not output_entities:
-            errors += "No output selected. "
         if mode not in ("inconsistency", "unsatisfiability"):
             errors += 'Invalid value for parameter "Mode". '
         if max_ram_percentage not in range(1, 101):
@@ -150,34 +140,28 @@ class ValidatePlugin(WorkflowPlugin):
             raise ValueError(errors[:-1])
         self.ontology_graph_iri = ontology_graph_iri
         self.reasoner = reasoner
-        self.output_graph_iri = output_graph_iri
         self.mode = mode
         self.stop_at_inconsistencies = stop_at_inconsistencies
-        if md_filename:
-            self.md_filename = md_filename
-            self.write_md = True
-        else:
-            self.md_filename = "mdfile.md"
-            self.write_md = False
+        self.md_filename = "mdfile.md"
         self.validate_profile = validate_profile
-        self.output_entities = output_entities
         self.max_ram_percentage = max_ram_percentage
         self.ignore_missing_imports = ignore_missing_imports
 
         self.label = LABEL
 
         self.input_ports = FixedNumberOfInputs([])
-        if self.output_entities:
-            self.schema = self.generate_output_schema()
-            self.output_port = FixedSchemaPort(self.schema)
-        else:
-            self.output_port = None
+        self.schema = self.generate_output_schema()
+        self.output_port = FixedSchemaPort(self.schema)
 
     def generate_output_schema(self) -> EntitySchema:
         """Generate output entity schema."""
-        paths = [EntityPath("markdown"), EntityPath("ontology_graph_iri"), EntityPath("reasoner")]
+        paths = [
+            EntityPath("explanation"),
+            EntityPath("ontology_graph_iri"),
+            EntityPath("reasoner"),
+        ]
         if self.validate_profile:
-            paths.append(EntityPath("valid_profiles"))
+            paths.append(EntityPath("profiles"))
         return EntitySchema(type_uri="validate", paths=paths)
 
     def get_graphs(self, graphs: dict, missing: list) -> None:
@@ -188,10 +172,10 @@ class ValidatePlugin(WorkflowPlugin):
                 if iri not in missing:
                     self.log.info(f"Fetching graph {iri}.")
                     setup_cmempy_user_access(self.context.user)
-                    file.write(get(iri).text)
+                    file.write(get_streamed(iri).text)
 
     def get_graphs_tree(self) -> tuple[dict, list]:
-        """Get graph import tree. Last item in graph_iris is output_graph_iri which is excluded"""
+        """Get graph import tree."""
         missing = []
         graphs = {}
         if self.ontology_graph_iri not in graphs:
@@ -200,8 +184,6 @@ class ValidatePlugin(WorkflowPlugin):
             for value in tree["tree"].values():
                 for iri in value:
                     if iri not in graphs:
-                        if iri == self.output_graph_iri:
-                            raise ImportError("Input graph imports output graph.")
                         if iri not in self.graphs_dict:
                             missing.append(iri)
                         graphs[iri] = f"{uuid4().hex}.nt"
@@ -216,54 +198,34 @@ class ValidatePlugin(WorkflowPlugin):
     def explain(self, graphs: dict) -> None:
         """Reason"""
         data_location = f"{self.temp}/{graphs[self.ontology_graph_iri]}"
-        label = get_output_graph_label(self, self.ontology_graph_iri, "Validation Result")
-        cmd = (
-            f'explain --input "{data_location}" '
-            f"--reasoner {self.reasoner} -M {self.mode} "
-            f'--explanation "{self.temp}/{self.md_filename}"'
-        )
-        if self.output_graph_iri:
-            cmd += (
-                f' annotate --ontology-iri "{self.output_graph_iri}" '
-                f'--language-annotation rdfs:label "{label}" en '
-                f"--language-annotation rdfs:comment "
-                f'"Ontology validation of <{self.ontology_graph_iri}>" en '
-                f'--link-annotation dc:source "{self.ontology_graph_iri}" '
-                f'--output "{self.temp}/result.ttl"'
-            )
-        response = robot(cmd, self.max_ram_percentage)
+        catalog_location = f"{self.temp}/catalog-v001.xml"
+        cmd = [
+            "explain",
+            "--input",
+            data_location,
+            "--reasoner",
+            self.reasoner,
+            "-M",
+            self.mode,
+            "--catalog",
+            catalog_location,
+            "--explanation",
+            f"{self.temp}/{self.md_filename}",
+        ]
+        response = eccenca_reasoner(cmd, self.max_ram_percentage)
         if response.returncode != 0:
-            if response.stdout:
-                raise OSError(response.stdout.decode())
-            if response.stderr:
-                raise OSError(response.stderr.decode())
-            raise OSError("ROBOT error")
-
-    def make_resource(self, context: ExecutionContext) -> None:
-        """Make MD resource in project"""
-        create_resource(
-            project_name=context.task.project_id(),
-            resource_name=self.md_filename,
-            file_resource=(Path(self.temp) / self.md_filename).open("r", encoding="utf-8"),
-            replace=True,
-        )
-
-    def add_profiles(self, valid_profiles: list) -> list:
-        """Add profile validation result to output"""
-        with (Path(self.temp) / self.md_filename).open("a", encoding="utf-8") as mdfile:
-            mdfile.write("\n\n\n# Valid Profiles:\n")
-            if valid_profiles:
-                profiles_str = "\n- ".join(valid_profiles)
-                mdfile.write(f"- {profiles_str}\n")
-        if self.output_graph_iri:
-            post_profiles(self, valid_profiles)
-        return valid_profiles
+            message = (
+                response.stderr.decode().strip()
+                or response.stdout.decode().strip()
+                or "reasoner error"
+            )
+            raise OSError(message)
 
     def make_entities(self, text: str, valid_profiles: list) -> Entities:
         """Make entities"""
         values = [[text], [self.ontology_graph_iri], [self.reasoner]]
         if self.validate_profile:
-            values.append([",".join(valid_profiles)])
+            values.append(valid_profiles)
         entities = [
             Entity(
                 uri="https://eccenca.com/plugin_validateontology/result",
@@ -283,21 +245,9 @@ class ValidatePlugin(WorkflowPlugin):
         self.explain(graphs)
         if cancel_workflow(self):
             return None
-        if self.output_graph_iri:
-            setup_cmempy_user_access(self.context.user)
-            send_result(self.output_graph_iri, get_file_with_datetime(self))
-            setup_cmempy_user_access(self.context.user)
-            post_provenance(self)
+        valid_profiles = validate_profiles(self, graphs) if self.validate_profile else []
         if cancel_workflow(self):
             return None
-        valid_profiles = (
-            self.add_profiles(validate_profiles(self, graphs)) if self.validate_profile else []
-        )
-        if cancel_workflow(self):
-            return None
-        if self.write_md:
-            setup_cmempy_user_access(self.context.user)
-            self.make_resource(self.context)
 
         text = (Path(self.temp) / self.md_filename).read_text()
         if text.split("\n", 1)[0] != "No explanations found.":
@@ -320,9 +270,7 @@ class ValidatePlugin(WorkflowPlugin):
                     entity_count=1,
                 )
             )
-        if self.output_entities:
-            return self.make_entities(text, valid_profiles)
-        return None
+        return self.make_entities(text, valid_profiles)
 
     def execute(self, inputs: Sequence[Entities], context: ExecutionContext) -> Entities | None:  # noqa: ARG002
         """Execute plugin with temporary directory"""

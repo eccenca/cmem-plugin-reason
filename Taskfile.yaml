@@ -142,7 +142,7 @@ tasks:
         poetry run trivy rootfs
         --scanners vuln
         --exit-code 1
-        cmem_plugin_reason/robot.jar
+        cmem_plugin_reason/eccenca-reasoner.jar
 
   check:deptry:
     desc: Complain about unused or missing dependencies

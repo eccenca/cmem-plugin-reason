@@ -1,12 +1,23 @@
 """Reasoning workflow plugin module"""
 
+import json
 from collections import OrderedDict
 from collections.abc import Sequence
+from datetime import UTC, datetime
+from io import BytesIO
 from pathlib import Path
+from secrets import token_hex
 from tempfile import TemporaryDirectory
+from time import time
 from uuid import uuid4
 
-from cmem.cmempy.dp.proxy.graph import get, get_graph_import_tree, get_graphs_list
+from cmem.cmempy.dp.proxy.graph import (
+    get_graph_import_tree,
+    get_graphs_list,
+    get_streamed,
+    post_streamed,
+)
+from cmem.cmempy.dp.proxy.sparql import post as post_select
 from cmem.cmempy.dp.proxy.update import post
 from cmem_plugin_base.dataintegration.context import ExecutionContext, ExecutionReport
 from cmem_plugin_base.dataintegration.description import Icon, Plugin, PluginParameter
@@ -15,7 +26,7 @@ from cmem_plugin_base.dataintegration.parameter.choice import ChoiceParameterTyp
 from cmem_plugin_base.dataintegration.parameter.graph import GraphParameterType
 from cmem_plugin_base.dataintegration.plugins import WorkflowPlugin
 from cmem_plugin_base.dataintegration.ports import FixedNumberOfInputs
-from cmem_plugin_base.dataintegration.types import BoolParameterType, StringParameterType
+from cmem_plugin_base.dataintegration.types import BoolParameterType
 from cmem_plugin_base.dataintegration.utils import setup_cmempy_user_access
 from inflection import underscore
 
@@ -25,22 +36,135 @@ from cmem_plugin_reason.utils import (
     MAX_RAM_PERCENTAGE_DEFAULT,
     MAX_RAM_PERCENTAGE_PARAMETER,
     ONTOLOGY_GRAPH_IRI_PARAMETER,
-    REASONER_PARAMETER,
-    REASONERS,
-    VALIDATE_PROFILES_PARAMETER,
     cancel_workflow,
     create_xml_catalog_file,
-    get_file_with_datetime,
-    get_output_graph_label,
+    eccenca_reasoner,
     is_valid_uri,
-    post_profiles,
-    post_provenance,
-    robot,
-    send_result,
-    validate_profiles,
 )
 
 LABEL = "Reason"
+
+REASON_REASONERS = OrderedDict(
+    {
+        "elk": "ELK",
+        "elk_emr": "ELK (EMR)",
+        "hermit": "HermiT",
+        "jfact": "JFact",
+        "structural": "Structural Reasoner",
+    }
+)
+
+
+def send_result(iri: str | None, file: BytesIO) -> None:
+    """Send result"""
+    res = post_streamed(
+        iri,
+        file,
+        replace=True,
+        content_type="text/turtle",
+    )
+    if res.status_code != 204:  # noqa: PLR2004
+        raise OSError(f"Error posting result graph (status code {res.status_code}).")
+
+
+def post_provenance(plugin: WorkflowPlugin) -> None:
+    """Post provenance"""
+    prov = get_provenance(plugin)
+    if prov:
+        param_sparql = ""
+        for name, iri in prov["parameters"].items():
+            param_sparql += f'\n<{prov["plugin_iri"]}> <{iri}> "{plugin.__dict__[name]}" .'
+        insert_query = f"""
+            INSERT DATA {{
+                GRAPH <{plugin.output_graph_iri}> {{
+                    <{plugin.output_graph_iri}> <http://purl.org/dc/terms/creator>
+                        <{prov["plugin_iri"]}> .
+                    <{prov["plugin_iri"]}> a <{prov["plugin_type"]}>,
+                        <https://vocab.eccenca.com/di/CustomTask> .
+                    <{prov["plugin_iri"]}> <http://www.w3.org/2000/01/rdf-schema#label>
+                        "{prov["plugin_label"]}" .
+                    {param_sparql}
+                }}
+            }}
+        """
+        post(query=insert_query)
+
+
+def get_provenance(plugin: WorkflowPlugin) -> dict | None:
+    """Get provenance information"""
+    plugin_iri = (
+        f"http://dataintegration.eccenca.com/{plugin.context.task.project_id()}/"
+        f"{plugin.context.task.task_id()}"
+    )
+    project_graph = f"http://di.eccenca.com/project/{plugin.context.task.project_id()}"
+
+    type_query = f"""
+        SELECT ?type {{
+            GRAPH <{project_graph}> {{
+                <{plugin_iri}> a ?type .
+                FILTER(STRSTARTS(STR(?type), "https://vocab.eccenca.com/di/functions/"))
+            }}
+        }}
+    """
+
+    result = json.loads(post_select(query=type_query))
+
+    try:
+        plugin_type = result["results"]["bindings"][0]["type"]["value"]
+    except IndexError:
+        plugin.log.warning("Could not add provenance data to output graph.")
+        return None
+
+    param_split = (
+        plugin_type.replace(
+            "https://vocab.eccenca.com/di/functions/Plugin_",
+            "https://vocab.eccenca.com/di/functions/param_",
+        )
+        + "_"
+    )
+
+    parameter_query = f"""
+        SELECT ?parameter {{
+            GRAPH <{project_graph}> {{
+                <{plugin_iri}> ?parameter ?o .
+                FILTER(STRSTARTS(STR(?parameter), "https://vocab.eccenca.com/di/functions/param_"))
+            }}
+        }}
+    """
+
+    new_plugin_iri = f"{'_'.join(plugin_iri.split('_')[:-1])}_{token_hex(8)}"
+    label = f"{plugin.label} plugin"
+    result = json.loads(post_select(query=parameter_query))
+
+    prov = {
+        "plugin_iri": new_plugin_iri,
+        "plugin_label": label,
+        "plugin_type": plugin_type,
+        "parameters": {},
+    }
+
+    for binding in result["results"]["bindings"]:
+        param_iri = binding["parameter"]["value"]
+        param_name = param_iri.split(param_split)[1]
+        prov["parameters"][param_name] = param_iri
+
+    return prov
+
+
+def get_output_graph_label(plugin: WorkflowPlugin, iri: str, add_string: str) -> str:
+    """Create a label for the output graph"""
+    graphs = (
+        plugin.graphs_dict
+        if hasattr(plugin, "graphs_dict")
+        else {_["iri"]: _ for _ in get_graphs_list()}
+    )
+    try:
+        data_graph_label = graphs[iri]["label"]["title"]
+        data_graph_label += " - "
+    except KeyError:
+        data_graph_label = ""
+    return f"{data_graph_label}{add_string}"
+
 
 SUBCLASS_DESC = """The reasoner will infer assertions about the hierarchy of classes, i.e.
 `SubClassOf:` statements.\n
@@ -60,12 +184,12 @@ If there are classes `Person`, `Student` and `Professor`, such that `Person Disj
 Student, Professor` holds, the reasoner will infer `DisjointClasses: Student, Professor`.
 """
 
-# DATA_PROP_CHAR_DESC = """The reasoner will infer characteristics of data properties, i.e.
-# `Characteristics:` statements. For data properties, this only pertains to functionality.\n
-# If there are data properties `identifier` and `enrollmentNumber`, such that `enrollmentNumber
-# SubPropertyOf: identifier` and `identifier Characteristics: Functional` holds, the reasoner will
-# infer `enrollmentNumber Characteristics: Functional`.
-# """
+DATA_PROP_CHAR_DESC = """The reasoner will infer characteristics of data properties, i.e.
+`Characteristics:` statements. For data properties, this only pertains to functionality.\n
+If there are data properties `identifier` and `enrollmentNumber`, such that `enrollmentNumber
+SubPropertyOf: identifier` and `identifier Characteristics: Functional` holds, the reasoner will
+infer `enrollmentNumber Characteristics: Functional`.
+"""
 
 DATA_PROP_EQUIV_DESC = """The reasoner will infer axioms about the equivalence of data properties,
  i.e. `EquivalentProperties` statements.\n
@@ -97,13 +221,13 @@ assertions `John Facts: enrolledIn KnowledgeRepresentation` and `LeipzigUniversi
 KnowledgeRepresentation`,  the reasoner will infer `John Facts: enrolledIn LeipzigUniversity`.
 """
 
-# OBJECT_PROP_CHAR_DESC = """The reasoner will infer characteristics of object properties, i.e.
-# `Characteristics:` statements.\n
-# If there are object properties `enrolledIn` and `studentOf`, such that `enrolledIn
-# SubPropertyOf: studentOf` and `enrolledIn Characteristics: Functional` holds, the reasoner will
-# infer `studentOf Characteristics: Functional`. **Note: this inference does neither work in JFact
-# nor in HermiT!**
-# """
+OBJECT_PROP_CHAR_DESC = """The reasoner will infer characteristics of object properties, i.e.
+`Characteristics:` statements.\n
+If there are object properties `enrolledIn` and `studentOf`, such that `enrolledIn
+SubPropertyOf: studentOf` and `enrolledIn Characteristics: Functional` holds, the reasoner will
+infer `studentOf Characteristics: Functional`. **Note: this inference does neither work in JFact
+nor in HermiT!**
+"""
 
 OBJECT_PROP_EQUIV_DESC = """The reasoner will infer assertions about the equivalence of object
 properties, i.e. `EquivalentTo:` statements.\n
@@ -151,9 +275,13 @@ Person`.
     parameters=[
         IGNORE_MISSING_IMPORTS_PARAMETER,
         ONTOLOGY_GRAPH_IRI_PARAMETER,
-        VALIDATE_PROFILES_PARAMETER,
-        REASONER_PARAMETER,
         MAX_RAM_PERCENTAGE_PARAMETER,
+        PluginParameter(
+            param_type=ChoiceParameterType(REASON_REASONERS),
+            name="reasoner",
+            label="Reasoner",
+            description="Reasoner option.",
+        ),
         PluginParameter(
             param_type=GraphParameterType(
                 classes=[
@@ -195,6 +323,13 @@ Person`.
             name="disjoint_classes",
             label="Class disjointness (owl:disjointWith)",
             description=DISJOINT_DESC,
+            default_value=False,
+        ),
+        PluginParameter(
+            param_type=BoolParameterType(),
+            name="data_property_characteristic",
+            label="Data property characteristics",
+            description=DATA_PROP_CHAR_DESC,
             default_value=False,
         ),
         PluginParameter(
@@ -241,6 +376,13 @@ Person`.
         ),
         PluginParameter(
             param_type=BoolParameterType(),
+            name="object_property_characteristic",
+            label="Object property characteristics",
+            description=OBJECT_PROP_CHAR_DESC,
+            default_value=False,
+        ),
+        PluginParameter(
+            param_type=BoolParameterType(),
             name="sub_object_property",
             label="Object property inclusion (rdfs:subPropertyOf)",
             description=OBJECT_PROP_SUB_DESC,
@@ -262,40 +404,11 @@ Person`.
         ),
         PluginParameter(
             param_type=BoolParameterType(),
-            name="input_profiles",
-            label="Process valid OWL profiles from input",
-            description="""If enabled along with the "Validate OWL2 profiles" parameter, the valid
-            profiles, ontology IRI and reasoner option is taken from the config port input
-            (parameters "valid_profiles", "ontology_graph_iri" and "reasoner") and the OWL2 profiles
-            validation is not done in the plugin. The valid profiles input is a comma-separated
-            string (e.g. "Full,DL", ).""",
-            default_value=False,
-            advanced=True,
-        ),
-        PluginParameter(
-            param_type=ChoiceParameterType(
-                OrderedDict(
-                    {
-                        "none": "Do not add import statement",
-                        "import_ontology": "Import ontology graph into output graph",
-                        "import_result": "Import output graph into ontology graph",
-                    }
-                )
-            ),
             name="imports",
             label="Output graph import",
             description="""Add the triple <output_graph_iri> owl:imports <ontology_graph_iri> to the
-            output graph or add the triple <ontology_graph_iri> owl:imports <output_graph_iri> to
-            the ontology graph.""",
-            default_value="none",
-        ),
-        PluginParameter(
-            param_type=StringParameterType(),
-            name="valid_profiles",
-            label="Valid OWL2 profiles",
-            description="Valid OWL2 profiles for the processed ontology.",
-            default_value="",
-            visible=False,
+            output graph.""",
+            default_value=False,
         ),
     ],
 )
@@ -308,35 +421,36 @@ class ReasonPlugin(WorkflowPlugin):
         ontology_graph_iri: str,
         ignore_missing_imports: bool = False,
         output_graph_iri: str | None = None,
-        reasoner: str | None = None,
+        reasoner: str = "hermit",
         class_assertion: bool = True,
         property_assertion: bool = True,
         sub_class: bool = False,
         equivalent_class: bool = False,
         disjoint_classes: bool = False,
+        data_property_characteristic: bool = False,
         sub_object_property: bool = False,
         equivalent_object_property: bool = False,
         object_property_domain: bool = False,
         object_property_range: bool = False,
+        object_property_characteristic: bool = False,
         inverse_object_properties: bool = False,
         sub_data_property: bool = False,
         equivalent_data_properties: bool = False,
-        validate_profile: bool = False,
-        imports: str = "none",
-        input_profiles: bool = False,
+        imports: bool = False,
         max_ram_percentage: int = MAX_RAM_PERCENTAGE_DEFAULT,
-        valid_profiles: str = "",
     ) -> None:
         self.axioms = {
             "SubClass": sub_class,
             "EquivalentClass": equivalent_class,
             "DisjointClasses": disjoint_classes,
+            "DataPropertyCharacteristic": data_property_characteristic,
             "EquivalentDataProperties": equivalent_data_properties,
             "SubDataProperty": sub_data_property,
             "ClassAssertion": class_assertion,
             "PropertyAssertion": property_assertion,
             "EquivalentObjectProperty": equivalent_object_property,
             "InverseObjectProperties": inverse_object_properties,
+            "ObjectPropertyCharacteristic": object_property_characteristic,
             "SubObjectProperty": sub_object_property,
             "ObjectPropertyRange": object_property_range,
             "ObjectPropertyDomain": object_property_domain,
@@ -352,18 +466,10 @@ class ReasonPlugin(WorkflowPlugin):
             errors += "Result graph IRI cannot be the same as the data graph IRI. "
         if output_graph_iri == ontology_graph_iri:
             errors += "Result graph IRI cannot be the same as the ontology graph IRI. "
-        if reasoner not in REASONERS:
+        if reasoner not in REASON_REASONERS:
             errors += 'Invalid value for parameter "Reasoner". '
         if True not in self.axioms.values():
             errors += "No axiom generator selected. "
-        if (
-            input_profiles
-            and valid_profiles
-            and not set(valid_profiles.lower().split(",")).issubset(
-                ["full", "dl", "el", "ql", "rl"]
-            )
-        ):
-            errors += "Invalid value for valid profiles input. "
         if max_ram_percentage not in range(1, 101):
             errors += 'Invalid value for parameter "Maximum RAM Percentage". '
         if errors:
@@ -373,20 +479,15 @@ class ReasonPlugin(WorkflowPlugin):
         self.ontology_graph_iri = ontology_graph_iri
         self.output_graph_iri = output_graph_iri
         self.reasoner = reasoner
-        self.validate_profile = validate_profile
         self.imports = imports
-        self.input_profiles = input_profiles
         self.max_ram_percentage = max_ram_percentage
-        self.valid_profiles = valid_profiles
         self.ignore_missing_imports = ignore_missing_imports
 
         for k, v in self.axioms.items():
             self.__dict__[underscore(k)] = v
 
         self.data_imports_ontology = False
-
         self.label = LABEL
-
         self.input_ports = FixedNumberOfInputs([])
         self.output_port = None
 
@@ -397,7 +498,7 @@ class ReasonPlugin(WorkflowPlugin):
                 if iri not in missing:
                     self.log.info(f"Fetching graph {iri}.")
                     setup_cmempy_user_access(self.context.user)
-                    file.write(get(iri).text)
+                    file.write(get_streamed(iri).text)
                     if iri == self.data_graph_iri:
                         file.write(
                             f"\n<{iri}> "
@@ -435,35 +536,75 @@ class ReasonPlugin(WorkflowPlugin):
         """Reason"""
         axioms = " ".join(k for k, v in self.axioms.items() if v)
         data_location = f"{self.temp}/{graphs[self.data_graph_iri]}"
+        catalog_location = f"{self.temp}/catalog-v001.xml"
+        result_path = f"{self.temp}/result.nt"
         label = get_output_graph_label(self, self.data_graph_iri, "Reasoning Results")
-        cmd = (
-            f'reason --input "{data_location}" '
-            f"--reasoner {self.reasoner} "
-            f'--axiom-generators "{axioms}" '
-            f"--include-indirect true "
-            f"--exclude-duplicate-axioms true "
-            f"--exclude-owl-thing true "
-            f"--exclude-tautologies all "
-            f"--exclude-external-entities "
-            f"reduce --reasoner {self.reasoner} "
-            f'unmerge --input "{data_location}" '
-            f'annotate --ontology-iri "{self.output_graph_iri}" '
-            f"--remove-annotations "
-            f'--language-annotation rdfs:label "{label}" en '
-            f"--language-annotation rdfs:comment "
-            f'"Reasoning results of data graph <{self.data_graph_iri}> with ontology '
-            f'<{self.ontology_graph_iri}>" en '
-            f'--link-annotation dc:source "{self.data_graph_iri}" '
-            f'--link-annotation dc:source "{self.ontology_graph_iri}" '
-            f'--output "{self.temp}/result.ttl"'
-        )
-        response = robot(cmd, self.max_ram_percentage)
+
+        cmd = [
+            "reason",
+            "--input",
+            str(data_location),
+            "--reasoner",
+            self.reasoner,
+            "--axiom-generators",
+            axioms,
+            "--include-indirect",
+            "true",
+            "--exclude-duplicate-axioms",
+            "true",
+            "--exclude-owl-thing",
+            "true",
+            "--exclude-tautologies",
+            "all",
+            "--exclude-external-entities",
+            "--catalog",
+            str(catalog_location),
+            "--output",
+            str(result_path),
+            "--reduce",
+        ]
+        response = eccenca_reasoner(cmd, self.max_ram_percentage)
+
         if response.returncode != 0:
-            if response.stdout:
-                raise OSError(response.stdout.decode())
-            if response.stderr:
-                raise OSError(response.stderr.decode())
-            raise OSError("ROBOT error")
+            message = response.stderr.decode().strip() or response.stdout.decode().strip()
+            raise OSError(message or "eccenca_reasoner error")
+
+        # Append annotation triples to the output file
+        utctime = str(datetime.fromtimestamp(int(time()), tz=UTC))[:-6].replace(" ", "T") + "Z"
+        with open(result_path, "a", encoding="utf-8") as f:  # noqa: PTH123
+            f.write(
+                f"\n<{self.output_graph_iri}> "
+                f"<http://www.w3.org/1999/02/22-rdf-syntax-ns#type> "
+                f"<http://www.w3.org/2002/07/owl#Ontology> .\n"
+                f"<{self.output_graph_iri}> "
+                f"<http://www.w3.org/2000/01/rdf-schema#label> "
+                f'"{label}"@en .\n'
+                f"<{self.output_graph_iri}> "
+                f"<http://www.w3.org/2000/01/rdf-schema#comment> "
+                f'"Reasoning results of data graph <{self.data_graph_iri}> with ontology '
+                f'<{self.ontology_graph_iri}>"@en .\n'
+                f"<{self.output_graph_iri}> "
+                f"<http://purl.org/dc/terms/source> "
+                f"<{self.data_graph_iri}> .\n"
+                f"<{self.output_graph_iri}> "
+                f"<http://purl.org/dc/terms/source> "
+                f"<{self.ontology_graph_iri}> .\n"
+                f"<{self.output_graph_iri}> "
+                f"<http://purl.org/dc/terms/created> "
+                f'"{utctime}"^^<http://www.w3.org/2001/XMLSchema#dateTime> .\n'
+            )
+
+    def add_ontology_import(self) -> None:
+        """Add ontology graph import to result graph"""
+        query = f"""
+            INSERT DATA {{
+                GRAPH <{self.output_graph_iri}> {{
+                    <{self.output_graph_iri}> <http://www.w3.org/2002/07/owl#imports>
+                        <{self.ontology_graph_iri}>
+                }}
+            }}
+        """
+        post(query=query)
 
     def add_result_import(self) -> None:
         """Add result graph import to ontology graph"""
@@ -501,19 +642,14 @@ class ReasonPlugin(WorkflowPlugin):
         if cancel_workflow(self):
             return
         setup_cmempy_user_access(self.context.user)
-        send_result(self.output_graph_iri, get_file_with_datetime(self))
-        if self.validate_profile:
-            if self.input_profiles:
-                valid_profiles = self.valid_profiles.split(",")
-            else:
-                valid_profiles = validate_profiles(self, graphs)
-            post_profiles(self, valid_profiles)
+        result = BytesIO((Path(self.temp) / "result.nt").read_bytes())
+        send_result(self.output_graph_iri, result)
         post_provenance(self)
 
         setup_cmempy_user_access(self.context.user)
-        if self.imports == "import_result":
-            self.add_result_import()
-        if self.imports != "import_ontology" and not self.data_imports_ontology:
+        if self.imports or self.data_imports_ontology:
+            self.add_ontology_import()
+        else:
             self.remove_ontology_import()
 
         self.context.report.update(
@@ -544,5 +680,6 @@ class ReasonPlugin(WorkflowPlugin):
                 entity_count=0,
             )
         )
+
         with TemporaryDirectory() as self.temp:
             self._execute()

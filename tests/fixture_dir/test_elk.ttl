@@ -20,60 +20,50 @@
 #################################################################
 
 ###  https://ns.eccenca.com/reasoning/{uuid}/data/Dewey
-<https://ns.eccenca.com/reasoning/{uuid}/data/Dewey> rdf:type owl:NamedIndividual ,
-                                                               vocab:animal .
+<https://ns.eccenca.com/reasoning/{uuid}/data/Dewey> rdf:type vocab:animal .
 
 
 ###  https://ns.eccenca.com/reasoning/{uuid}/data/Fido
-<https://ns.eccenca.com/reasoning/{uuid}/data/Fido> rdf:type owl:NamedIndividual ,
-                                                              vocab:animal .
+<https://ns.eccenca.com/reasoning/{uuid}/data/Fido> rdf:type vocab:animal .
 
 
 ###  https://ns.eccenca.com/reasoning/{uuid}/data/Flossie
-<https://ns.eccenca.com/reasoning/{uuid}/data/Flossie> rdf:type owl:NamedIndividual ,
-                                                                 vocab:vegetarian .
+<https://ns.eccenca.com/reasoning/{uuid}/data/Flossie> rdf:type vocab:vegetarian .
 
 
 ###  https://ns.eccenca.com/reasoning/{uuid}/data/Fluffy
-<https://ns.eccenca.com/reasoning/{uuid}/data/Fluffy> rdf:type owl:NamedIndividual ,
-                                                                vocab:animal .
+<https://ns.eccenca.com/reasoning/{uuid}/data/Fluffy> rdf:type vocab:animal .
 
 
 ###  https://ns.eccenca.com/reasoning/{uuid}/data/Fred
-<https://ns.eccenca.com/reasoning/{uuid}/data/Fred> rdf:type owl:NamedIndividual ,
-                                                              vocab:animal ,
+<https://ns.eccenca.com/reasoning/{uuid}/data/Fred> rdf:type vocab:animal ,
                                                               vocab:cat_liker ,
                                                               vocab:cat_owner ,
                                                               vocab:pet_owner .
 
 
 ###  https://ns.eccenca.com/reasoning/{uuid}/data/Huey
-<https://ns.eccenca.com/reasoning/{uuid}/data/Huey> rdf:type owl:NamedIndividual ,
-                                                              vocab:animal .
+<https://ns.eccenca.com/reasoning/{uuid}/data/Huey> rdf:type vocab:animal .
 
 
 ###  https://ns.eccenca.com/reasoning/{uuid}/data/Joe
-<https://ns.eccenca.com/reasoning/{uuid}/data/Joe> rdf:type owl:NamedIndividual ,
-                                                             vocab:animal ,
+<https://ns.eccenca.com/reasoning/{uuid}/data/Joe> rdf:type vocab:animal ,
                                                              vocab:dog_liker ,
                                                              vocab:dog_owner ,
                                                              vocab:pet_owner .
 
 
 ###  https://ns.eccenca.com/reasoning/{uuid}/data/Kevin
-<https://ns.eccenca.com/reasoning/{uuid}/data/Kevin> rdf:type owl:NamedIndividual ,
-                                                               vocab:animal ,
+<https://ns.eccenca.com/reasoning/{uuid}/data/Kevin> rdf:type vocab:animal ,
                                                                vocab:pet_owner .
 
 
 ###  https://ns.eccenca.com/reasoning/{uuid}/data/Louie
-<https://ns.eccenca.com/reasoning/{uuid}/data/Louie> rdf:type owl:NamedIndividual ,
-                                                               vocab:animal .
+<https://ns.eccenca.com/reasoning/{uuid}/data/Louie> rdf:type vocab:animal .
 
 
 ###  https://ns.eccenca.com/reasoning/{uuid}/data/Minnie
-<https://ns.eccenca.com/reasoning/{uuid}/data/Minnie> rdf:type owl:NamedIndividual ,
-                                                                vocab:adult ,
+<https://ns.eccenca.com/reasoning/{uuid}/data/Minnie> rdf:type vocab:adult ,
                                                                 vocab:animal ,
                                                                 vocab:grownup ,
                                                                 vocab:old_lady ,
@@ -83,50 +73,39 @@
 
 
 ###  https://ns.eccenca.com/reasoning/{uuid}/data/Q123_ABC
-<https://ns.eccenca.com/reasoning/{uuid}/data/Q123_ABC> rdf:type owl:NamedIndividual ,
-                                                                  vocab:vehicle .
+<https://ns.eccenca.com/reasoning/{uuid}/data/Q123_ABC> rdf:type vocab:vehicle .
 
 
 ###  https://ns.eccenca.com/reasoning/{uuid}/data/Rex
-<https://ns.eccenca.com/reasoning/{uuid}/data/Rex> rdf:type owl:NamedIndividual ,
-                                                             vocab:animal ,
+<https://ns.eccenca.com/reasoning/{uuid}/data/Rex> rdf:type vocab:animal ,
                                                              vocab:pet .
 
 
 ###  https://ns.eccenca.com/reasoning/{uuid}/data/Spike
-<https://ns.eccenca.com/reasoning/{uuid}/data/Spike> rdf:type owl:NamedIndividual ,
-                                                               vocab:pet .
+<https://ns.eccenca.com/reasoning/{uuid}/data/Spike> rdf:type vocab:pet .
 
 
 ###  https://ns.eccenca.com/reasoning/{uuid}/data/The_Guardian
-<https://ns.eccenca.com/reasoning/{uuid}/data/The_Guardian> rdf:type owl:NamedIndividual ,
-                                                                      vocab:newspaper ,
+<https://ns.eccenca.com/reasoning/{uuid}/data/The_Guardian> rdf:type vocab:newspaper ,
                                                                       vocab:publication .
 
 
 ###  https://ns.eccenca.com/reasoning/{uuid}/data/The_Sun
-<https://ns.eccenca.com/reasoning/{uuid}/data/The_Sun> rdf:type owl:NamedIndividual ,
-                                                                 vocab:newspaper ,
+<https://ns.eccenca.com/reasoning/{uuid}/data/The_Sun> rdf:type vocab:newspaper ,
                                                                  vocab:publication .
 
 
 ###  https://ns.eccenca.com/reasoning/{uuid}/data/The_Times
-<https://ns.eccenca.com/reasoning/{uuid}/data/The_Times> rdf:type owl:NamedIndividual ,
-                                                                   vocab:newspaper ,
+<https://ns.eccenca.com/reasoning/{uuid}/data/The_Times> rdf:type vocab:newspaper ,
                                                                    vocab:publication .
 
 
 ###  https://ns.eccenca.com/reasoning/{uuid}/data/Tibbs
-<https://ns.eccenca.com/reasoning/{uuid}/data/Tibbs> rdf:type owl:NamedIndividual ,
-                                                               vocab:animal .
+<https://ns.eccenca.com/reasoning/{uuid}/data/Tibbs> rdf:type vocab:animal .
 
 
 ###  https://ns.eccenca.com/reasoning/{uuid}/data/Walt
-<https://ns.eccenca.com/reasoning/{uuid}/data/Walt> rdf:type owl:NamedIndividual ,
-                                                              vocab:animal ,
+<https://ns.eccenca.com/reasoning/{uuid}/data/Walt> rdf:type vocab:animal ,
                                                               vocab:pet_owner .
 
-
-vocab: a owl:Ontology ;
-       <https://vocab.eccenca.com/plugin/reason/profile>  "DL" , "Full" .
 

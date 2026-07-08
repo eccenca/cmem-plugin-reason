@@ -7,10 +7,9 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 ## [Unreleased]
 
-TODO: add at least one Added, Changed, Deprecated, Removed, Fixed or Security section
+- Use eccenca reasoner instead of robot
 
-
-## [2.2.5] 2026-03-01
+## [2.2.6] 2026-06-25
 
 ### Fixed
 
@@ -20,13 +19,11 @@ TODO: add at least one Added, Changed, Deprecated, Removed, Fixed or Security se
 
 - Update template to 8.5.0.
 
-
 ## [2.2.5] 2026-03-01
 
 ### Fixed
 
 - Fix robot.jar vulnerability GHSA-72hv-8253-57qq
-
 
 ## [2.2.4] 2026-02-20
 
@@ -34,14 +31,12 @@ TODO: add at least one Added, Changed, Deprecated, Removed, Fixed or Security se
 
 - use ROBOT v1.9.10 compiled with [updated dependencies without vulnerablities](https://github.com/eccenca/robot/tree/feature/updateDependenciesV1.9.10)
 
-
 ## [2.2.3] 2026-02-17
 
 ### Changed
 
 - Update template to 8.3.1.
 - Relax URN URI validation.
-
 
 ## [2.2.2] 2026-01-27
 
@@ -53,7 +48,6 @@ TODO: add at least one Added, Changed, Deprecated, Removed, Fixed or Security se
 
 - Update template to 8.3.0.
 - Allow URN URIs in graph parameters.
-
 
 ## [2.2.1] 2025-11-27
 
