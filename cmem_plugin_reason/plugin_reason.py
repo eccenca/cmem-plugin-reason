@@ -1,23 +1,15 @@
 """Reasoning workflow plugin module"""
 
-import json
 from collections import OrderedDict
 from collections.abc import Sequence
 from datetime import UTC, datetime
 from io import BytesIO
 from pathlib import Path
-from secrets import token_hex
 from tempfile import TemporaryDirectory
 from time import time
 from uuid import uuid4
 
-from cmem.cmempy.dp.proxy.graph import (
-    get_graph_import_tree,
-    get_graphs_list,
-    get_streamed,
-    post_streamed,
-)
-from cmem.cmempy.dp.proxy.sparql import post as post_select
+from cmem.cmempy.dp.proxy.graph import get_graph_import_tree, get_graphs_list, get_streamed
 from cmem.cmempy.dp.proxy.update import post
 from cmem_plugin_base.dataintegration.context import ExecutionContext, ExecutionReport
 from cmem_plugin_base.dataintegration.description import Icon, Plugin, PluginParameter
@@ -39,7 +31,10 @@ from cmem_plugin_reason.utils import (
     cancel_workflow,
     create_xml_catalog_file,
     eccenca_reasoner,
+    get_output_graph_label,
     is_valid_uri,
+    post_provenance,
+    send_result,
 )
 
 LABEL = "Reason"
@@ -53,117 +48,6 @@ REASON_REASONERS = OrderedDict(
         "structural": "Structural Reasoner",
     }
 )
-
-
-def send_result(iri: str | None, file: BytesIO) -> None:
-    """Send result"""
-    res = post_streamed(
-        iri,
-        file,
-        replace=True,
-        content_type="text/turtle",
-    )
-    if res.status_code != 204:  # noqa: PLR2004
-        raise OSError(f"Error posting result graph (status code {res.status_code}).")
-
-
-def post_provenance(plugin: WorkflowPlugin) -> None:
-    """Post provenance"""
-    prov = get_provenance(plugin)
-    if prov:
-        param_sparql = ""
-        for name, iri in prov["parameters"].items():
-            param_sparql += f'\n<{prov["plugin_iri"]}> <{iri}> "{plugin.__dict__[name]}" .'
-        insert_query = f"""
-            INSERT DATA {{
-                GRAPH <{plugin.output_graph_iri}> {{
-                    <{plugin.output_graph_iri}> <http://purl.org/dc/terms/creator>
-                        <{prov["plugin_iri"]}> .
-                    <{prov["plugin_iri"]}> a <{prov["plugin_type"]}>,
-                        <https://vocab.eccenca.com/di/CustomTask> .
-                    <{prov["plugin_iri"]}> <http://www.w3.org/2000/01/rdf-schema#label>
-                        "{prov["plugin_label"]}" .
-                    {param_sparql}
-                }}
-            }}
-        """
-        post(query=insert_query)
-
-
-def get_provenance(plugin: WorkflowPlugin) -> dict | None:
-    """Get provenance information"""
-    plugin_iri = (
-        f"http://dataintegration.eccenca.com/{plugin.context.task.project_id()}/"
-        f"{plugin.context.task.task_id()}"
-    )
-    project_graph = f"http://di.eccenca.com/project/{plugin.context.task.project_id()}"
-
-    type_query = f"""
-        SELECT ?type {{
-            GRAPH <{project_graph}> {{
-                <{plugin_iri}> a ?type .
-                FILTER(STRSTARTS(STR(?type), "https://vocab.eccenca.com/di/functions/"))
-            }}
-        }}
-    """
-
-    result = json.loads(post_select(query=type_query))
-
-    try:
-        plugin_type = result["results"]["bindings"][0]["type"]["value"]
-    except IndexError:
-        plugin.log.warning("Could not add provenance data to output graph.")
-        return None
-
-    param_split = (
-        plugin_type.replace(
-            "https://vocab.eccenca.com/di/functions/Plugin_",
-            "https://vocab.eccenca.com/di/functions/param_",
-        )
-        + "_"
-    )
-
-    parameter_query = f"""
-        SELECT ?parameter {{
-            GRAPH <{project_graph}> {{
-                <{plugin_iri}> ?parameter ?o .
-                FILTER(STRSTARTS(STR(?parameter), "https://vocab.eccenca.com/di/functions/param_"))
-            }}
-        }}
-    """
-
-    new_plugin_iri = f"{'_'.join(plugin_iri.split('_')[:-1])}_{token_hex(8)}"
-    label = f"{plugin.label} plugin"
-    result = json.loads(post_select(query=parameter_query))
-
-    prov = {
-        "plugin_iri": new_plugin_iri,
-        "plugin_label": label,
-        "plugin_type": plugin_type,
-        "parameters": {},
-    }
-
-    for binding in result["results"]["bindings"]:
-        param_iri = binding["parameter"]["value"]
-        param_name = param_iri.split(param_split)[1]
-        prov["parameters"][param_name] = param_iri
-
-    return prov
-
-
-def get_output_graph_label(plugin: WorkflowPlugin, iri: str, add_string: str) -> str:
-    """Create a label for the output graph"""
-    graphs = (
-        plugin.graphs_dict
-        if hasattr(plugin, "graphs_dict")
-        else {_["iri"]: _ for _ in get_graphs_list()}
-    )
-    try:
-        data_graph_label = graphs[iri]["label"]["title"]
-        data_graph_label += " - "
-    except KeyError:
-        data_graph_label = ""
-    return f"{data_graph_label}{add_string}"
 
 
 SUBCLASS_DESC = """The reasoner will infer assertions about the hierarchy of classes, i.e.
