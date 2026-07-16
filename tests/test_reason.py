@@ -1,18 +1,24 @@
 """Plugin tests."""
 
-import json
 from collections.abc import Generator
 from typing import Any
 
 import pytest
-from cmem.cmempy.dp.proxy.graph import delete
-from cmem.cmempy.dp.proxy.sparql import get
+from cmem_client.client import Client
 from cmem_plugin_base.testing import TestExecutionContext
 from rdflib import Graph
 from rdflib.compare import isomorphic
 
 from cmem_plugin_reason.plugin_reason import REASON_REASONERS, ReasonPlugin
-from tests.utils import FIXTURE_DIR, UID, get_bytes_io, get_remote_graph, import_graph, replace_uuid
+from tests.utils import (
+    FIXTURE_DIR,
+    UID,
+    get_bytes_io,
+    get_client,
+    get_remote_graph,
+    import_graph,
+    replace_uuid,
+)
 
 REASON_DATA_GRAPH_IRI = f"https://ns.eccenca.com/reasoning/{UID}/data/"
 REASON_DATA_GRAPH_IRI_2 = f"https://ns.eccenca.com/reasoning/{UID}/data2/"
@@ -36,38 +42,58 @@ def reasoner_parameter() -> str | None:
 
 
 @pytest.fixture
-def setup() -> Generator[None, Any]:
-    """Set up Reason test"""
-    delete(REASON_RESULT_GRAPH_IRI)
+def client() -> Client:
+    """CMEM client fixture"""
+    return get_client()
 
-    import_graph(REASON_DATA_GRAPH_IRI, get_bytes_io(f"{FIXTURE_DIR}/test_reason_data.ttl"))
-    import_graph(REASON_DATA_GRAPH_IRI_2, get_bytes_io(f"{FIXTURE_DIR}/test_reason_data_2.ttl"))
+
+@pytest.fixture
+def setup(client: Client) -> Generator[None, Any]:
+    """Set up Reason test"""
+    client.graphs.delete_item(REASON_RESULT_GRAPH_IRI, skip_if_missing=True)
+
+    import_graph(client, REASON_DATA_GRAPH_IRI, get_bytes_io(f"{FIXTURE_DIR}/test_reason_data.ttl"))
     import_graph(
-        REASON_ONTOLOGY_GRAPH_IRI_1, get_bytes_io(f"{FIXTURE_DIR}/test_reason_ontology_1.ttl")
+        client, REASON_DATA_GRAPH_IRI_2, get_bytes_io(f"{FIXTURE_DIR}/test_reason_data_2.ttl")
     )
     import_graph(
-        REASON_ONTOLOGY_GRAPH_IRI_2, get_bytes_io(f"{FIXTURE_DIR}/test_reason_ontology_2.ttl")
+        client,
+        REASON_ONTOLOGY_GRAPH_IRI_1,
+        get_bytes_io(f"{FIXTURE_DIR}/test_reason_ontology_1.ttl"),
     )
     import_graph(
-        REASON_ONTOLOGY_GRAPH_IRI_3, get_bytes_io(f"{FIXTURE_DIR}/test_reason_ontology_3.ttl")
+        client,
+        REASON_ONTOLOGY_GRAPH_IRI_2,
+        get_bytes_io(f"{FIXTURE_DIR}/test_reason_ontology_2.ttl"),
     )
     import_graph(
-        ONTOLOGY_GRAPH_IMPORT_FAIL_IRI, get_bytes_io(f"{FIXTURE_DIR}/test_reason_ontology_4.ttl")
+        client,
+        REASON_ONTOLOGY_GRAPH_IRI_3,
+        get_bytes_io(f"{FIXTURE_DIR}/test_reason_ontology_3.ttl"),
+    )
+    import_graph(
+        client,
+        ONTOLOGY_GRAPH_IMPORT_FAIL_IRI,
+        get_bytes_io(f"{FIXTURE_DIR}/test_reason_ontology_4.ttl"),
     )
 
     yield
 
-    delete(REASON_DATA_GRAPH_IRI)
-    delete(REASON_DATA_GRAPH_IRI_2)
-    delete(REASON_ONTOLOGY_GRAPH_IRI_1)
-    delete(REASON_ONTOLOGY_GRAPH_IRI_2)
-    delete(REASON_ONTOLOGY_GRAPH_IRI_3)
-    delete(ONTOLOGY_GRAPH_IMPORT_FAIL_IRI)
-    delete(REASON_RESULT_GRAPH_IRI)
+    # the plugin under test creates/updates graphs via its own Client instance, so this
+    # client's cached graph list needs refreshing before delete_item(skip_if_missing=True)
+    # can correctly see them (otherwise it silently no-ops on a stale cache)
+    client.graphs.fetch_data()
+    client.graphs.delete_item(REASON_DATA_GRAPH_IRI, skip_if_missing=True)
+    client.graphs.delete_item(REASON_DATA_GRAPH_IRI_2, skip_if_missing=True)
+    client.graphs.delete_item(REASON_ONTOLOGY_GRAPH_IRI_1, skip_if_missing=True)
+    client.graphs.delete_item(REASON_ONTOLOGY_GRAPH_IRI_2, skip_if_missing=True)
+    client.graphs.delete_item(REASON_ONTOLOGY_GRAPH_IRI_3, skip_if_missing=True)
+    client.graphs.delete_item(ONTOLOGY_GRAPH_IMPORT_FAIL_IRI, skip_if_missing=True)
+    client.graphs.delete_item(REASON_RESULT_GRAPH_IRI, skip_if_missing=True)
 
 
 @pytest.mark.parametrize("reasoner_parameter", REASON_REASONERS)
-def test_reason(setup: None, reasoner_parameter: str) -> None:  # noqa: ARG001
+def test_reason(setup: None, client: Client, reasoner_parameter: str) -> None:  # noqa: ARG001
     """Test reasoning"""
     ReasonPlugin(
         data_graph_iri=REASON_DATA_GRAPH_IRI,
@@ -80,7 +106,7 @@ def test_reason(setup: None, reasoner_parameter: str) -> None:  # noqa: ARG001
         imports=True,
     ).execute(inputs=(), context=TestExecutionContext())
 
-    result = get_remote_graph(REASON_RESULT_GRAPH_IRI)
+    result = get_remote_graph(client, REASON_RESULT_GRAPH_IRI)
     test = Graph().parse(
         data=replace_uuid(f"{FIXTURE_DIR}/test_{reasoner_parameter}.ttl"), format="turtle"
     )
@@ -141,7 +167,7 @@ def test_reason_import_not_exist_ignore(setup: None) -> None:  # noqa: ARG001
     ).execute(inputs=(), context=TestExecutionContext())
 
 
-def test_reason_ontology_import(setup: None) -> None:  # noqa: ARG001
+def test_reason_ontology_import(setup: None, client: Client) -> None:  # noqa: ARG001
     """Test Reason remove ontology import"""
     ReasonPlugin(
         data_graph_iri=REASON_DATA_GRAPH_IRI,
@@ -154,10 +180,10 @@ def test_reason_ontology_import(setup: None) -> None:  # noqa: ARG001
         ignore_missing_imports=True,
     ).execute(inputs=(), context=TestExecutionContext())
 
-    assert not json.loads(get(query=ASK_QUERY)).get("boolean", True)
+    assert not client.store.sparql.query(ASK_QUERY).askAnswer
 
 
-def test_reason_ontology_import_2(setup: None) -> None:  # noqa: ARG001
+def test_reason_ontology_import_2(setup: None, client: Client) -> None:  # noqa: ARG001
     """Test Reason, do not remove ontology import if it exists in data graph"""
     ReasonPlugin(
         data_graph_iri=REASON_DATA_GRAPH_IRI_2,
@@ -170,4 +196,4 @@ def test_reason_ontology_import_2(setup: None) -> None:  # noqa: ARG001
         ignore_missing_imports=True,
     ).execute(inputs=(), context=TestExecutionContext())
 
-    assert json.loads(get(query=ASK_QUERY)).get("boolean", False)
+    assert client.store.sparql.query(ASK_QUERY).askAnswer

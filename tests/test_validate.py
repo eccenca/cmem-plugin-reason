@@ -1,17 +1,15 @@
 """Plugin tests."""
 
 from collections.abc import Generator
-from contextlib import suppress
 from typing import Any
 
 import pytest
-from cmem.cmempy.dp.proxy.graph import delete
-from cmem.cmempy.workspace.projects.project import delete_project, make_new_project
+from cmem_client.client import Client
 from cmem_plugin_base.dataintegration.entity import Entities
 from cmem_plugin_base.testing import TestExecutionContext
 
 from cmem_plugin_reason.plugin_validate import VALIDATE_REASONERS, ValidatePlugin
-from tests.utils import FIXTURE_DIR, UID, get_bytes_io, import_graph, replace_uuid
+from tests.utils import FIXTURE_DIR, UID, get_bytes_io, get_client, import_graph, replace_uuid
 
 VALIDATE_ONTOLOGY_GRAPH_IRI_1 = f"https://ns.eccenca.com/validateontology/{UID}/vocab/"
 VALIDATE_ONTOLOGY_GRAPH_IRI_2 = f"https://ns.eccenca.com/validateontology/{UID}/vocab2/"
@@ -37,32 +35,41 @@ def reasoner_parameter() -> str | None:
 
 
 @pytest.fixture
-def setup() -> Generator[None, Any]:
-    """Set up Validate test"""
-    with suppress(Exception):
-        delete_project(PROJECT_ID)
+def client() -> Client:
+    """CMEM client fixture"""
+    return get_client()
 
-    make_new_project(PROJECT_ID)
+
+@pytest.fixture
+def setup(client: Client) -> Generator[None, Any]:
+    """Set up Validate test"""
     import_graph(
-        VALIDATE_ONTOLOGY_GRAPH_IRI_1, get_bytes_io(f"{FIXTURE_DIR}/test_validate_ontology_1.ttl")
+        client,
+        VALIDATE_ONTOLOGY_GRAPH_IRI_1,
+        get_bytes_io(f"{FIXTURE_DIR}/test_validate_ontology_1.ttl"),
     )
     import_graph(
-        VALIDATE_ONTOLOGY_GRAPH_IRI_2, get_bytes_io(f"{FIXTURE_DIR}/test_validate_ontology_2.ttl")
+        client,
+        VALIDATE_ONTOLOGY_GRAPH_IRI_2,
+        get_bytes_io(f"{FIXTURE_DIR}/test_validate_ontology_2.ttl"),
     )
     import_graph(
-        VALIDATE_ONTOLOGY_GRAPH_IRI_3, get_bytes_io(f"{FIXTURE_DIR}/test_validate_ontology_3.ttl")
+        client,
+        VALIDATE_ONTOLOGY_GRAPH_IRI_3,
+        get_bytes_io(f"{FIXTURE_DIR}/test_validate_ontology_3.ttl"),
     )
     import_graph(
-        ONTOLOGY_GRAPH_IMPORT_FAIL_IRI, get_bytes_io(f"{FIXTURE_DIR}/test_reason_ontology_4.ttl")
+        client,
+        ONTOLOGY_GRAPH_IMPORT_FAIL_IRI,
+        get_bytes_io(f"{FIXTURE_DIR}/test_reason_ontology_4.ttl"),
     )
 
     yield
 
-    delete(VALIDATE_ONTOLOGY_GRAPH_IRI_1)
-    delete(VALIDATE_ONTOLOGY_GRAPH_IRI_2)
-    delete(VALIDATE_ONTOLOGY_GRAPH_IRI_3)
-    delete(ONTOLOGY_GRAPH_IMPORT_FAIL_IRI)
-    delete_project(PROJECT_ID)
+    client.graphs.delete_item(VALIDATE_ONTOLOGY_GRAPH_IRI_1, skip_if_missing=True)
+    client.graphs.delete_item(VALIDATE_ONTOLOGY_GRAPH_IRI_2, skip_if_missing=True)
+    client.graphs.delete_item(VALIDATE_ONTOLOGY_GRAPH_IRI_3, skip_if_missing=True)
+    client.graphs.delete_item(ONTOLOGY_GRAPH_IMPORT_FAIL_IRI, skip_if_missing=True)
 
 
 @pytest.mark.parametrize("reasoner_parameter", VALIDATE_REASONERS)

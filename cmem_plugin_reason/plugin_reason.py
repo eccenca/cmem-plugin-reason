@@ -3,14 +3,12 @@
 from collections import OrderedDict
 from collections.abc import Sequence
 from datetime import UTC, datetime
-from io import BytesIO
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from time import time
 from uuid import uuid4
 
-from cmem.cmempy.dp.proxy.graph import get_graph_import_tree, get_graphs_list, get_streamed
-from cmem.cmempy.dp.proxy.update import post
+from cmem_client.client import Client
 from cmem_plugin_base.dataintegration.context import ExecutionContext, ExecutionReport
 from cmem_plugin_base.dataintegration.description import Icon, Plugin, PluginParameter
 from cmem_plugin_base.dataintegration.entity import Entities
@@ -19,7 +17,6 @@ from cmem_plugin_base.dataintegration.parameter.graph import GraphParameterType
 from cmem_plugin_base.dataintegration.plugins import WorkflowPlugin
 from cmem_plugin_base.dataintegration.ports import FixedNumberOfInputs
 from cmem_plugin_base.dataintegration.types import BoolParameterType
-from cmem_plugin_base.dataintegration.utils import setup_cmempy_user_access
 from inflection import underscore
 
 from cmem_plugin_reason.doc import REASON_DOC
@@ -31,6 +28,7 @@ from cmem_plugin_reason.utils import (
     cancel_workflow,
     create_xml_catalog_file,
     eccenca_reasoner,
+    get_graph_as_file,
     get_output_graph_label,
     is_valid_uri,
     post_provenance,
@@ -378,17 +376,20 @@ class ReasonPlugin(WorkflowPlugin):
     def get_graphs(self, graphs: dict, missing: list) -> None:
         """Get graphs from CMEM"""
         for iri, filename in graphs.items():
-            with (Path(self.temp) / filename).open("w", encoding="utf-8") as file:
-                if iri not in missing:
-                    self.log.info(f"Fetching graph {iri}.")
-                    setup_cmempy_user_access(self.context.user)
-                    file.write(get_streamed(iri).text)
-                    if iri == self.data_graph_iri:
-                        file.write(
-                            f"\n<{iri}> "
-                            "<http://www.w3.org/2002/07/owl#imports> "
-                            f"<{self.ontology_graph_iri}> ."
-                        )
+            path = Path(self.temp) / filename
+            if iri in missing:
+                # keep a placeholder file so the catalog can still reference it
+                path.touch()
+                continue
+            self.log.info(f"Fetching graph {iri}.")
+            get_graph_as_file(self.client, iri, path)
+            if iri == self.data_graph_iri:
+                with path.open("a", encoding="utf-8") as file:
+                    file.write(
+                        f"\n<{iri}> "
+                        "<http://www.w3.org/2002/07/owl#imports> "
+                        f"<{self.ontology_graph_iri}> ."
+                    )
 
     def get_graphs_tree(self) -> tuple[dict, list]:  # noqa: C901
         """Get graph import tree. Last item in graph_iris is output_graph_iri which is excluded"""
@@ -397,15 +398,15 @@ class ReasonPlugin(WorkflowPlugin):
         for graph_iri in [self.data_graph_iri, self.ontology_graph_iri]:
             if graph_iri not in graphs:
                 graphs[graph_iri] = f"{uuid4().hex}.nt"
-                tree = get_graph_import_tree(graph_iri)
-                for value in tree["tree"].values():
+                tree = self.client.graph_imports.get_import_tree(graph_iri).tree
+                for value in tree.values():
                     for iri in value:
                         if iri not in graphs:
                             if iri == self.ontology_graph_iri:
                                 self.data_imports_ontology = True
                             elif iri == self.output_graph_iri:
                                 raise ImportError("Input graph imports output graph.")
-                            if iri not in self.graphs_dict:
+                            if iri not in self.client.graphs:
                                 missing.append(iri)
                             graphs[iri] = f"{uuid4().hex}.nt"
         if missing:
@@ -488,7 +489,7 @@ class ReasonPlugin(WorkflowPlugin):
                 }}
             }}
         """
-        post(query=query)
+        self.client.store.sparql.update(query)
 
     def add_result_import(self) -> None:
         """Add result graph import to ontology graph"""
@@ -500,7 +501,7 @@ class ReasonPlugin(WorkflowPlugin):
                 }}
             }}
         """
-        post(query=query)
+        self.client.store.sparql.update(query)
 
     def remove_ontology_import(self) -> None:
         """Remove ontology graph import from output graph"""
@@ -512,11 +513,10 @@ class ReasonPlugin(WorkflowPlugin):
                 }}
             }}
         """
-        post(query=query)
+        self.client.store.sparql.update(query)
 
     def _execute(self) -> None:
         """`Execute plugin"""
-        setup_cmempy_user_access(self.context.user)
         graphs, missing = self.get_graphs_tree()
         self.get_graphs(graphs, missing)
         if cancel_workflow(self):
@@ -525,12 +525,9 @@ class ReasonPlugin(WorkflowPlugin):
         self.reason(graphs)
         if cancel_workflow(self):
             return
-        setup_cmempy_user_access(self.context.user)
-        result = BytesIO((Path(self.temp) / "result.nt").read_bytes())
-        send_result(self.output_graph_iri, result)
+        send_result(self.client, self.output_graph_iri, Path(self.temp) / "result.nt")
         post_provenance(self)
 
-        setup_cmempy_user_access(self.context.user)
         if self.imports or self.data_imports_ontology:
             self.add_ontology_import()
         else:
@@ -546,12 +543,11 @@ class ReasonPlugin(WorkflowPlugin):
 
     def execute(self, inputs: Sequence[Entities], context: ExecutionContext) -> None:  # noqa: ARG002
         """Execute plugin with temporary directory"""
-        setup_cmempy_user_access(context.user)
-        self.graphs_dict = {_["iri"]: _ for _ in get_graphs_list()}
+        self.client = Client.from_context(context)
         not_exist = []
-        if self.data_graph_iri not in self.graphs_dict:
+        if self.data_graph_iri not in self.client.graphs:
             not_exist.append(self.data_graph_iri)
-        if self.ontology_graph_iri not in self.graphs_dict:
+        if self.ontology_graph_iri not in self.client.graphs:
             not_exist.append(self.ontology_graph_iri)
         if not_exist:
             raise ValueError(f"Graphs do not exist: {', '.join(not_exist)}")
