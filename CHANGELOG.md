@@ -13,7 +13,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 ### Changed
 
-- Validate: remove "structural" option from Reasoner parameter.
+- Remove dependency inflection
 
 ## [2.2.6] 2026-06-29
 

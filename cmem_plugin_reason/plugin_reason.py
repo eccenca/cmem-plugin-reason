@@ -1,5 +1,6 @@
 """Reasoning workflow plugin module"""
 
+import re
 from collections import OrderedDict
 from collections.abc import Sequence
 from pathlib import Path
@@ -26,7 +27,7 @@ from cmem_plugin_reason.utils import (
     MAX_RAM_PERCENTAGE_PARAMETER,
     ONTOLOGY_GRAPH_IRI_PARAMETER,
     REASON_REASONER_PARAMETER,
-    REASON_REASONERS,
+    REASONERS,
     VALIDATE_PROFILES_PARAMETER,
     cancel_workflow,
     create_xml_catalog_file,
@@ -352,7 +353,7 @@ class ReasonPlugin(WorkflowPlugin):
             errors += "Result graph IRI cannot be the same as the data graph IRI. "
         if output_graph_iri == ontology_graph_iri:
             errors += "Result graph IRI cannot be the same as the ontology graph IRI. "
-        if reasoner not in REASON_REASONERS:
+        if reasoner not in REASONERS:
             errors += 'Invalid value for parameter "Reasoner". '
         if True not in self.axioms.values():
             errors += "No axiom generator selected. "
@@ -389,6 +390,14 @@ class ReasonPlugin(WorkflowPlugin):
 
         self.input_ports = FixedNumberOfInputs([])
         self.output_port = None
+
+    @staticmethod
+    def underscore(word: str) -> str:
+        """Make an underscored, lowercase form from the expression in the string"""
+        word = re.sub(r"([A-Z]+)([A-Z][a-z])", r"\1_\2", word)
+        word = re.sub(r"([a-z\d])([A-Z])", r"\1_\2", word)
+        word = word.replace("-", "_")
+        return word.lower()
 
     def get_graphs(self, graphs: dict, missing: list) -> None:
         """Get graphs from CMEM"""

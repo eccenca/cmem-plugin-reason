@@ -1,0 +1,17 @@
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix ns1: <https://vocab.eccenca.com/plugin/reason/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+<https://ns.eccenca.com/validateontology/{uuid}/output/> a owl:Ontology ;
+    rdfs:label "Eccenca Validate Vocabulary - Validation Result"@en ;
+    dcterms:source <https://ns.eccenca.com/validateontology/{uuid}/vocab/> ;
+    rdfs:comment "Ontology validation of <https://ns.eccenca.com/validateontology/{uuid}/vocab/>"@en .
+
+<https://ns.eccenca.com/validateontology/{uuid}/vocab/> a owl:Ontology ;
+    ns1:profile "DL",
+        "EL",
+        "Full",
+        "QL",
+        "RL" .
+

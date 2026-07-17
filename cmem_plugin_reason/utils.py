@@ -28,7 +28,7 @@ from . import __path__
 
 ROBOT = Path(__path__[0]) / "robot.jar"
 
-REASON_REASONERS = OrderedDict(
+REASONERS = OrderedDict(
     {
         "elk": "ELK",
         "emr": "Expression Materializing Reasoner",
@@ -39,31 +39,24 @@ REASON_REASONERS = OrderedDict(
     }
 )
 
-VALIDATE_REASONERS = OrderedDict(
-    {
-        "elk": "ELK",
-        "emr": "Expression Materializing Reasoner",
-        "hermit": "HermiT",
-        "jfact": "JFact",
-        "whelk": "Whelk",
-    }
-)
-
 MAX_RAM_PERCENTAGE_DEFAULT = 20
 URN_PATTERN = re.compile(r"^urn:[a-zA-Z0-9][a-zA-Z0-9-]*(:.+)?$", re.IGNORECASE)
 
 REASON_REASONER_PARAMETER = PluginParameter(
-    param_type=ChoiceParameterType(REASON_REASONERS),
+    param_type=ChoiceParameterType(REASONERS),
     name="reasoner",
     label="Reasoner",
     description="Reasoner option.",
 )
 
 VALIDATE_REASONER_PARAMETER = PluginParameter(
-    param_type=ChoiceParameterType(VALIDATE_REASONERS),
+    param_type=ChoiceParameterType(REASONERS),
     name="reasoner",
     label="Reasoner",
-    description="Reasoner option.",
+    description="""Reasoner option. Only "HermiT" and "JFact" are recommended for consistency
+    validation, since they are the only reasoners offered here that are complete OWL DL reasoners
+    capable of generating explanations. The remaining options are kept for backwards
+    compatibility.""",
 )
 
 ONTOLOGY_GRAPH_IRI_PARAMETER = PluginParameter(

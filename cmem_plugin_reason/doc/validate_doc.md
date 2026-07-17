@@ -22,6 +22,10 @@ The following reasoner options are supported:
 - [Structural Reasoner](http://owlcs.github.io/owlapi/apidocs_4/org/semanticweb/owlapi/reasoner/structural/StructuralReasoner.html) (structural)
 - [Whelk](https://github.com/balhoff/whelk) (whelk)
 
+⚠️ Only **HermiT** and **JFact** are recommended for consistency validation, since they are the
+only reasoner options here that are complete OWL DL reasoners capable of generating explanations.
+The remaining options are kept for backwards compatibility.
+
 ### Produce output graph
 
 If enabled, an explanation graph is created.
