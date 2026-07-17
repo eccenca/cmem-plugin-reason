@@ -1,5 +1,6 @@
 """Reasoning workflow plugin module"""
 
+import re
 from collections import OrderedDict
 from collections.abc import Sequence
 from datetime import UTC, datetime
@@ -17,7 +18,6 @@ from cmem_plugin_base.dataintegration.parameter.graph import GraphParameterType
 from cmem_plugin_base.dataintegration.plugins import WorkflowPlugin
 from cmem_plugin_base.dataintegration.ports import FixedNumberOfInputs
 from cmem_plugin_base.dataintegration.types import BoolParameterType
-from inflection import underscore
 
 from cmem_plugin_reason.doc import REASON_DOC
 from cmem_plugin_reason.utils import (
@@ -366,12 +366,20 @@ class ReasonPlugin(WorkflowPlugin):
         self.ignore_missing_imports = ignore_missing_imports
 
         for k, v in self.axioms.items():
-            self.__dict__[underscore(k)] = v
+            self.__dict__[self.underscore(k)] = v
 
         self.data_imports_ontology = False
         self.label = LABEL
         self.input_ports = FixedNumberOfInputs([])
         self.output_port = None
+
+    @staticmethod
+    def underscore(word: str) -> str:
+        """Make an underscored, lowercase form from the expression in the string"""
+        word = re.sub(r"([A-Z]+)([A-Z][a-z])", r"\1_\2", word)
+        word = re.sub(r"([a-z\d])([A-Z])", r"\1_\2", word)
+        word = word.replace("-", "_")
+        return word.lower()
 
     def get_graphs(self, graphs: dict, missing: list) -> None:
         """Get graphs from CMEM"""
