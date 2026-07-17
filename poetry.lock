@@ -1801,14 +1801,13 @@ cli = ["click (>=5.0)"]
 
 [[package]]
 name = "python-ulid"
-version = "3.1.0"
+version = "3.2.0"
 description = "Universally unique lexicographically sortable identifier"
 optional = false
-python-versions = ">=3.9"
+python-versions = ">=3.10"
 groups = ["main"]
 files = [
-    {file = "python_ulid-3.1.0-py3-none-any.whl", hash = "sha256:e2cdc979c8c877029b4b7a38a6fba3bc4578e4f109a308419ff4d3ccf0a46619"},
-    {file = "python_ulid-3.1.0.tar.gz", hash = "sha256:ff0410a598bc5f6b01b602851a3296ede6f91389f913a5d5f8c496003836f636"},
+    {file = "python_ulid-3.2.0-py3-none-any.whl", hash = "sha256:7adfc206cbee3124e176b02b73e0fd19d1c9759e119fd8af7ba264d7d29c6fc0"},
 ]
 
 [package.extras]
