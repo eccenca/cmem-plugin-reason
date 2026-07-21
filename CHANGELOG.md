@@ -15,6 +15,10 @@ TODO: add at least one Added, Changed, Deprecated, Removed, Fixed or Security se
 
 - Fix robot.jar vulnerabilities CVE-2026-54515, CVE-2026-9828.
 
+### Changed
+
+- Remove inflection dependency
+
 ## [2.2.6] 2026-06-29
 
 ### Fixed

@@ -18,7 +18,6 @@ from cmem_plugin_base.dataintegration.plugins import WorkflowPlugin
 from cmem_plugin_base.dataintegration.ports import FixedNumberOfInputs
 from cmem_plugin_base.dataintegration.types import BoolParameterType, StringParameterType
 from cmem_plugin_base.dataintegration.utils import setup_cmempy_user_access
-from inflection import underscore
 
 from cmem_plugin_reason.doc import REASON_DOC
 from cmem_plugin_reason.utils import (
@@ -382,7 +381,7 @@ class ReasonPlugin(WorkflowPlugin):
         self.ignore_missing_imports = ignore_missing_imports
 
         for k, v in self.axioms.items():
-            self.__dict__[underscore(k)] = v
+            self.__dict__[self.underscore(k)] = v
 
         self.data_imports_ontology = False
 
