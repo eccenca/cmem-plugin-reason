@@ -67,7 +67,7 @@ def setup() -> Generator[None, Any]:
     delete(REASON_RESULT_GRAPH_IRI)
 
 
-@pytest.mark.parametrize("reasoner_parameter", list(REASONERS.keys()))
+@pytest.mark.parametrize("reasoner_parameter", REASONERS)
 def test_reason(setup: None, reasoner_parameter: str) -> None:  # noqa: ARG001
     """Test reasoning"""
     ReasonPlugin(

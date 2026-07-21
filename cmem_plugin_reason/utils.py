@@ -42,11 +42,21 @@ REASONERS = OrderedDict(
 MAX_RAM_PERCENTAGE_DEFAULT = 20
 URN_PATTERN = re.compile(r"^urn:[a-zA-Z0-9][a-zA-Z0-9-]*(:.+)?$", re.IGNORECASE)
 
-REASONER_PARAMETER = PluginParameter(
+REASON_REASONER_PARAMETER = PluginParameter(
     param_type=ChoiceParameterType(REASONERS),
     name="reasoner",
     label="Reasoner",
     description="Reasoner option.",
+)
+
+VALIDATE_REASONER_PARAMETER = PluginParameter(
+    param_type=ChoiceParameterType(REASONERS),
+    name="reasoner",
+    label="Reasoner",
+    description="""Reasoner option. Only "HermiT" and "JFact" are recommended for consistency
+    validation, since they are the only reasoners offered here that are complete OWL DL reasoners
+    capable of generating explanations. The remaining options are kept for backwards
+    compatibility.""",
 )
 
 ONTOLOGY_GRAPH_IRI_PARAMETER = PluginParameter(

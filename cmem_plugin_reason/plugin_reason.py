@@ -1,5 +1,6 @@
 """Reasoning workflow plugin module"""
 
+import re
 from collections import OrderedDict
 from collections.abc import Sequence
 from pathlib import Path
@@ -25,7 +26,7 @@ from cmem_plugin_reason.utils import (
     MAX_RAM_PERCENTAGE_DEFAULT,
     MAX_RAM_PERCENTAGE_PARAMETER,
     ONTOLOGY_GRAPH_IRI_PARAMETER,
-    REASONER_PARAMETER,
+    REASON_REASONER_PARAMETER,
     REASONERS,
     VALIDATE_PROFILES_PARAMETER,
     cancel_workflow,
@@ -152,7 +153,7 @@ Person`.
         IGNORE_MISSING_IMPORTS_PARAMETER,
         ONTOLOGY_GRAPH_IRI_PARAMETER,
         VALIDATE_PROFILES_PARAMETER,
-        REASONER_PARAMETER,
+        REASON_REASONER_PARAMETER,
         MAX_RAM_PERCENTAGE_PARAMETER,
         PluginParameter(
             param_type=GraphParameterType(
@@ -389,6 +390,14 @@ class ReasonPlugin(WorkflowPlugin):
 
         self.input_ports = FixedNumberOfInputs([])
         self.output_port = None
+
+    @staticmethod
+    def underscore(word: str) -> str:
+        """Make an underscored, lowercase form from the expression in the string"""
+        word = re.sub(r"([A-Z]+)([A-Z][a-z])", r"\1_\2", word)
+        word = re.sub(r"([a-z\d])([A-Z])", r"\1_\2", word)
+        word = word.replace("-", "_")
+        return word.lower()
 
     def get_graphs(self, graphs: dict, missing: list) -> None:
         """Get graphs from CMEM"""

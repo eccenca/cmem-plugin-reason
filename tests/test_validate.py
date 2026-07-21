@@ -72,7 +72,7 @@ def setup() -> Generator[None, Any]:
     delete_project(PROJECT_ID)
 
 
-@pytest.mark.parametrize("reasoner_parameter", list(REASONERS.keys()))
+@pytest.mark.parametrize("reasoner_parameter", REASONERS)
 def test_validate(setup: None, reasoner_parameter: str) -> None:  # noqa: ARG001
     """Test Validate"""
     result = ValidatePlugin(
