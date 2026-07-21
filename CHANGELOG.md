@@ -7,13 +7,17 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 ## [Unreleased]
 
+TODO: add at least one Added, Changed, Deprecated, Removed, Fixed or Security section
+
+## [2.2.7] 2026-07-21
+
 ### Fixed
 
 - Fix robot.jar vulnerabilities CVE-2026-54515, CVE-2026-9828.
 
 ### Changed
 
-- Remove dependency inflection
+- Remove inflection dependency
 
 ## [2.2.6] 2026-06-29
 
