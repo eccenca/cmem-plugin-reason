@@ -4,7 +4,7 @@
 @prefix xml: <http://www.w3.org/XML/1998/namespace> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
-@prefix dc: <http://purl.org/dc/terms/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
 @prefix vocab: <https://ns.eccenca.com/reasoning/{uuid}/vocab/> .
 @base <https://ns.eccenca.com/reasoning/{uuid}/result/> .
 
@@ -12,7 +12,7 @@
                                                     owl:imports vocab: ;
                                                     rdfs:label "Eccenca Reasoning Data - Reasoning Results"@en ;
                                                     rdfs:comment "Reasoning results of data graph <https://ns.eccenca.com/reasoning/{uuid}/data/> with ontology <https://ns.eccenca.com/reasoning/{uuid}/vocab/>"@en ;
-                                                    dc:source
+                                                    dcterms:source
                 <https://ns.eccenca.com/reasoning/{uuid}/data/> , <https://ns.eccenca.com/reasoning/{uuid}/vocab/> .
 
 #################################################################

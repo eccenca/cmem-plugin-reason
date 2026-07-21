@@ -6,11 +6,9 @@ Organized in two sections:
 """
 
 import re
-from datetime import UTC, datetime
 from pathlib import Path
 from secrets import token_hex
 from subprocess import CompletedProcess, run
-from time import time
 from typing import Any
 from xml.etree.ElementTree import Element, SubElement, tostring
 
@@ -111,18 +109,6 @@ def get_graph_as_file(client: Client, iri: str, path: Path) -> Path:
 def send_result(client: Client, iri: str | None, path: Path) -> None:
     """Send result graph file to CMEM (replace)"""
     client.graphs.import_item(path=path, key=iri, on_conflict=ImportConflictPolicy.REPLACE)
-
-
-def get_file_with_datetime(plugin: WorkflowPlugin, filename: str = "result.ttl") -> Path:
-    """Append a dcterms:created datetime to the result file (in place) and return its path"""
-    utctime = str(datetime.fromtimestamp(int(time()), tz=UTC))[:-6].replace(" ", "T") + "Z"
-    path = Path(plugin.temp) / filename
-    with path.open("a", encoding="utf-8") as file:
-        file.write(
-            f"\n<{plugin.output_graph_iri}> <http://purl.org/dc/terms/created> "
-            f'"{utctime}"^^<http://www.w3.org/2001/XMLSchema#dateTime> .'
-        )
-    return path
 
 
 def get_output_graph_label(plugin: WorkflowPlugin, iri: str, add_string: str) -> str:

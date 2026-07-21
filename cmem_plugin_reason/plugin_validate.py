@@ -2,8 +2,10 @@
 
 from collections import OrderedDict
 from collections.abc import Sequence
+from datetime import UTC, datetime
 from pathlib import Path
 from tempfile import TemporaryDirectory
+from time import time
 from uuid import uuid4
 
 from cmem_client.client import Client
@@ -26,7 +28,6 @@ from cmem_plugin_reason.utils import (
     cancel_workflow,
     create_xml_catalog_file,
     eccenca_reasoner,
-    get_file_with_datetime,
     get_graph_as_file,
     get_output_graph_label,
     is_valid_uri,
@@ -43,7 +44,8 @@ RDF_TYPE = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
 OWL_ONTOLOGY = "http://www.w3.org/2002/07/owl#Ontology"
 RDFS_LABEL = "http://www.w3.org/2000/01/rdf-schema#label"
 RDFS_COMMENT = "http://www.w3.org/2000/01/rdf-schema#comment"
-DC_SOURCE = "http://purl.org/dc/elements/1.1/source"
+DCTERMS_SOURCE = "http://purl.org/dc/terms/source"
+DCTERMS_CREATED = "http://purl.org/dc/terms/created"
 
 VALIDATE_REASONERS = OrderedDict(
     {
@@ -68,27 +70,31 @@ def build_output_graph_nt(
     output_graph_iri: str,
     ontology_graph_iri: str,
     label: str,
+    created: str,
     valid_profiles: list[str] | None,
 ) -> str:
     """Build the N-Triples annotation written to the output graph.
 
     Declares `output_graph_iri` as an owl:Ontology, gives it a human-readable
-    rdfs:label/rdfs:comment, and links it back to the validated ontology via
-    dc:source. If profiles were validated, each conforming profile is added as
-    a separate VALIDATE_PROFILE_PREDICATE triple. Written as plain N-Triples
-    lines (full IRIs, no prefixes), same pattern used elsewhere for graph
-    output, with literals escaped by hand rather than via an RDF library.
+    rdfs:label/rdfs:comment, links it back to the validated ontology via
+    dcterms:source, and records a dcterms:created timestamp. If profiles were
+    validated, each conforming profile is added as a separate
+    VALIDATE_PROFILE_PREDICATE triple. Written as plain N-Triples lines (full
+    IRIs, no prefixes), same pattern used elsewhere for graph output, with
+    literals escaped by hand rather than via an RDF library.
     """
-    subject = f"<{output_graph_iri}>"
     comment = _escape_nt_literal(f"Ontology validation of <{ontology_graph_iri}>")
     lines = [
-        f"{subject} <{RDF_TYPE}> <{OWL_ONTOLOGY}> .",
-        f'{subject} <{RDFS_LABEL}> "{_escape_nt_literal(label)}"@en .',
-        f'{subject} <{RDFS_COMMENT}> "{comment}"@en .',
-        f"{subject} <{DC_SOURCE}> <{ontology_graph_iri}> .",
+        f"<{output_graph_iri}> <{RDF_TYPE}> <{OWL_ONTOLOGY}> .",
+        f'<{output_graph_iri}> <{RDFS_LABEL}> "{_escape_nt_literal(label)}"@en .',
+        f'<{output_graph_iri}> <{RDFS_COMMENT}> "{comment}"@en .',
+        f"<{output_graph_iri}> <{DCTERMS_SOURCE}> <{ontology_graph_iri}> .",
+        f"<{output_graph_iri}> <{DCTERMS_CREATED}> "
+        f'"{created}"^^<http://www.w3.org/2001/XMLSchema#dateTime> .',
+        f"<{ontology_graph_iri}> <{RDF_TYPE}> <{OWL_ONTOLOGY}> .",
     ]
     lines.extend(
-        f'{subject} <{VALIDATE_PROFILE_PREDICATE}> "{_escape_nt_literal(profile)}" .'
+        f'<{ontology_graph_iri}> <{VALIDATE_PROFILE_PREDICATE}> "{_escape_nt_literal(profile)}" .'
         for profile in valid_profiles or []
     )
     return "\n".join(lines) + "\n"
@@ -317,15 +323,17 @@ class ValidatePlugin(WorkflowPlugin):
     def write_output_graph(self, valid_profiles: list[str]) -> None:
         """Append the validation-result annotation onto the ontology graph explain() wrote."""
         label = get_output_graph_label(self, self.ontology_graph_iri, "Validation Result")
+        created = str(datetime.fromtimestamp(int(time()), tz=UTC))[:-6].replace(" ", "T") + "Z"
         annotations = build_output_graph_nt(
             self.output_graph_iri,
             self.ontology_graph_iri,
             label,
+            created,
             valid_profiles if self.validate_profile else None,
         )
-        with (Path(self.temp) / "result.nt").open("a", encoding="utf-8") as f:
+        path = Path(self.temp) / "result.nt"
+        with path.open("a", encoding="utf-8") as f:
             f.write("\n" + annotations)
-        path = get_file_with_datetime(self, "result.nt")
         send_result(self.client, self.output_graph_iri, path)
         post_provenance(self)
 

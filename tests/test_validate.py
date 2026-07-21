@@ -7,14 +7,28 @@ import pytest
 from cmem_client.client import Client
 from cmem_plugin_base.dataintegration.entity import Entities
 from cmem_plugin_base.testing import TestExecutionContext
+from rdflib import Graph
+from rdflib.compare import isomorphic
 
-from cmem_plugin_reason.plugin_validate import VALIDATE_REASONERS, ValidatePlugin
-from tests.utils import FIXTURE_DIR, UID, get_bytes_io, get_client, import_graph, replace_uuid
+from cmem_plugin_reason.plugin_validate import (
+    VALIDATE_REASONERS,
+    ValidatePlugin,
+)
+from tests.utils import (
+    FIXTURE_DIR,
+    UID,
+    get_bytes_io,
+    get_client,
+    get_remote_graph,
+    import_graph,
+    replace_uuid,
+)
 
 VALIDATE_ONTOLOGY_GRAPH_IRI_1 = f"https://ns.eccenca.com/validateontology/{UID}/vocab/"
 VALIDATE_ONTOLOGY_GRAPH_IRI_2 = f"https://ns.eccenca.com/validateontology/{UID}/vocab2/"
 VALIDATE_ONTOLOGY_GRAPH_IRI_3 = f"https://ns.eccenca.com/validateontology/{UID}/vocab3/"
 ONTOLOGY_GRAPH_IMPORT_FAIL_IRI = f"https://ns.eccenca.com/reasoning/{UID}/vocab4/"
+VALIDATE_OUTPUT_GRAPH_IRI = f"https://ns.eccenca.com/validateontology/{UID}/output/"
 PROJECT_ID = f"validate_plugin_test_project_{UID}"
 
 
@@ -97,6 +111,25 @@ def test_validate(setup: None, reasoner_parameter: str) -> None:  # noqa: ARG001
 
     if val_errors:
         raise OSError(val_errors[:-1])
+
+
+def test_validate_output_graph(setup: None, client: Client) -> None:  # noqa: ARG001
+    """Test Validate"""
+    ValidatePlugin(
+        ontology_graph_iri=VALIDATE_ONTOLOGY_GRAPH_IRI_1,
+        output_graph_iri=VALIDATE_OUTPUT_GRAPH_IRI,
+        reasoner="hermit",
+        validate_profile=True,
+        mode="inconsistency",
+    ).execute(inputs=(), context=TestExecutionContext(PROJECT_ID))
+
+    result = get_remote_graph(client, VALIDATE_OUTPUT_GRAPH_IRI)
+    test = Graph().parse(
+        data=replace_uuid(f"{FIXTURE_DIR}/test_validate_output_hermit.ttl"),
+    )
+    assert isomorphic(result, test)
+
+    client.graphs.delete_item(VALIDATE_OUTPUT_GRAPH_IRI, skip_if_missing=True)
 
 
 def test_validate_input_not_exist(setup: None) -> None:  # noqa: ARG001
