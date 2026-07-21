@@ -10,10 +10,7 @@ from cmem_plugin_base.testing import TestExecutionContext
 from rdflib import Graph
 from rdflib.compare import isomorphic
 
-from cmem_plugin_reason.plugin_validate import (
-    VALIDATE_REASONERS,
-    ValidatePlugin,
-)
+from cmem_plugin_reason.plugin_validate import VALIDATE_REASONERS, ValidatePlugin
 from tests.utils import (
     FIXTURE_DIR,
     UID,
@@ -29,7 +26,6 @@ VALIDATE_ONTOLOGY_GRAPH_IRI_2 = f"https://ns.eccenca.com/validateontology/{UID}/
 VALIDATE_ONTOLOGY_GRAPH_IRI_3 = f"https://ns.eccenca.com/validateontology/{UID}/vocab3/"
 ONTOLOGY_GRAPH_IMPORT_FAIL_IRI = f"https://ns.eccenca.com/reasoning/{UID}/vocab4/"
 VALIDATE_OUTPUT_GRAPH_IRI = f"https://ns.eccenca.com/validateontology/{UID}/output/"
-PROJECT_ID = f"validate_plugin_test_project_{UID}"
 
 
 def get_value_dict(entities: Entities) -> dict:
@@ -84,6 +80,7 @@ def setup(client: Client) -> Generator[None, Any]:
     client.graphs.delete_item(VALIDATE_ONTOLOGY_GRAPH_IRI_2, skip_if_missing=True)
     client.graphs.delete_item(VALIDATE_ONTOLOGY_GRAPH_IRI_3, skip_if_missing=True)
     client.graphs.delete_item(ONTOLOGY_GRAPH_IMPORT_FAIL_IRI, skip_if_missing=True)
+    client.graphs.delete_item(VALIDATE_OUTPUT_GRAPH_IRI, skip_if_missing=True)
 
 
 @pytest.mark.parametrize("reasoner_parameter", VALIDATE_REASONERS)
@@ -94,7 +91,7 @@ def test_validate(setup: None, reasoner_parameter: str) -> None:  # noqa: ARG001
         reasoner=reasoner_parameter,
         validate_profile=True,
         mode="inconsistency",
-    ).execute(inputs=(), context=TestExecutionContext(PROJECT_ID))
+    ).execute(inputs=(), context=TestExecutionContext())
 
     md_test = replace_uuid(f"{FIXTURE_DIR}/test_validate_{reasoner_parameter}.md")
     value_dict = get_value_dict(result)
@@ -121,15 +118,13 @@ def test_validate_output_graph(setup: None, client: Client) -> None:  # noqa: AR
         reasoner="hermit",
         validate_profile=True,
         mode="inconsistency",
-    ).execute(inputs=(), context=TestExecutionContext(PROJECT_ID))
+    ).execute(inputs=(), context=TestExecutionContext())
 
     result = get_remote_graph(client, VALIDATE_OUTPUT_GRAPH_IRI)
     test = Graph().parse(
         data=replace_uuid(f"{FIXTURE_DIR}/test_validate_output_hermit.ttl"),
     )
     assert isomorphic(result, test)
-
-    client.graphs.delete_item(VALIDATE_OUTPUT_GRAPH_IRI, skip_if_missing=True)
 
 
 def test_validate_input_not_exist(setup: None) -> None:  # noqa: ARG001
@@ -144,7 +139,7 @@ def test_validate_input_not_exist(setup: None) -> None:  # noqa: ARG001
         ValueError,
         match=f"Ontology graph does not exist: https://ns.eccenca.com/reasoning/{UID}/not-exist/",
     ):
-        plugin.execute(inputs=(), context=TestExecutionContext(PROJECT_ID))
+        plugin.execute(inputs=(), context=TestExecutionContext())
 
 
 def test_validate_import_not_exist_not_ignore(setup: None) -> None:  # noqa: ARG001
@@ -160,7 +155,7 @@ def test_validate_import_not_exist_not_ignore(setup: None) -> None:  # noqa: ARG
         ImportError,
         match=f"Missing graph imports: https://ns.eccenca.com/reasoning/{UID}/not-exist/",
     ):
-        plugin.execute(inputs=(), context=TestExecutionContext(PROJECT_ID))
+        plugin.execute(inputs=(), context=TestExecutionContext())
 
 
 def test_validate_import_not_exist_ignore(setup: None) -> None:  # noqa: ARG001
@@ -171,4 +166,4 @@ def test_validate_import_not_exist_ignore(setup: None) -> None:  # noqa: ARG001
         validate_profile=False,
         mode="inconsistency",
         ignore_missing_imports=True,
-    ).execute(inputs=(), context=TestExecutionContext(PROJECT_ID))
+    ).execute(inputs=(), context=TestExecutionContext())

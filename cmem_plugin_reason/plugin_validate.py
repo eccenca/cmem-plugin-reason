@@ -100,33 +100,6 @@ def build_output_graph_nt(
     return "\n".join(lines) + "\n"
 
 
-def validate_profiles_generic(plugin: WorkflowPlugin, graphs: dict) -> list[str]:
-    """Validate OWL2 profiles using the generic (bundled) reasoner jar.
-
-    Named distinctly from the Pellet plugin's `validate_profiles` (in
-    `plugin_validate_pellet.py`) — same purpose, different engine, not
-    interchangeable.
-
-    The reasoner jar checks the whole imports closure (imports resolved via the catalog),
-    so no separate "merge" step is needed. It prints the profiles the ontology conforms to
-    to stdout, one per line, in the order Full, DL, EL, QL, RL.
-    """
-    ontology_location = f"{plugin.temp}/{graphs[plugin.ontology_graph_iri]}"
-    catalog_location = f"{plugin.temp}/catalog-v001.xml"
-    cmd = [
-        "validate-profile",
-        "--input",
-        ontology_location,
-        "--catalog",
-        catalog_location,
-    ]
-    response = eccenca_reasoner(cmd, plugin.max_ram_percentage)
-    if response.returncode != 0:
-        message = response.stderr.decode().strip() or response.stdout.decode().strip()
-        raise OSError(message)
-    return response.stdout.decode().split()
-
-
 @Plugin(
     label=LABEL,
     description="Validates the consistency of an OWL ontology.",
@@ -254,6 +227,28 @@ class ValidatePlugin(WorkflowPlugin):
             paths.append(EntityPath("profiles"))
         return EntitySchema(type_uri="validate", paths=paths)
 
+    def validate_profiles(self, graphs: dict) -> list[str]:
+        """Validate OWL2 profiles using the generic (bundled) reasoner jar.
+
+        The reasoner jar checks the whole imports closure (imports resolved via the catalog),
+        so no separate "merge" step is needed. It prints the profiles the ontology conforms to
+        stdout, one per line, in the order Full, DL, EL, QL, RL.
+        """
+        ontology_location = f"{self.temp}/{graphs[self.ontology_graph_iri]}"
+        catalog_location = f"{self.temp}/catalog-v001.xml"
+        cmd = [
+            "validate-profile",
+            "--input",
+            ontology_location,
+            "--catalog",
+            catalog_location,
+        ]
+        response = eccenca_reasoner(cmd, self.max_ram_percentage)
+        if response.returncode != 0:
+            message = response.stderr.decode().strip() or response.stdout.decode().strip()
+            raise OSError(message)
+        return response.stdout.decode().split()
+
     def get_graphs(self, graphs: dict, missing: list) -> None:
         """Get graphs from CMEM"""
         for iri, filename in graphs.items():
@@ -360,7 +355,7 @@ class ValidatePlugin(WorkflowPlugin):
         self.explain(graphs)
         if cancel_workflow(self):
             return None
-        valid_profiles = validate_profiles_generic(self, graphs) if self.validate_profile else []
+        valid_profiles = self.validate_profiles(graphs) if self.validate_profile else []
         if cancel_workflow(self):
             return None
 
