@@ -9,7 +9,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 TODO: add at least one Added, Changed, Deprecated, Removed, Fixed or Security section
 
-## [2.2.7] 2026-07-21
+## [2.2.7] 2026-07-22
 
 ### Fixed
 
