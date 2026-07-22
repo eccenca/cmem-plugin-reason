@@ -464,7 +464,7 @@ class ReasonPlugin(WorkflowPlugin):
 
         # Append annotation triples to the output file
         utctime = str(datetime.fromtimestamp(int(time()), tz=UTC))[:-6].replace(" ", "T") + "Z"
-        with open(result_path, "a", encoding="utf-8") as f:  # noqa: PTH123
+        with Path(result_path).open("a", encoding="utf-8") as f:
             f.write(
                 f"\n<{self.output_graph_iri}> "
                 f"<http://www.w3.org/1999/02/22-rdf-syntax-ns#type> "
