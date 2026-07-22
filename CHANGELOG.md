@@ -7,9 +7,36 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 ## [Unreleased]
 
-- Use eccenca reasoner instead of robot
+### Changed
 
-## [2.2.6] 2026-06-25
+- Use eccenca reasoner (OWLAPI5) instead of ROBOT (OWLAPI4).
+- Use `cmem-client` instead of `cmem-cmempy`.
+- "Output graph import" is now a simple boolean instead of a three-way choice.
+- Reason plugin: reasoner options are now ELK, ELK (EMR), HermiT, JFact and Structural Reasoner
+  (Whelk removed, EMR merged into ELK (EMR)).
+- Validate plugin: reasoner options are now limited to HermiT and JFact.
+- Validate plugin: entities are now always output (no more "Output entities" toggle); valid
+  profiles are output as a list instead of a comma-separated string.
+- Validate plugin: added "Maximum explanations" parameter to limit the number of justifications
+  generated per inference.
+
+### Removed
+
+- Reason plugin: "Validate OWL2 profiles" (and related "Process valid OWL profiles from input" /
+  "Valid OWL2 profiles" input) parameters; use the Validate plugin instead.
+- Validate plugin: "Output filename" parameter and Markdown file resource output.
+
+## [2.2.7] 2026-07-22
+
+### Fixed
+
+- Fix robot.jar vulnerabilities CVE-2026-54515, CVE-2026-9828.
+
+### Changed
+
+- Remove inflection dependency
+
+## [2.2.6] 2026-06-29
 
 ### Fixed
 
