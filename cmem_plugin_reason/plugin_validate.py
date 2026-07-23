@@ -5,7 +5,6 @@ from collections.abc import Sequence
 from datetime import UTC, datetime
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from time import time
 from uuid import uuid4
 
 from cmem_client.client import Client
@@ -318,7 +317,7 @@ class ValidatePlugin(WorkflowPlugin):
     def write_output_graph(self, valid_profiles: list[str]) -> None:
         """Append the validation-result annotation onto the ontology graph explain() wrote."""
         label = get_output_graph_label(self, self.ontology_graph_iri, "Validation Result")
-        created = str(datetime.fromtimestamp(int(time()), tz=UTC))[:-6].replace(" ", "T") + "Z"
+        created = datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
         annotations = build_output_graph_nt(
             self.output_graph_iri,
             self.ontology_graph_iri,

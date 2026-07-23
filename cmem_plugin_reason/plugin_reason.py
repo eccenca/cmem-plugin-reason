@@ -6,13 +6,11 @@ from collections.abc import Sequence
 from datetime import UTC, datetime
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from time import time
 from uuid import uuid4
 
 from cmem_client.client import Client
 from cmem_plugin_base.dataintegration.context import ExecutionContext, ExecutionReport
 from cmem_plugin_base.dataintegration.description import Icon, Plugin, PluginParameter
-from cmem_plugin_base.dataintegration.entity import Entities
 from cmem_plugin_base.dataintegration.parameter.choice import ChoiceParameterType
 from cmem_plugin_base.dataintegration.parameter.graph import GraphParameterType
 from cmem_plugin_base.dataintegration.plugins import WorkflowPlugin
@@ -463,7 +461,7 @@ class ReasonPlugin(WorkflowPlugin):
             raise OSError(message or "eccenca_reasoner error")
 
         # Append annotation triples to the output file
-        utctime = str(datetime.fromtimestamp(int(time()), tz=UTC))[:-6].replace(" ", "T") + "Z"
+        utctime = datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
         with Path(result_path).open("a", encoding="utf-8") as f:
             f.write(
                 f"\n<{self.output_graph_iri}> "
@@ -549,7 +547,7 @@ class ReasonPlugin(WorkflowPlugin):
             )
         )
 
-    def execute(self, inputs: Sequence[Entities], context: ExecutionContext) -> None:  # noqa: ARG002
+    def execute(self, inputs: Sequence, context: ExecutionContext) -> None:  # noqa: ARG002
         """Execute plugin with temporary directory"""
         self.client = Client.from_context(context)
         not_exist = []
