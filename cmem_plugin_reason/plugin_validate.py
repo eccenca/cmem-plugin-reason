@@ -54,51 +54,6 @@ VALIDATE_REASONERS = OrderedDict(
 )
 
 
-def _escape_nt_literal(text: str) -> str:
-    """Escape a string for use in an N-Triples literal (backslash, quote, control chars)."""
-    return (
-        text.replace("\\", "\\\\")
-        .replace('"', '\\"')
-        .replace("\n", "\\n")
-        .replace("\r", "\\r")
-        .replace("\t", "\\t")
-    )
-
-
-def build_output_graph_nt(
-    output_graph_iri: str,
-    ontology_graph_iri: str,
-    label: str,
-    created: str,
-    valid_profiles: list[str] | None,
-) -> str:
-    """Build the N-Triples annotation written to the output graph.
-
-    Declares `output_graph_iri` as an owl:Ontology, gives it a human-readable
-    rdfs:label/rdfs:comment, links it back to the validated ontology via
-    dcterms:source, and records a dcterms:created timestamp. If profiles were
-    validated, each conforming profile is added as a separate
-    VALIDATE_PROFILE_PREDICATE triple. Written as plain N-Triples lines (full
-    IRIs, no prefixes), same pattern used elsewhere for graph output, with
-    literals escaped by hand rather than via an RDF library.
-    """
-    comment = _escape_nt_literal(f"Ontology validation of <{ontology_graph_iri}>")
-    lines = [
-        f"<{output_graph_iri}> <{RDF_TYPE}> <{OWL_ONTOLOGY}> .",
-        f'<{output_graph_iri}> <{RDFS_LABEL}> "{_escape_nt_literal(label)}"@en .',
-        f'<{output_graph_iri}> <{RDFS_COMMENT}> "{comment}"@en .',
-        f"<{output_graph_iri}> <{DCTERMS_SOURCE}> <{ontology_graph_iri}> .",
-        f"<{output_graph_iri}> <{DCTERMS_CREATED}> "
-        f'"{created}"^^<http://www.w3.org/2001/XMLSchema#dateTime> .',
-        f"<{ontology_graph_iri}> <{RDF_TYPE}> <{OWL_ONTOLOGY}> .",
-    ]
-    lines.extend(
-        f'<{ontology_graph_iri}> <{VALIDATE_PROFILE_PREDICATE}> "{_escape_nt_literal(profile)}" .'
-        for profile in valid_profiles or []
-    )
-    return "\n".join(lines) + "\n"
-
-
 @Plugin(
     label=LABEL,
     description="Validates the consistency of an OWL ontology.",
@@ -226,6 +181,52 @@ class ValidatePlugin(WorkflowPlugin):
             paths.append(EntityPath("profiles"))
         return EntitySchema(type_uri="validate", paths=paths)
 
+    @staticmethod
+    def _escape_nt_literal(text: str) -> str:
+        """Escape a string for use in an N-Triples literal (backslash, quote, control chars)."""
+        return (
+            text.replace("\\", "\\\\")
+            .replace('"', '\\"')
+            .replace("\n", "\\n")
+            .replace("\r", "\\r")
+            .replace("\t", "\\t")
+        )
+
+    def build_output_graph_nt(
+        self,
+        label: str,
+        created: str,
+        valid_profiles: list[str] | None,
+    ) -> str:
+        """Build the N-Triples annotation written to the output graph.
+
+        Declares `self.output_graph_iri` as an owl:Ontology, gives it a human-readable
+        rdfs:label/rdfs:comment, links it back to the validated ontology via
+        dcterms:source, and records a dcterms:created timestamp. If profiles were
+        validated, each conforming profile is added as a separate
+        VALIDATE_PROFILE_PREDICATE triple. Written as plain N-Triples lines (full
+        IRIs, no prefixes), same pattern used elsewhere for graph output, with
+        literals escaped by hand rather than via an RDF library.
+        """
+        output_graph_iri = self.output_graph_iri
+        ontology_graph_iri = self.ontology_graph_iri
+        comment = self._escape_nt_literal(f"Ontology validation of <{ontology_graph_iri}>")
+        lines = [
+            f"<{output_graph_iri}> <{RDF_TYPE}> <{OWL_ONTOLOGY}> .",
+            f'<{output_graph_iri}> <{RDFS_LABEL}> "{self._escape_nt_literal(label)}"@en .',
+            f'<{output_graph_iri}> <{RDFS_COMMENT}> "{comment}"@en .',
+            f"<{output_graph_iri}> <{DCTERMS_SOURCE}> <{ontology_graph_iri}> .",
+            f"<{output_graph_iri}> <{DCTERMS_CREATED}> "
+            f'"{created}"^^<http://www.w3.org/2001/XMLSchema#dateTime> .',
+            f"<{ontology_graph_iri}> <{RDF_TYPE}> <{OWL_ONTOLOGY}> .",
+        ]
+        lines.extend(
+            f"<{ontology_graph_iri}> <{VALIDATE_PROFILE_PREDICATE}> "
+            f'"{self._escape_nt_literal(profile)}" .'
+            for profile in valid_profiles or []
+        )
+        return "\n".join(lines) + "\n"
+
     def validate_profiles(self, graphs: dict) -> list[str]:
         """Validate OWL2 profiles using the generic (bundled) reasoner jar.
 
@@ -318,9 +319,7 @@ class ValidatePlugin(WorkflowPlugin):
         """Append the validation-result annotation onto the ontology graph explain() wrote."""
         label = get_output_graph_label(self, self.ontology_graph_iri, "Validation Result")
         created = datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
-        annotations = build_output_graph_nt(
-            self.output_graph_iri,
-            self.ontology_graph_iri,
+        annotations = self.build_output_graph_nt(
             label,
             created,
             valid_profiles if self.validate_profile else None,

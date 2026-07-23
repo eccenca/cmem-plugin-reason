@@ -497,18 +497,6 @@ class ReasonPlugin(WorkflowPlugin):
         """
         self.client.store.sparql.update(query)
 
-    def add_result_import(self) -> None:
-        """Add result graph import to ontology graph"""
-        query = f"""
-            INSERT DATA {{
-                GRAPH <{self.ontology_graph_iri}> {{
-                    <{self.ontology_graph_iri}> <http://www.w3.org/2002/07/owl#imports>
-                        <{self.output_graph_iri}>
-                }}
-            }}
-        """
-        self.client.store.sparql.update(query)
-
     def remove_ontology_import(self) -> None:
         """Remove ontology graph import from output graph"""
         query = f"""
