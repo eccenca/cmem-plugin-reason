@@ -31,6 +31,7 @@ from cmem_plugin_reason.utils import (
     get_output_graph_label,
     is_valid_uri,
     post_provenance,
+    raise_on_error,
     send_result,
 )
 
@@ -244,9 +245,7 @@ class ValidatePlugin(WorkflowPlugin):
             catalog_location,
         ]
         response = eccenca_reasoner(cmd, self.max_ram_percentage)
-        if response.returncode != 0:
-            message = response.stderr.decode().strip() or response.stdout.decode().strip()
-            raise OSError(message)
+        raise_on_error(response, "Profile validation")
         return response.stdout.decode().split()
 
     def get_graphs(self, graphs: dict, missing: list) -> None:
@@ -307,13 +306,7 @@ class ValidatePlugin(WorkflowPlugin):
             # appends the label/comment/source/profile annotation onto this same file.
             cmd += ["--output", f"{self.temp}/result.nt", "--format", "nt"]
         response = eccenca_reasoner(cmd, self.max_ram_percentage)
-        if response.returncode != 0:
-            message = (
-                response.stderr.decode().strip()
-                or response.stdout.decode().strip()
-                or "reasoner error"
-            )
-            raise OSError(message)
+        raise_on_error(response, "Explanation")
 
     def write_output_graph(self, valid_profiles: list[str]) -> None:
         """Append the validation-result annotation onto the ontology graph explain() wrote."""

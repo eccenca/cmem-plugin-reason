@@ -30,6 +30,7 @@ from cmem_plugin_reason.utils import (
     get_output_graph_label,
     is_valid_uri,
     post_provenance,
+    raise_on_error,
     send_result,
 )
 
@@ -455,10 +456,7 @@ class ReasonPlugin(WorkflowPlugin):
             "--reduce",
         ]
         response = eccenca_reasoner(cmd, self.max_ram_percentage)
-
-        if response.returncode != 0:
-            message = response.stderr.decode().strip() or response.stdout.decode().strip()
-            raise OSError(message or "eccenca_reasoner error")
+        raise_on_error(response, "Reasoning")
 
         # Append annotation triples to the output file
         utctime = datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
