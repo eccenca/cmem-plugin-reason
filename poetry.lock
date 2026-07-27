@@ -2,14 +2,14 @@
 
 [[package]]
 name = "annotated-types"
-version = "0.7.0"
+version = "0.8.0"
 description = "Reusable constraint types to use with typing.Annotated"
 optional = false
-python-versions = ">=3.8"
+python-versions = ">=3.10"
 groups = ["main"]
 files = [
-    {file = "annotated_types-0.7.0-py3-none-any.whl", hash = "sha256:1f02e8b43a8fbbc3f3e0d4f0f4bfc8131bcb4eebe8849b8e5c773f3a1c582a53"},
-    {file = "annotated_types-0.7.0.tar.gz", hash = "sha256:aff07c09a53a08bc8cfccb9c85b05f1aa9a2a6f23728d790723543408344ce89"},
+    {file = "annotated_types-0.8.0-py3-none-any.whl", hash = "sha256:f072f4d804ea359e4eaf198b1af7a8b0943881a87f31bb764f8bf219bb9419e0"},
+    {file = "annotated_types-0.8.0.tar.gz", hash = "sha256:13b2beaad985e05e2d6407ee4c4f35590b11f8d693a258a561055cac8f64cab7"},
 ]
 
 [[package]]
@@ -280,14 +280,14 @@ dev = ["mypy", "pytest"]
 
 [[package]]
 name = "cmem-client"
-version = "0.16.0"
+version = "0.16.1"
 description = "Next generation eccenca Corporate Memory client library."
 optional = false
 python-versions = "<4,>=3.13"
 groups = ["main"]
 files = [
-    {file = "cmem_client-0.16.0-py3-none-any.whl", hash = "sha256:34c4fe7d2a0ec3b961c1c6d7d9743af397f1cd8914a37b0f6d238a5b4b659850"},
-    {file = "cmem_client-0.16.0.tar.gz", hash = "sha256:70734d3bde0279d67a8eaa92b5f45fb4b6e513dc250a7f390603a35a8add0640"},
+    {file = "cmem_client-0.16.1-py3-none-any.whl", hash = "sha256:fe730fb58134741ca38cbec805318c1721565f7b3156dd8333464fee4d7dfa29"},
+    {file = "cmem_client-0.16.1.tar.gz", hash = "sha256:e4b66d80a2f3308ff2daebfb4979ceeac550fb16e532cc28b974271b6d39d9e7"},
 ]
 
 [package.dependencies]
@@ -2347,4 +2347,4 @@ files = [
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.13"
-content-hash = "ce45ac1e9d033b703313bfa3f825771d59d1938ea30e16fc204589df5ef5b23c"
+content-hash = "988a584326326164240c5b8d7be50af093e92174e2e3f033a4940a5b848fde74"
