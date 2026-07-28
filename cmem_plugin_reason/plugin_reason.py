@@ -367,7 +367,6 @@ class ReasonPlugin(WorkflowPlugin):
         for k, v in self.axioms.items():
             self.__dict__[self.underscore(k)] = v
 
-        self.data_imports_ontology = False
         self.label = LABEL
         self.input_ports = FixedNumberOfInputs([])
         self.output_port = None
@@ -398,7 +397,7 @@ class ReasonPlugin(WorkflowPlugin):
                         f"<{self.ontology_graph_iri}> ."
                     )
 
-    def get_graphs_tree(self) -> tuple[dict, list]:  # noqa: C901
+    def get_graphs_tree(self) -> tuple[dict, list]:
         """Get graph import tree. Last item in graph_iris is output_graph_iri which is excluded"""
         missing = []
         graphs = {}
@@ -409,9 +408,7 @@ class ReasonPlugin(WorkflowPlugin):
                 for value in tree.values():
                     for iri in value:
                         if iri not in graphs:
-                            if iri == self.ontology_graph_iri:
-                                self.data_imports_ontology = True
-                            elif iri == self.output_graph_iri:
+                            if iri == self.output_graph_iri:
                                 raise ImportError("Input graph imports output graph.")
                             if iri not in self.client.graphs:
                                 missing.append(iri)
@@ -483,22 +480,10 @@ class ReasonPlugin(WorkflowPlugin):
                 f'"{utctime}"^^<http://www.w3.org/2001/XMLSchema#dateTime> .\n'
             )
 
-    def add_ontology_import(self) -> None:
-        """Add ontology graph import to result graph"""
+    def insert_ontology_import(self) -> None:
+        """Insert ontology graph import to result graph"""
         query = f"""
             INSERT DATA {{
-                GRAPH <{self.output_graph_iri}> {{
-                    <{self.output_graph_iri}> <http://www.w3.org/2002/07/owl#imports>
-                        <{self.ontology_graph_iri}>
-                }}
-            }}
-        """
-        self.client.store.sparql.update(query)
-
-    def remove_ontology_import(self) -> None:
-        """Remove ontology graph import from output graph"""
-        query = f"""
-            DELETE DATA {{
                 GRAPH <{self.output_graph_iri}> {{
                     <{self.output_graph_iri}> <http://www.w3.org/2002/07/owl#imports>
                         <{self.ontology_graph_iri}>
@@ -520,10 +505,8 @@ class ReasonPlugin(WorkflowPlugin):
         send_result(self.client, self.output_graph_iri, Path(self.temp) / "result.nt")
         post_provenance(self)
 
-        if self.imports or self.data_imports_ontology:
-            self.add_ontology_import()
-        else:
-            self.remove_ontology_import()
+        if self.imports:
+            self.insert_ontology_import()
 
         self.context.report.update(
             ExecutionReport(

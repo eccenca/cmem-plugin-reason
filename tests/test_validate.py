@@ -131,7 +131,7 @@ def test_validate_input_not_exist(setup: None) -> None:  # noqa: ARG001
     """Test Validate with non-existing input graph"""
     plugin = ValidatePlugin(
         ontology_graph_iri=f"https://ns.eccenca.com/reasoning/{UID}/not-exist/",
-        reasoner="hermit",
+        reasoner="jfact",
         validate_profile=False,
         mode="inconsistency",
     )
@@ -146,7 +146,7 @@ def test_validate_import_not_exist_not_ignore(setup: None) -> None:  # noqa: ARG
     """Test Validate with missing import"""
     plugin = ValidatePlugin(
         ontology_graph_iri=ONTOLOGY_GRAPH_IMPORT_FAIL_IRI,
-        reasoner="hermit",
+        reasoner="jfact",
         validate_profile=False,
         mode="inconsistency",
         ignore_missing_imports=False,
@@ -162,7 +162,7 @@ def test_validate_import_not_exist_ignore(setup: None) -> None:  # noqa: ARG001
     """Test Validate ignoring missing import"""
     ValidatePlugin(
         ontology_graph_iri=ONTOLOGY_GRAPH_IMPORT_FAIL_IRI,
-        reasoner="hermit",
+        reasoner="jfact",
         validate_profile=False,
         mode="inconsistency",
         ignore_missing_imports=True,

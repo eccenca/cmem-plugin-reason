@@ -120,7 +120,7 @@ def test_reason_input_not_exist(setup: None) -> None:  # noqa: ARG001
         data_graph_iri=f"https://ns.eccenca.com/reasoning/{UID}/not-exist1/",
         ontology_graph_iri=f"https://ns.eccenca.com/reasoning/{UID}/not-exist2/",
         output_graph_iri=REASON_RESULT_GRAPH_IRI,
-        reasoner="elk",
+        reasoner="structural",
         sub_class=False,
         class_assertion=True,
         property_assertion=False,
@@ -140,7 +140,7 @@ def test_reason_import_not_exist_not_ignore(setup: None) -> None:  # noqa: ARG00
         data_graph_iri=REASON_DATA_GRAPH_IRI,
         ontology_graph_iri=ONTOLOGY_GRAPH_IMPORT_FAIL_IRI,
         output_graph_iri=REASON_RESULT_GRAPH_IRI,
-        reasoner="elk",
+        reasoner="structural",
         sub_class=False,
         class_assertion=True,
         property_assertion=False,
@@ -159,7 +159,7 @@ def test_reason_import_not_exist_ignore(setup: None) -> None:  # noqa: ARG001
         data_graph_iri=REASON_DATA_GRAPH_IRI,
         ontology_graph_iri=ONTOLOGY_GRAPH_IMPORT_FAIL_IRI,
         output_graph_iri=REASON_RESULT_GRAPH_IRI,
-        reasoner="elk",
+        reasoner="structural",
         sub_class=False,
         class_assertion=True,
         property_assertion=False,
@@ -168,12 +168,12 @@ def test_reason_import_not_exist_ignore(setup: None) -> None:  # noqa: ARG001
 
 
 def test_reason_ontology_import(setup: None, client: Client) -> None:  # noqa: ARG001
-    """Test Reason remove ontology import"""
+    """Test Reason no ontology import"""
     ReasonPlugin(
         data_graph_iri=REASON_DATA_GRAPH_IRI,
         ontology_graph_iri=REASON_ONTOLOGY_GRAPH_IRI_1,
         output_graph_iri=REASON_RESULT_GRAPH_IRI,
-        reasoner="elk",
+        reasoner="structural",
         sub_class=False,
         class_assertion=True,
         property_assertion=False,
@@ -184,16 +184,17 @@ def test_reason_ontology_import(setup: None, client: Client) -> None:  # noqa: A
 
 
 def test_reason_ontology_import_2(setup: None, client: Client) -> None:  # noqa: ARG001
-    """Test Reason, do not remove ontology import if it exists in data graph"""
+    """Test Reason ontology import"""
     ReasonPlugin(
-        data_graph_iri=REASON_DATA_GRAPH_IRI_2,
+        data_graph_iri=REASON_DATA_GRAPH_IRI,
         ontology_graph_iri=REASON_ONTOLOGY_GRAPH_IRI_1,
         output_graph_iri=REASON_RESULT_GRAPH_IRI,
-        reasoner="elk",
+        reasoner="structural",
         sub_class=False,
         class_assertion=True,
         property_assertion=False,
         ignore_missing_imports=True,
+        imports=True,
     ).execute(inputs=(), context=TestExecutionContext())
 
     assert client.store.sparql.query(ASK_QUERY).askAnswer
