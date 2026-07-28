@@ -1,6 +1,5 @@
 """Reasoning workflow plugin module"""
 
-import re
 from collections import OrderedDict
 from collections.abc import Sequence
 from datetime import UTC, datetime
@@ -296,7 +295,7 @@ Person`.
 class ReasonPlugin(WorkflowPlugin):
     """Reason plugin"""
 
-    def __init__(  # noqa: PLR0913 C901
+    def __init__(  # noqa: PLR0913
         self,
         data_graph_iri: str,
         ontology_graph_iri: str,
@@ -364,20 +363,8 @@ class ReasonPlugin(WorkflowPlugin):
         self.max_ram_percentage = max_ram_percentage
         self.ignore_missing_imports = ignore_missing_imports
 
-        for k, v in self.axioms.items():
-            self.__dict__[self.underscore(k)] = v
-
-        self.label = LABEL
         self.input_ports = FixedNumberOfInputs([])
         self.output_port = None
-
-    @staticmethod
-    def underscore(word: str) -> str:
-        """Make an underscored, lowercase form from the expression in the string"""
-        word = re.sub(r"([A-Z]+)([A-Z][a-z])", r"\1_\2", word)
-        word = re.sub(r"([a-z\d])([A-Z])", r"\1_\2", word)
-        word = word.replace("-", "_")
-        return word.lower()
 
     def get_graphs(self, graphs: dict, missing: list) -> None:
         """Get graphs from CMEM"""
@@ -432,7 +419,7 @@ class ReasonPlugin(WorkflowPlugin):
         cmd = [
             "reason",
             "--input",
-            str(data_location),
+            data_location,
             "--reasoner",
             self.reasoner,
             "--axiom-generators",
@@ -447,9 +434,9 @@ class ReasonPlugin(WorkflowPlugin):
             "all",
             "--exclude-external-entities",
             "--catalog",
-            str(catalog_location),
+            catalog_location,
             "--output",
-            str(result_path),
+            result_path,
             "--reduce",
         ]
         response = eccenca_reasoner(cmd, self.max_ram_percentage)
