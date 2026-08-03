@@ -1,11 +1,9 @@
 """Common constants and functions"""
 
-import json
 import re
 import shlex
 from collections import OrderedDict
 from datetime import UTC, datetime
-from io import BytesIO
 from pathlib import Path
 from secrets import token_hex
 from subprocess import CompletedProcess, run
@@ -13,9 +11,9 @@ from time import time
 from xml.etree.ElementTree import Element, SubElement, tostring
 
 import validators.url
-from cmem.cmempy.dp.proxy.graph import get_graphs_list, post_streamed
-from cmem.cmempy.dp.proxy.sparql import post as post_select
-from cmem.cmempy.dp.proxy.update import post as post_update
+from cmem_client.client import Client
+from cmem_client.repositories.graphs import GraphExportConfig, GraphsRepository
+from cmem_client.repositories.protocols.import_item import ImportConflictPolicy
 from cmem_plugin_base.dataintegration.context import ExecutionReport
 from cmem_plugin_base.dataintegration.description import PluginParameter
 from cmem_plugin_base.dataintegration.parameter.choice import ChoiceParameterType
@@ -27,6 +25,8 @@ from defusedxml import minidom
 from . import __path__
 
 ROBOT = Path(__path__[0]) / "robot.jar"
+
+NT_EXPORT_CONFIG = GraphExportConfig(serialization=GraphsRepository.formats["n-triples"])
 
 REASONERS = OrderedDict(
     {
@@ -111,16 +111,14 @@ def create_xml_catalog_file(dir_: str, graphs: dict) -> None:
         file.write(reparsed)
 
 
-def send_result(iri: str | None, file: BytesIO) -> None:
+def fetch_graph(client: Client, iri: str, path: Path) -> None:
+    """Fetch a graph from CMEM as N-Triples into path"""
+    client.graphs.export_item(key=iri, path=path, replace=True, configuration=NT_EXPORT_CONFIG)
+
+
+def send_result(client: Client, iri: str | None, file: Path) -> None:
     """Send result"""
-    res = post_streamed(
-        iri,
-        file,
-        replace=True,
-        content_type="text/turtle",
-    )
-    if res.status_code != 204:  # noqa: PLR2004
-        raise OSError(f"Error posting result graph (status code {res.status_code}).")
+    client.graphs.import_item(path=file, key=iri, on_conflict=ImportConflictPolicy.REPLACE)
 
 
 def post_provenance(plugin: WorkflowPlugin) -> None:
@@ -143,7 +141,7 @@ def post_provenance(plugin: WorkflowPlugin) -> None:
                 }}
             }}
         """
-        post_update(query=insert_query)
+        plugin.client.store.sparql.update(insert_query)
 
 
 def get_provenance(plugin: WorkflowPlugin) -> dict | None:
@@ -163,13 +161,13 @@ def get_provenance(plugin: WorkflowPlugin) -> dict | None:
         }}
     """
 
-    result = json.loads(post_select(query=type_query))
+    type_rows = list(plugin.client.store.sparql.query(type_query))
 
-    try:
-        plugin_type = result["results"]["bindings"][0]["type"]["value"]
-    except IndexError:
+    if not type_rows:
         plugin.log.warning("Could not add provenance data to output graph.")
         return None
+
+    plugin_type = str(type_rows[0]["type"])
 
     param_split = (
         plugin_type.replace(
@@ -190,21 +188,19 @@ def get_provenance(plugin: WorkflowPlugin) -> dict | None:
 
     new_plugin_iri = f"{'_'.join(plugin_iri.split('_')[:-1])}_{token_hex(8)}"
     label = f"{plugin.label} plugin"
-    result = json.loads(post_select(query=parameter_query))
+    parameters = {}
 
-    prov = {
+    for row in plugin.client.store.sparql.query(parameter_query):
+        param_iri = str(row["parameter"])
+        param_name = param_iri.split(param_split)[1]
+        parameters[param_name] = param_iri
+
+    return {
         "plugin_iri": new_plugin_iri,
         "plugin_label": label,
         "plugin_type": plugin_type,
-        "parameters": {},
+        "parameters": parameters,
     }
-
-    for binding in result["results"]["bindings"]:
-        param_iri = binding["parameter"]["value"]
-        param_name = param_iri.split(param_split)[1]
-        prov["parameters"][param_name] = param_iri
-
-    return prov
 
 
 def robot(cmd: str, max_ram_percentage: int) -> CompletedProcess:
@@ -240,34 +236,27 @@ def post_profiles(plugin: WorkflowPlugin, valid_profiles: list) -> None:
                 }}
             }}
         """
-        post_update(query=query)
+        plugin.client.store.sparql.update(query)
 
 
 def get_output_graph_label(plugin: WorkflowPlugin, iri: str, add_string: str) -> str:
     """Create a label for the output graph"""
-    graphs = (
-        plugin.graphs_dict
-        if hasattr(plugin, "graphs_dict")
-        else {_["iri"]: _ for _ in get_graphs_list()}
-    )
-    try:
-        data_graph_label = graphs[iri]["label"]["title"]
-        data_graph_label += " - "
-    except KeyError:
-        data_graph_label = ""
+    graph = plugin.client.graphs.get(iri)
+    data_graph_label = f"{graph.label.title} - " if graph and graph.label else ""
     return f"{data_graph_label}{add_string}"
 
 
-def get_file_with_datetime(plugin: WorkflowPlugin) -> BytesIO:
-    """Return result file with dcterms:created datetime"""
+def get_file_with_datetime(plugin: WorkflowPlugin) -> Path:
+    """Return path of the result file with dcterms:created datetime"""
     utctime = str(datetime.fromtimestamp(int(time()), tz=UTC))[:-6].replace(" ", "T") + "Z"
-    file_content = (
+    file = Path(plugin.temp) / "result_datetime.ttl"
+    file.write_text(
         (Path(plugin.temp) / "result.ttl").read_text()
         + f"\n<{plugin.output_graph_iri}> <http://purl.org/dc/terms/created> "
-        f'"{utctime}"^^xsd:dateTime .'
-    ).encode("utf-8")
-
-    return BytesIO(file_content)
+        f'"{utctime}"^^xsd:dateTime .',
+        encoding="utf-8",
+    )
+    return file
 
 
 def cancel_workflow(plugin: WorkflowPlugin) -> bool:

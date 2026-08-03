@@ -1,19 +1,23 @@
 """Plugin tests."""
 
-import json
 from collections.abc import Generator
 from typing import Any
 
 import pytest
-from cmem.cmempy.dp.proxy.graph import delete
-from cmem.cmempy.dp.proxy.sparql import get
 from cmem_plugin_base.testing import TestExecutionContext
 from rdflib import Graph
 from rdflib.compare import isomorphic
 
 from cmem_plugin_reason.plugin_reason import ReasonPlugin
 from cmem_plugin_reason.utils import REASONERS
-from tests.utils import FIXTURE_DIR, UID, get_bytes_io, get_remote_graph, import_graph, replace_uuid
+from tests.utils import (
+    FIXTURE_DIR,
+    UID,
+    get_remote_graph,
+    get_test_client,
+    import_graph,
+    replace_uuid,
+)
 
 REASON_DATA_GRAPH_IRI = f"https://ns.eccenca.com/reasoning/{UID}/data/"
 REASON_DATA_GRAPH_IRI_2 = f"https://ns.eccenca.com/reasoning/{UID}/data2/"
@@ -39,32 +43,30 @@ def reasoner_parameter() -> str | None:
 @pytest.fixture
 def setup() -> Generator[None, Any]:
     """Set up Reason test"""
-    delete(REASON_RESULT_GRAPH_IRI)
+    client = get_test_client()
+    client.graphs.delete_item(REASON_RESULT_GRAPH_IRI, skip_if_missing=True)
 
-    import_graph(REASON_DATA_GRAPH_IRI, get_bytes_io(f"{FIXTURE_DIR}/test_reason_data.ttl"))
-    import_graph(REASON_DATA_GRAPH_IRI_2, get_bytes_io(f"{FIXTURE_DIR}/test_reason_data_2.ttl"))
+    import_graph(client, REASON_DATA_GRAPH_IRI, f"{FIXTURE_DIR}/test_reason_data.ttl")
+    import_graph(client, REASON_DATA_GRAPH_IRI_2, f"{FIXTURE_DIR}/test_reason_data_2.ttl")
+    import_graph(client, REASON_ONTOLOGY_GRAPH_IRI_1, f"{FIXTURE_DIR}/test_reason_ontology_1.ttl")
+    import_graph(client, REASON_ONTOLOGY_GRAPH_IRI_2, f"{FIXTURE_DIR}/test_reason_ontology_2.ttl")
+    import_graph(client, REASON_ONTOLOGY_GRAPH_IRI_3, f"{FIXTURE_DIR}/test_reason_ontology_3.ttl")
     import_graph(
-        REASON_ONTOLOGY_GRAPH_IRI_1, get_bytes_io(f"{FIXTURE_DIR}/test_reason_ontology_1.ttl")
-    )
-    import_graph(
-        REASON_ONTOLOGY_GRAPH_IRI_2, get_bytes_io(f"{FIXTURE_DIR}/test_reason_ontology_2.ttl")
-    )
-    import_graph(
-        REASON_ONTOLOGY_GRAPH_IRI_3, get_bytes_io(f"{FIXTURE_DIR}/test_reason_ontology_3.ttl")
-    )
-    import_graph(
-        ONTOLOGY_GRAPH_IMPORT_FAIL_IRI, get_bytes_io(f"{FIXTURE_DIR}/test_reason_ontology_4.ttl")
+        client, ONTOLOGY_GRAPH_IMPORT_FAIL_IRI, f"{FIXTURE_DIR}/test_reason_ontology_4.ttl"
     )
 
     yield
 
-    delete(REASON_DATA_GRAPH_IRI)
-    delete(REASON_DATA_GRAPH_IRI_2)
-    delete(REASON_ONTOLOGY_GRAPH_IRI_1)
-    delete(REASON_ONTOLOGY_GRAPH_IRI_2)
-    delete(REASON_ONTOLOGY_GRAPH_IRI_3)
-    delete(ONTOLOGY_GRAPH_IMPORT_FAIL_IRI)
-    delete(REASON_RESULT_GRAPH_IRI)
+    for iri in (
+        REASON_DATA_GRAPH_IRI,
+        REASON_DATA_GRAPH_IRI_2,
+        REASON_ONTOLOGY_GRAPH_IRI_1,
+        REASON_ONTOLOGY_GRAPH_IRI_2,
+        REASON_ONTOLOGY_GRAPH_IRI_3,
+        ONTOLOGY_GRAPH_IMPORT_FAIL_IRI,
+        REASON_RESULT_GRAPH_IRI,
+    ):
+        client.graphs.delete_item(iri, skip_if_missing=True)
 
 
 @pytest.mark.parametrize("reasoner_parameter", REASONERS)
@@ -82,7 +84,7 @@ def test_reason(setup: None, reasoner_parameter: str) -> None:  # noqa: ARG001
         imports="import_ontology",
     ).execute(inputs=(), context=TestExecutionContext())
 
-    result = get_remote_graph(REASON_RESULT_GRAPH_IRI)
+    result = get_remote_graph(get_test_client(), REASON_RESULT_GRAPH_IRI)
     test = Graph().parse(
         data=replace_uuid(f"{FIXTURE_DIR}/test_{reasoner_parameter}.ttl"), format="turtle"
     )
@@ -163,7 +165,7 @@ def test_reason_ontology_import(setup: None) -> None:  # noqa: ARG001
         ignore_missing_imports=True,
     ).execute(inputs=(), context=TestExecutionContext())
 
-    assert not json.loads(get(query=ASK_QUERY)).get("boolean", True)
+    assert not get_test_client().store.sparql.query(ASK_QUERY).askAnswer
 
 
 def test_reason_ontology_import_2(setup: None) -> None:  # noqa: ARG001
@@ -181,4 +183,4 @@ def test_reason_ontology_import_2(setup: None) -> None:  # noqa: ARG001
         ignore_missing_imports=True,
     ).execute(inputs=(), context=TestExecutionContext())
 
-    assert json.loads(get(query=ASK_QUERY)).get("boolean", False)
+    assert get_test_client().store.sparql.query(ASK_QUERY).askAnswer

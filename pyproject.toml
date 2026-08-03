@@ -23,14 +23,14 @@ python = "^3.13"
 validators = "^0.35.0"
 pathvalidate = "^3.3.1"
 defusedxml = "^0.7.1"
-cmem-cmempy = "^25.5.0"
+cmem-client = "^0.16.3"
 
 [tool.poetry.dependencies.cmem-plugin-base]
-version = "^4.16.1"
-allow-prereleases = false
+version = "^4.19.0rc1"
+allow-prereleases = true
 
 [tool.poetry.group.dev.dependencies.cmem-cmemc]
-version = ">=24.2.0"
+version = "^25.3.0"
 
 [tool.poetry.group.dev.dependencies]
 deptry = "^0.25.1"

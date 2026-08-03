@@ -6,8 +6,8 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 from uuid import uuid4
 
-from cmem.cmempy.dp.proxy.graph import get, get_graph_import_tree, get_graphs_list
-from cmem.cmempy.workspace.projects.resources.resource import create_resource
+from cmem_client.repositories.protocols.import_item import ImportConflictPolicy
+from cmem_plugin_base.dataintegration.client import get_client
 from cmem_plugin_base.dataintegration.context import ExecutionContext, ExecutionReport
 from cmem_plugin_base.dataintegration.description import Icon, Plugin, PluginParameter
 from cmem_plugin_base.dataintegration.entity import Entities, Entity, EntityPath, EntitySchema
@@ -16,7 +16,6 @@ from cmem_plugin_base.dataintegration.parameter.graph import GraphParameterType
 from cmem_plugin_base.dataintegration.plugins import WorkflowPlugin
 from cmem_plugin_base.dataintegration.ports import FixedNumberOfInputs, FixedSchemaPort
 from cmem_plugin_base.dataintegration.types import BoolParameterType, StringParameterType
-from cmem_plugin_base.dataintegration.utils import setup_cmempy_user_access
 from pathvalidate import is_valid_filepath
 
 from cmem_plugin_reason.doc import VALIDATE_DOC
@@ -30,6 +29,7 @@ from cmem_plugin_reason.utils import (
     VALIDATE_REASONER_PARAMETER,
     cancel_workflow,
     create_xml_catalog_file,
+    fetch_graph,
     get_file_with_datetime,
     get_output_graph_label,
     is_valid_uri,
@@ -183,12 +183,12 @@ class ValidatePlugin(WorkflowPlugin):
     def get_graphs(self, graphs: dict, missing: list) -> None:
         """Get graphs from CMEM"""
         for iri, filename in graphs.items():
+            path = Path(self.temp) / filename
+            if iri in missing:
+                path.touch()
+                continue
             self.log.info(f"Fetching graph {iri}.")
-            with (Path(self.temp) / filename).open("w", encoding="utf-8") as file:
-                if iri not in missing:
-                    self.log.info(f"Fetching graph {iri}.")
-                    setup_cmempy_user_access(self.context.user)
-                    file.write(get(iri).text)
+            fetch_graph(self.client, iri, path)
 
     def get_graphs_tree(self) -> tuple[dict, list]:
         """Get graph import tree. Last item in graph_iris is output_graph_iri which is excluded"""
@@ -196,13 +196,13 @@ class ValidatePlugin(WorkflowPlugin):
         graphs = {}
         if self.ontology_graph_iri not in graphs:
             graphs[self.ontology_graph_iri] = f"{uuid4().hex}.nt"
-            tree = get_graph_import_tree(self.ontology_graph_iri)
-            for value in tree["tree"].values():
+            tree = self.client.graph_imports.get_import_tree(self.ontology_graph_iri)
+            for value in tree.tree.values():
                 for iri in value:
                     if iri not in graphs:
                         if iri == self.output_graph_iri:
                             raise ImportError("Input graph imports output graph.")
-                        if iri not in self.graphs_dict:
+                        if iri not in self.client.graphs:
                             missing.append(iri)
                         graphs[iri] = f"{uuid4().hex}.nt"
         if missing:
@@ -241,11 +241,10 @@ class ValidatePlugin(WorkflowPlugin):
 
     def make_resource(self, context: ExecutionContext) -> None:
         """Make MD resource in project"""
-        create_resource(
-            project_name=context.task.project_id(),
-            resource_name=self.md_filename,
-            file_resource=(Path(self.temp) / self.md_filename).open("r", encoding="utf-8"),
-            replace=True,
+        self.client.files.import_item(
+            path=Path(self.temp) / self.md_filename,
+            key=f"{context.task.project_id()}:{self.md_filename}",
+            on_conflict=ImportConflictPolicy.REPLACE,
         )
 
     def add_profiles(self, valid_profiles: list) -> list:
@@ -274,7 +273,6 @@ class ValidatePlugin(WorkflowPlugin):
 
     def _execute(self) -> Entities | None:
         """Run the workflow operator."""
-        setup_cmempy_user_access(self.context.user)
         graphs, missing = self.get_graphs_tree()
         self.get_graphs(graphs, missing)
         if cancel_workflow(self):
@@ -284,9 +282,7 @@ class ValidatePlugin(WorkflowPlugin):
         if cancel_workflow(self):
             return None
         if self.output_graph_iri:
-            setup_cmempy_user_access(self.context.user)
-            send_result(self.output_graph_iri, get_file_with_datetime(self))
-            setup_cmempy_user_access(self.context.user)
+            send_result(self.client, self.output_graph_iri, get_file_with_datetime(self))
             post_provenance(self)
         if cancel_workflow(self):
             return None
@@ -296,7 +292,6 @@ class ValidatePlugin(WorkflowPlugin):
         if cancel_workflow(self):
             return None
         if self.write_md:
-            setup_cmempy_user_access(self.context.user)
             self.make_resource(self.context)
 
         text = (Path(self.temp) / self.md_filename).read_text()
@@ -326,12 +321,11 @@ class ValidatePlugin(WorkflowPlugin):
 
     def execute(self, inputs: Sequence[Entities], context: ExecutionContext) -> Entities | None:  # noqa: ARG002
         """Execute plugin with temporary directory"""
-        setup_cmempy_user_access(context.user)
-        self.graphs_dict = {_["iri"]: _ for _ in get_graphs_list()}
-        if self.ontology_graph_iri not in self.graphs_dict:
+        self.context = context
+        self.client = get_client(context, self.log)
+        if self.ontology_graph_iri not in self.client.graphs:
             raise ValueError(f"Ontology graph does not exist: {self.ontology_graph_iri}")
 
-        self.context = context
         context.report.update(
             ExecutionReport(
                 operation="validate",
