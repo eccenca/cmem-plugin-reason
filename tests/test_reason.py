@@ -57,6 +57,7 @@ def setup() -> Generator[None, Any]:
 
     yield
 
+    client = get_test_client()
     for iri in (
         REASON_DATA_GRAPH_IRI,
         REASON_DATA_GRAPH_IRI_2,

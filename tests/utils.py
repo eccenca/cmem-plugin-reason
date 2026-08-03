@@ -19,9 +19,19 @@ TTL_EXPORT_CONFIG = GraphExportConfig(serialization=GraphsRepository.formats["tu
 
 
 @cache
+def get_test_context() -> TestPluginContext:
+    """Get the test plugin context (requests an access token once per session)"""
+    return TestPluginContext()
+
+
 def get_test_client() -> Client:
-    """Get a cmem-client for the test user"""
-    return get_client(TestPluginContext())
+    """Get a cmem-client for the test user
+
+    A new client is returned on every call, since its repositories cache the remote
+    state on first access and the plugins under test change that state with their own
+    client.
+    """
+    return get_client(get_test_context())
 
 
 def get_remote_graph(client: Client, iri: str) -> Graph:

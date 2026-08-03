@@ -68,6 +68,7 @@ def setup() -> Generator[None, Any]:
 
     yield
 
+    client = get_test_client()
     for iri in (
         VALIDATE_ONTOLOGY_GRAPH_IRI_1,
         VALIDATE_ONTOLOGY_GRAPH_IRI_2,
