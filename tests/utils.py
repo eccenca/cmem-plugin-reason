@@ -1,6 +1,5 @@
 """Common functions"""
 
-from functools import cache
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
@@ -18,20 +17,15 @@ FIXTURE_DIR = Path(__file__).parent / "fixture_dir"
 TTL_EXPORT_CONFIG = GraphExportConfig(serialization=GraphsRepository.formats["turtle"])
 
 
-@cache
-def get_test_context() -> TestPluginContext:
-    """Get the test plugin context (requests an access token once per session)"""
-    return TestPluginContext()
-
-
 def get_test_client() -> Client:
     """Get a cmem-client for the test user
 
-    A new client is returned on every call, since its repositories cache the remote
-    state on first access and the plugins under test change that state with their own
-    client.
+    A new client with a new context is returned on every call: TestUserContext requests
+    its access token once on creation and never refreshes it, and the client's
+    repositories cache the remote state on first access, while the plugins under test
+    change that state with their own client.
     """
-    return get_client(get_test_context())
+    return get_client(TestPluginContext())
 
 
 def get_remote_graph(client: Client, iri: str) -> Graph:
