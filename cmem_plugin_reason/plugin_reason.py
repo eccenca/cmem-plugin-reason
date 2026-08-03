@@ -533,7 +533,7 @@ class ReasonPlugin(WorkflowPlugin):
     def execute(self, inputs: Sequence[Entities], context: ExecutionContext) -> None:  # noqa: ARG002
         """Execute plugin with temporary directory"""
         self.context = context
-        self.client = get_client(context, self.log)
+        self.client = get_client(context)
         not_exist = [
             iri
             for iri in (self.data_graph_iri, self.ontology_graph_iri)
