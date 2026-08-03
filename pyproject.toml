@@ -26,11 +26,11 @@ defusedxml = "^0.7.1"
 cmem-client = "^0.16.3"
 
 [tool.poetry.dependencies.cmem-plugin-base]
-version = "^4.19.0rc1"
-allow-prereleases = true
+version = "^4.19.0"
+allow-prereleases = false
 
 [tool.poetry.group.dev.dependencies.cmem-cmemc]
-version = "^25.3.0"
+version = ">=24.2.0"
 
 [tool.poetry.group.dev.dependencies]
 deptry = "^0.25.1"
