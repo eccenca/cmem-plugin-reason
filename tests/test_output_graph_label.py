@@ -3,6 +3,7 @@
 from cmem_plugin_reason.plugin_reason import ReasonPlugin
 from cmem_plugin_reason.plugin_validate import ValidatePlugin
 from cmem_plugin_reason.utils import get_output_graph_label
+from tests.utils import get_test_client
 
 
 def test_reason_output_graph_label() -> None:
@@ -18,6 +19,7 @@ def test_reason_output_graph_label() -> None:
         validate_profile=False,
         imports="none",
     )
+    plugin.client = get_test_client()
     assert (
         get_output_graph_label(plugin, plugin.data_graph_iri, "Reasoning Results")
         == "CMEM Shapes Catalog - Reasoning Results"
@@ -37,6 +39,7 @@ def test_reason_output_graph_label_fail() -> None:
         validate_profile=False,
         imports="none",
     )
+    plugin.client = get_test_client()
     assert (
         get_output_graph_label(plugin, plugin.data_graph_iri, "Reasoning Results")
         == "Reasoning Results"
@@ -50,6 +53,7 @@ def test_validate_output_graph_label() -> None:
         output_graph_iri="https://vocab.eccenca.com/shacl/output/",
         reasoner="hermit",
     )
+    plugin.client = get_test_client()
     assert (
         get_output_graph_label(plugin, plugin.ontology_graph_iri, "Validation Result")
         == "CMEM Shapes Catalog - Validation Result"
@@ -63,6 +67,7 @@ def test_validate_output_graph_label_fail() -> None:
         output_graph_iri="https://vocab.eccenca.com/shacl/output/",
         reasoner="hermit",
     )
+    plugin.client = get_test_client()
     assert (
         get_output_graph_label(plugin, plugin.ontology_graph_iri, "Validation Result")
         == "Validation Result"

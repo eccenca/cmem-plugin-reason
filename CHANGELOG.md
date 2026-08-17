@@ -5,9 +5,15 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](https://semver.org/)
 
-## [Unreleased]
+## [2.3.0] 2026-08-17
 
-TODO: add at least one Added, Changed, Deprecated, Removed, Fixed or Security section
+### Changed
+
+- Use cmem-client instead of cmempy for all Corporate Memory access
+
+### Removed
+
+- Remove cmem-cmempy dependency and `setup_cmempy_user_access` calls
 
 ## [2.2.7] 2026-07-22
 

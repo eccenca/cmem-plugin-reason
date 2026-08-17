@@ -1,13 +1,10 @@
 """Plugin tests."""
 
 from collections.abc import Generator
-from contextlib import suppress
 from typing import Any
 
 import pytest
-from cmem.cmempy.dp.proxy.graph import delete
-from cmem.cmempy.workspace.projects.project import delete_project, make_new_project
-from cmem.cmempy.workspace.projects.resources.resource import get_resource
+from cmem_client.models.project import Project
 from cmem_plugin_base.dataintegration.entity import Entities
 from cmem_plugin_base.testing import TestExecutionContext
 from rdflib import Graph
@@ -15,7 +12,14 @@ from rdflib.compare import isomorphic
 
 from cmem_plugin_reason.plugin_validate import ValidatePlugin
 from cmem_plugin_reason.utils import REASONERS
-from tests.utils import FIXTURE_DIR, UID, get_bytes_io, get_remote_graph, import_graph, replace_uuid
+from tests.utils import (
+    FIXTURE_DIR,
+    UID,
+    get_remote_graph,
+    get_test_client,
+    import_graph,
+    replace_uuid,
+)
 
 VALIDATE_ONTOLOGY_GRAPH_IRI_1 = f"https://ns.eccenca.com/validateontology/{UID}/vocab/"
 VALIDATE_ONTOLOGY_GRAPH_IRI_2 = f"https://ns.eccenca.com/validateontology/{UID}/vocab2/"
@@ -44,32 +48,36 @@ def reasoner_parameter() -> str | None:
 @pytest.fixture
 def setup() -> Generator[None, Any]:
     """Set up Validate test"""
-    with suppress(Exception):
-        delete_project(PROJECT_ID)
-    delete(VALIDATE_RESULT_GRAPH_IRI)
+    client = get_test_client()
+    client.projects.delete_item(PROJECT_ID, skip_if_missing=True)
+    client.graphs.delete_item(VALIDATE_RESULT_GRAPH_IRI, skip_if_missing=True)
 
-    make_new_project(PROJECT_ID)
+    client.projects.create_item(Project(name=PROJECT_ID))
     import_graph(
-        VALIDATE_ONTOLOGY_GRAPH_IRI_1, get_bytes_io(f"{FIXTURE_DIR}/test_validate_ontology_1.ttl")
+        client, VALIDATE_ONTOLOGY_GRAPH_IRI_1, f"{FIXTURE_DIR}/test_validate_ontology_1.ttl"
     )
     import_graph(
-        VALIDATE_ONTOLOGY_GRAPH_IRI_2, get_bytes_io(f"{FIXTURE_DIR}/test_validate_ontology_2.ttl")
+        client, VALIDATE_ONTOLOGY_GRAPH_IRI_2, f"{FIXTURE_DIR}/test_validate_ontology_2.ttl"
     )
     import_graph(
-        VALIDATE_ONTOLOGY_GRAPH_IRI_3, get_bytes_io(f"{FIXTURE_DIR}/test_validate_ontology_3.ttl")
+        client, VALIDATE_ONTOLOGY_GRAPH_IRI_3, f"{FIXTURE_DIR}/test_validate_ontology_3.ttl"
     )
     import_graph(
-        ONTOLOGY_GRAPH_IMPORT_FAIL_IRI, get_bytes_io(f"{FIXTURE_DIR}/test_reason_ontology_4.ttl")
+        client, ONTOLOGY_GRAPH_IMPORT_FAIL_IRI, f"{FIXTURE_DIR}/test_reason_ontology_4.ttl"
     )
 
     yield
 
-    delete(VALIDATE_ONTOLOGY_GRAPH_IRI_1)
-    delete(VALIDATE_ONTOLOGY_GRAPH_IRI_2)
-    delete(VALIDATE_ONTOLOGY_GRAPH_IRI_3)
-    delete(ONTOLOGY_GRAPH_IMPORT_FAIL_IRI)
-    delete(VALIDATE_RESULT_GRAPH_IRI)
-    delete_project(PROJECT_ID)
+    client = get_test_client()
+    for iri in (
+        VALIDATE_ONTOLOGY_GRAPH_IRI_1,
+        VALIDATE_ONTOLOGY_GRAPH_IRI_2,
+        VALIDATE_ONTOLOGY_GRAPH_IRI_3,
+        ONTOLOGY_GRAPH_IMPORT_FAIL_IRI,
+        VALIDATE_RESULT_GRAPH_IRI,
+    ):
+        client.graphs.delete_item(iri, skip_if_missing=True)
+    client.projects.delete_item(PROJECT_ID, skip_if_missing=True)
 
 
 @pytest.mark.parametrize("reasoner_parameter", REASONERS)
@@ -85,9 +93,10 @@ def test_validate(setup: None, reasoner_parameter: str) -> None:  # noqa: ARG001
         mode="inconsistency",
     ).execute(inputs=(), context=TestExecutionContext(PROJECT_ID))
 
+    client = get_test_client()
     md_test = replace_uuid(f"{FIXTURE_DIR}/test_validate_{reasoner_parameter}.md")
     value_dict = get_value_dict(result)
-    output_graph = get_remote_graph(VALIDATE_RESULT_GRAPH_IRI)
+    output_graph = get_remote_graph(client, VALIDATE_RESULT_GRAPH_IRI)
     test = Graph().parse(
         data=replace_uuid(f"{FIXTURE_DIR}/test_validate_output_{reasoner_parameter}.ttl"),
         format="turtle",
@@ -102,7 +111,7 @@ def test_validate(setup: None, reasoner_parameter: str) -> None:  # noqa: ARG001
         val_errors += 'EntityPath "reasoner" output error. '
     if value_dict["valid_profiles"] != "Full,DL,EL,QL,RL":
         val_errors += 'EntityPath "valid_profiles" output error. '
-    if md_test != get_resource(PROJECT_ID, MD_FILENAME).decode():
+    if md_test != client.files.read(f"{PROJECT_ID}:{MD_FILENAME}").decode():
         val_errors += "Markdown file error. "
     if not isomorphic(output_graph, test):
         val_errors += "Output graph error. "
