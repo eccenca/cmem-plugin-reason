@@ -10,7 +10,6 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 ### Changed
 
 - Use eccenca reasoner (OWLAPI5) instead of ROBOT (OWLAPI4).
-- Use `cmem-client` instead of `cmem-cmempy`.
 - "Output graph import" is now a simple boolean instead of a three-way choice.
 - Reason plugin: reasoner options are now ELK, ELK (EMR), HermiT, JFact and Structural Reasoner
   (Whelk removed, EMR merged into ELK (EMR)).
