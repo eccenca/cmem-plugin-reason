@@ -26,6 +26,18 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
   "Valid OWL2 profiles" input) parameters; use the Validate plugin instead.
 - Validate plugin: "Output filename" parameter and Markdown file resource output.
 
+
+## [2.3.0] 2026-08-17
+
+### Fixed
+
+- Fix robot.jar vulnerability CVE-2026-49844
+
+### Changed
+
+- Use cmem-client instead of cmempy for all Corporate Memory access
+
+
 ## [2.2.7] 2026-07-22
 
 ### Fixed
