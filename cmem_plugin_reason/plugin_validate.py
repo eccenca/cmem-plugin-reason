@@ -54,6 +54,8 @@ VALIDATE_REASONERS = OrderedDict(
     }
 )
 
+MD_FILENAME = "mdfile.md"
+
 
 @Plugin(
     label=LABEL,
@@ -160,7 +162,6 @@ class ValidatePlugin(WorkflowPlugin):
         self.max_explanations = max_explanations
         self.output_graph_iri = output_graph_iri
         self.stop_at_inconsistencies = stop_at_inconsistencies
-        self.md_filename = "mdfile.md"
         self.validate_profile = validate_profile
         self.max_ram_percentage = max_ram_percentage
         self.ignore_missing_imports = ignore_missing_imports
@@ -299,7 +300,7 @@ class ValidatePlugin(WorkflowPlugin):
             "--catalog",
             catalog_location,
             "--explanation",
-            f"{self.temp}/{self.md_filename}",
+            f"{self.temp}/{MD_FILENAME}",
         ]
         if self.output_graph_iri:
             # Ask the jar to also save the loaded ontology as N-Triples; write_output_graph()
@@ -355,7 +356,7 @@ class ValidatePlugin(WorkflowPlugin):
             if cancel_workflow(self):
                 return None
 
-        text = (Path(self.temp) / self.md_filename).read_text()
+        text = (Path(self.temp) / MD_FILENAME).read_text()
         if text.split("\n", 1)[0] != "No explanations found.":
             if self.stop_at_inconsistencies:
                 self.context.report.update(
