@@ -93,7 +93,7 @@ def setup(client: Client) -> Generator[None, Any]:
 
 
 @pytest.mark.parametrize("reasoner_parameter", REASON_REASONERS)
-def test_reason(setup: None, client: Client, reasoner_parameter: str) -> None:  # noqa: ARG001
+def test_reason(setup: None, client: Client, reasoner_parameter: str) -> None:
     """Test reasoning"""
     ReasonPlugin(
         data_graph_iri=REASON_DATA_GRAPH_IRI,
@@ -114,7 +114,7 @@ def test_reason(setup: None, client: Client, reasoner_parameter: str) -> None:  
     assert isomorphic(result, test)
 
 
-def test_reason_input_not_exist(setup: None) -> None:  # noqa: ARG001
+def test_reason_input_not_exist(setup: None) -> None:
     """Test Reason with non-existing input graph"""
     plugin = ReasonPlugin(
         data_graph_iri=f"https://ns.eccenca.com/reasoning/{UID}/not-exist1/",
@@ -134,7 +134,7 @@ def test_reason_input_not_exist(setup: None) -> None:  # noqa: ARG001
         plugin.execute(inputs=(), context=TestExecutionContext())
 
 
-def test_reason_import_not_exist_not_ignore(setup: None) -> None:  # noqa: ARG001
+def test_reason_import_not_exist_not_ignore(setup: None) -> None:
     """Test Reason with missing import"""
     plugin = ReasonPlugin(
         data_graph_iri=REASON_DATA_GRAPH_IRI,
@@ -153,7 +153,7 @@ def test_reason_import_not_exist_not_ignore(setup: None) -> None:  # noqa: ARG00
         plugin.execute(inputs=(), context=TestExecutionContext())
 
 
-def test_reason_import_not_exist_ignore(setup: None) -> None:  # noqa: ARG001
+def test_reason_import_not_exist_ignore(setup: None) -> None:
     """Test Reason ignoring missing import"""
     ReasonPlugin(
         data_graph_iri=REASON_DATA_GRAPH_IRI,
@@ -167,7 +167,7 @@ def test_reason_import_not_exist_ignore(setup: None) -> None:  # noqa: ARG001
     ).execute(inputs=(), context=TestExecutionContext())
 
 
-def test_reason_ontology_import(setup: None, client: Client) -> None:  # noqa: ARG001
+def test_reason_ontology_import(setup: None, client: Client) -> None:
     """Test Reason no ontology import"""
     ReasonPlugin(
         data_graph_iri=REASON_DATA_GRAPH_IRI,
@@ -183,7 +183,7 @@ def test_reason_ontology_import(setup: None, client: Client) -> None:  # noqa: A
     assert not client.store.sparql.query(ASK_QUERY).askAnswer
 
 
-def test_reason_ontology_import_2(setup: None, client: Client) -> None:  # noqa: ARG001
+def test_reason_ontology_import_2(setup: None, client: Client) -> None:
     """Test Reason ontology import"""
     ReasonPlugin(
         data_graph_iri=REASON_DATA_GRAPH_IRI,

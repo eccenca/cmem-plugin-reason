@@ -132,7 +132,7 @@ MD_FILENAME = "mdfile.md"
 class ValidatePlugin(WorkflowPlugin):
     """Validate plugin"""
 
-    def __init__(  # noqa: PLR0913
+    def __init__(  # noqa: PLR0913, PLR0917
         self,
         ontology_graph_iri: str,
         ignore_missing_imports: bool = False,
@@ -223,8 +223,10 @@ class ValidatePlugin(WorkflowPlugin):
             f'<{output_graph_iri}> <{RDFS_LABEL}> "{self._escape_nt_literal(label)}"@en .',
             f'<{output_graph_iri}> <{RDFS_COMMENT}> "{comment}"@en .',
             f"<{output_graph_iri}> <{DCTERMS_SOURCE}> <{ontology_graph_iri}> .",
-            f"<{output_graph_iri}> <{DCTERMS_CREATED}> "
-            f'"{created}"^^<http://www.w3.org/2001/XMLSchema#dateTime> .',
+            (
+                f"<{output_graph_iri}> <{DCTERMS_CREATED}> "
+                f'"{created}"^^<http://www.w3.org/2001/XMLSchema#dateTime> .'
+            ),
             f"<{ontology_graph_iri}> <{RDF_TYPE}> <{OWL_ONTOLOGY}> .",
         ]
         lines.extend(

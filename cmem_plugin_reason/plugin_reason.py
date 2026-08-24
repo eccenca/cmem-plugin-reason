@@ -295,7 +295,7 @@ Person`.
 class ReasonPlugin(WorkflowPlugin):
     """Reason plugin"""
 
-    def __init__(  # noqa: PLR0913
+    def __init__(  # noqa: PLR0913, PLR0917
         self,
         data_graph_iri: str,
         ontology_graph_iri: str,

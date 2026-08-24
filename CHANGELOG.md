@@ -18,6 +18,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
   profiles are output as a list instead of a comma-separated string.
 - Validate plugin: added "Maximum explanations" parameter to limit the number of justifications
   generated per inference.
+- Update template to 9.3.0.
 
 ### Removed
 
@@ -30,11 +31,11 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 ### Fixed
 
-- Fix robot.jar vulnerability CVE-2026-49844
+- Fix robot.jar vulnerability CVE-2026-49844.
 
 ### Changed
 
-- Use cmem-client instead of cmempy for all Corporate Memory access
+- Use cmem-client instead of cmempy for all Corporate Memory access.
 
 
 ## [2.2.7] 2026-07-22
