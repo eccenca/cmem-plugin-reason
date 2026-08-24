@@ -23,7 +23,6 @@ from cmem_plugin_reason.utils import (
     MAX_RAM_PERCENTAGE_DEFAULT,
     MAX_RAM_PERCENTAGE_PARAMETER,
     ONTOLOGY_GRAPH_IRI_PARAMETER,
-    VALIDATE_PROFILES_PARAMETER,
     cancel_workflow,
     create_xml_catalog_file,
     eccenca_reasoner,
@@ -37,8 +36,7 @@ from cmem_plugin_reason.utils import (
 
 LABEL = "Validate OWL consistency"
 
-#: Predicate used to annotate the output graph with the validated ontology's OWL 2
-#: profiles. Specific to this plugin, so it lives here rather than in utils.py.
+#: Predicate used to annotate the output graph with the validated ontology's OWL 2 profiles.
 VALIDATE_PROFILE_PREDICATE = "https://vocab.eccenca.com/plugin/validate/profile"
 RDF_TYPE = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
 OWL_ONTOLOGY = "http://www.w3.org/2002/07/owl#Ontology"
@@ -66,7 +64,6 @@ MD_FILENAME = "mdfile.md"
         IGNORE_MISSING_IMPORTS_PARAMETER,
         ONTOLOGY_GRAPH_IRI_PARAMETER,
         MAX_RAM_PERCENTAGE_PARAMETER,
-        VALIDATE_PROFILES_PARAMETER,
         PluginParameter(
             param_type=GraphParameterType(
                 allow_only_autocompleted_values=False,
@@ -95,6 +92,14 @@ MD_FILENAME = "mdfile.md"
             label="Stop at inconsistencies",
             description="Raise an error if inconsistencies are found. If enabled, the plugin does "
             "not output entities.",
+            default_value=False,
+        ),
+        PluginParameter(
+            param_type=BoolParameterType(),
+            name="validate_profile",
+            label="Validate OWL2 profiles",
+            description="""Validate the input ontology against the OWL 2 profiles (Full, DL, EL, QL,
+            RL) and annotate the result.""",
             default_value=False,
         ),
         PluginParameter(

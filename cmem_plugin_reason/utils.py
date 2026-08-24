@@ -57,15 +57,6 @@ IGNORE_MISSING_IMPORTS_PARAMETER = PluginParameter(
     default_value=False,
 )
 
-VALIDATE_PROFILES_PARAMETER = PluginParameter(
-    param_type=BoolParameterType(),
-    name="validate_profile",
-    label="Validate OWL2 profiles",
-    description="""Validate the input ontology against the OWL 2 profiles (Full, DL, EL, QL, RL)
-    and annotate the result.""",
-    default_value=False,
-)
-
 
 def is_valid_uri(uri: str | None) -> bool:
     """Validate a URI (http(s) URL or urn:)"""
