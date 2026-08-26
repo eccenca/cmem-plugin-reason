@@ -2,7 +2,6 @@
 
 from collections import OrderedDict
 from collections.abc import Sequence
-from datetime import UTC, datetime
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from uuid import uuid4
@@ -19,31 +18,32 @@ from cmem_plugin_base.dataintegration.types import BoolParameterType, IntParamet
 
 from cmem_plugin_reason.doc import VALIDATE_DOC
 from cmem_plugin_reason.utils import (
+    CATALOG_FILENAME,
     IGNORE_MISSING_IMPORTS_PARAMETER,
     MAX_RAM_PERCENTAGE_DEFAULT,
     MAX_RAM_PERCENTAGE_PARAMETER,
     ONTOLOGY_GRAPH_IRI_PARAMETER,
+    OWL_ONTOLOGY,
+    RDF_TYPE,
+    RESULT_FILENAME,
+    build_annotation_nt,
     cancel_workflow,
     create_xml_catalog_file,
     eccenca_reasoner,
+    escape_nt_literal,
     get_graph_as_file,
     get_output_graph_label,
     is_valid_uri,
     post_provenance,
     raise_on_error,
     send_result,
+    utc_now_xsd,
 )
 
 LABEL = "Validate OWL consistency"
 
 #: Predicate used to annotate the output graph with the validated ontology's OWL 2 profiles.
 VALIDATE_PROFILE_PREDICATE = "https://vocab.eccenca.com/plugin/validate/profile"
-RDF_TYPE = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
-OWL_ONTOLOGY = "http://www.w3.org/2002/07/owl#Ontology"
-RDFS_LABEL = "http://www.w3.org/2000/01/rdf-schema#label"
-RDFS_COMMENT = "http://www.w3.org/2000/01/rdf-schema#comment"
-DCTERMS_SOURCE = "http://purl.org/dc/terms/source"
-DCTERMS_CREATED = "http://purl.org/dc/terms/created"
 
 VALIDATE_REASONERS = OrderedDict(
     {
@@ -188,17 +188,6 @@ class ValidatePlugin(WorkflowPlugin):
             paths.append(EntityPath("profiles"))
         return EntitySchema(type_uri="validate", paths=paths)
 
-    @staticmethod
-    def _escape_nt_literal(text: str) -> str:
-        """Escape a string for use in an N-Triples literal (backslash, quote, control chars)."""
-        return (
-            text.replace("\\", "\\\\")
-            .replace('"', '\\"')
-            .replace("\n", "\\n")
-            .replace("\r", "\\r")
-            .replace("\t", "\\t")
-        )
-
     def build_output_graph_nt(
         self,
         label: str,
@@ -207,31 +196,26 @@ class ValidatePlugin(WorkflowPlugin):
     ) -> str:
         """Build the N-Triples annotation written to the output graph.
 
-        Declares `self.output_graph_iri` as an owl:Ontology, gives it a human-readable
-        rdfs:label/rdfs:comment, links it back to the validated ontology via
-        dcterms:source, and records a dcterms:created timestamp. If profiles were
-        validated, each conforming profile is added as a separate
-        VALIDATE_PROFILE_PREDICATE triple. Written as plain N-Triples lines (full
-        IRIs, no prefixes), same pattern used elsewhere for graph output, with
-        literals escaped by hand rather than via an RDF library.
+        The shared preamble (type, label, comment, source, created) comes from
+        build_annotation_nt(). On top of that, the validated ontology is declared an
+        owl:Ontology so the profile statements have a typed subject, and if profiles
+        were validated, each conforming profile is added as a separate
+        VALIDATE_PROFILE_PREDICATE triple on the validated ontology.
         """
-        output_graph_iri = self.output_graph_iri
         ontology_graph_iri = self.ontology_graph_iri
-        comment = self._escape_nt_literal(f"Ontology validation of <{ontology_graph_iri}>")
         lines = [
-            f"<{output_graph_iri}> <{RDF_TYPE}> <{OWL_ONTOLOGY}> .",
-            f'<{output_graph_iri}> <{RDFS_LABEL}> "{self._escape_nt_literal(label)}"@en .',
-            f'<{output_graph_iri}> <{RDFS_COMMENT}> "{comment}"@en .',
-            f"<{output_graph_iri}> <{DCTERMS_SOURCE}> <{ontology_graph_iri}> .",
-            (
-                f"<{output_graph_iri}> <{DCTERMS_CREATED}> "
-                f'"{created}"^^<http://www.w3.org/2001/XMLSchema#dateTime> .'
-            ),
+            build_annotation_nt(
+                graph_iri=self.output_graph_iri,
+                label=label,
+                comment=f"Ontology validation of <{ontology_graph_iri}>",
+                sources=[ontology_graph_iri],
+                created=created,
+            ).rstrip("\n"),
             f"<{ontology_graph_iri}> <{RDF_TYPE}> <{OWL_ONTOLOGY}> .",
         ]
         lines.extend(
             f"<{ontology_graph_iri}> <{VALIDATE_PROFILE_PREDICATE}> "
-            f'"{self._escape_nt_literal(profile)}" .'
+            f'"{escape_nt_literal(profile)}" .'
             for profile in valid_profiles or []
         )
         return "\n".join(lines) + "\n"
@@ -244,7 +228,7 @@ class ValidatePlugin(WorkflowPlugin):
         stdout, one per line, in the order Full, DL, EL, QL, RL.
         """
         ontology_location = f"{self.temp}/{graphs[self.ontology_graph_iri]}"
-        catalog_location = f"{self.temp}/catalog-v001.xml"
+        catalog_location = f"{self.temp}/{CATALOG_FILENAME}"
         cmd = [
             "validate-profile",
             "--input",
@@ -293,7 +277,7 @@ class ValidatePlugin(WorkflowPlugin):
     def explain(self, graphs: dict) -> None:
         """Reason"""
         data_location = f"{self.temp}/{graphs[self.ontology_graph_iri]}"
-        catalog_location = f"{self.temp}/catalog-v001.xml"
+        catalog_location = f"{self.temp}/{CATALOG_FILENAME}"
         cmd = [
             "explain",
             "--input",
@@ -312,20 +296,20 @@ class ValidatePlugin(WorkflowPlugin):
         if self.output_graph_iri:
             # Ask the jar to also save the loaded ontology as N-Triples; write_output_graph()
             # appends the label/comment/source/profile annotation onto this same file.
-            cmd += ["--output", f"{self.temp}/result.nt", "--format", "nt"]
+            cmd += ["--output", f"{self.temp}/{RESULT_FILENAME}", "--format", "nt"]
         response = eccenca_reasoner(cmd, self.max_ram_percentage)
         raise_on_error(response, "Explanation")
 
     def write_output_graph(self, valid_profiles: list[str]) -> None:
         """Append the validation-result annotation onto the ontology graph explain() wrote."""
         label = get_output_graph_label(self, self.ontology_graph_iri, "Validation Result")
-        created = datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
+        created = utc_now_xsd()
         annotations = self.build_output_graph_nt(
             label,
             created,
             valid_profiles if self.validate_profile else None,
         )
-        path = Path(self.temp) / "result.nt"
+        path = Path(self.temp) / RESULT_FILENAME
         with path.open("a", encoding="utf-8") as f:
             f.write("\n" + annotations)
         send_result(self.client, self.output_graph_iri, path)

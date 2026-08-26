@@ -2,7 +2,6 @@
 
 from collections import OrderedDict
 from collections.abc import Sequence
-from datetime import UTC, datetime
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from uuid import uuid4
@@ -18,10 +17,14 @@ from cmem_plugin_base.dataintegration.types import BoolParameterType
 
 from cmem_plugin_reason.doc import REASON_DOC
 from cmem_plugin_reason.utils import (
+    CATALOG_FILENAME,
     IGNORE_MISSING_IMPORTS_PARAMETER,
     MAX_RAM_PERCENTAGE_DEFAULT,
     MAX_RAM_PERCENTAGE_PARAMETER,
     ONTOLOGY_GRAPH_IRI_PARAMETER,
+    OWL_IMPORTS,
+    RESULT_FILENAME,
+    build_annotation_nt,
     cancel_workflow,
     create_xml_catalog_file,
     eccenca_reasoner,
@@ -31,6 +34,7 @@ from cmem_plugin_reason.utils import (
     post_provenance,
     raise_on_error,
     send_result,
+    utc_now_xsd,
 )
 
 LABEL = "Reason"
@@ -299,8 +303,8 @@ class ReasonPlugin(WorkflowPlugin):
         self,
         data_graph_iri: str,
         ontology_graph_iri: str,
+        output_graph_iri: str,
         ignore_missing_imports: bool = False,
-        output_graph_iri: str | None = None,
         reasoner: str = "hermit",
         class_assertion: bool = True,
         property_assertion: bool = True,
@@ -378,11 +382,7 @@ class ReasonPlugin(WorkflowPlugin):
             get_graph_as_file(self.client, iri, path)
             if iri == self.data_graph_iri:
                 with path.open("a", encoding="utf-8") as file:
-                    file.write(
-                        f"\n<{iri}> "
-                        "<http://www.w3.org/2002/07/owl#imports> "
-                        f"<{self.ontology_graph_iri}> ."
-                    )
+                    file.write(f"\n<{iri}> <{OWL_IMPORTS}> <{self.ontology_graph_iri}> .")
 
     def get_graphs_tree(self) -> tuple[dict, list]:
         """Get graph import tree. Last item in graph_iris is output_graph_iri which is excluded"""
@@ -412,8 +412,8 @@ class ReasonPlugin(WorkflowPlugin):
         """Reason"""
         axioms = " ".join(k for k, v in self.axioms.items() if v)
         data_location = f"{self.temp}/{graphs[self.data_graph_iri]}"
-        catalog_location = f"{self.temp}/catalog-v001.xml"
-        result_path = f"{self.temp}/result.nt"
+        catalog_location = f"{self.temp}/{CATALOG_FILENAME}"
+        result_path = f"{self.temp}/{RESULT_FILENAME}"
         label = get_output_graph_label(self, self.data_graph_iri, "Reasoning Results")
 
         cmd = [
@@ -443,36 +443,23 @@ class ReasonPlugin(WorkflowPlugin):
         raise_on_error(response, "Reasoning")
 
         # Append annotation triples to the output file
-        utctime = datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
+        annotations = build_annotation_nt(
+            graph_iri=self.output_graph_iri,
+            label=label,
+            comment=f"Reasoning results of data graph <{self.data_graph_iri}> "
+            f"with ontology <{self.ontology_graph_iri}>",
+            sources=[self.data_graph_iri, self.ontology_graph_iri],
+            created=utc_now_xsd(),
+        )
         with Path(result_path).open("a", encoding="utf-8") as f:
-            f.write(
-                f"\n<{self.output_graph_iri}> "
-                f"<http://www.w3.org/1999/02/22-rdf-syntax-ns#type> "
-                f"<http://www.w3.org/2002/07/owl#Ontology> .\n"
-                f"<{self.output_graph_iri}> "
-                f"<http://www.w3.org/2000/01/rdf-schema#label> "
-                f'"{label}"@en .\n'
-                f"<{self.output_graph_iri}> "
-                f"<http://www.w3.org/2000/01/rdf-schema#comment> "
-                f'"Reasoning results of data graph <{self.data_graph_iri}> with ontology '
-                f'<{self.ontology_graph_iri}>"@en .\n'
-                f"<{self.output_graph_iri}> "
-                f"<http://purl.org/dc/terms/source> "
-                f"<{self.data_graph_iri}> .\n"
-                f"<{self.output_graph_iri}> "
-                f"<http://purl.org/dc/terms/source> "
-                f"<{self.ontology_graph_iri}> .\n"
-                f"<{self.output_graph_iri}> "
-                f"<http://purl.org/dc/terms/created> "
-                f'"{utctime}"^^<http://www.w3.org/2001/XMLSchema#dateTime> .\n'
-            )
+            f.write("\n" + annotations)
 
     def insert_ontology_import(self) -> None:
         """Insert ontology graph import to result graph"""
         query = f"""
             INSERT DATA {{
                 GRAPH <{self.output_graph_iri}> {{
-                    <{self.output_graph_iri}> <http://www.w3.org/2002/07/owl#imports>
+                    <{self.output_graph_iri}> <{OWL_IMPORTS}>
                         <{self.ontology_graph_iri}>
                 }}
             }}
@@ -489,7 +476,7 @@ class ReasonPlugin(WorkflowPlugin):
         self.reason(graphs)
         if cancel_workflow(self):
             return
-        send_result(self.client, self.output_graph_iri, Path(self.temp) / "result.nt")
+        send_result(self.client, self.output_graph_iri, Path(self.temp) / RESULT_FILENAME)
         post_provenance(self)
 
         if self.imports:

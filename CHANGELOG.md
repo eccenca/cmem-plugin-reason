@@ -16,9 +16,12 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 - Validate plugin: reasoner options are now limited to HermiT and JFact.
 - Validate plugin: entities are now always output (no more "Output entities" toggle); valid
   profiles are output as a list instead of a comma-separated string.
+- Update template to 9.3.0.
+
+### Added
+
 - Validate plugin: added "Maximum explanations" parameter to limit the number of justifications
   generated per inference.
-- Update template to 9.3.0.
 
 ### Removed
 

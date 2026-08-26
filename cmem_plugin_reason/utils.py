@@ -1,11 +1,13 @@
 """Common constants and functions for the reasoning and validation plugins.
 
-Organized in two sections:
+Organized in three sections:
   1. Shared across both plugins.
   2. Generic reasoner (`eccenca-reasoner.jar`, bundled with this package).
+  3. RDF vocabulary and N-Triples output-graph annotation.
 """
 
 import re
+from datetime import UTC, datetime
 from pathlib import Path
 from secrets import token_hex
 from subprocess import CompletedProcess, run
@@ -201,10 +203,18 @@ def post_provenance(plugin: WorkflowPlugin) -> None:
 
 REASONER = Path(__path__[0]) / "eccenca-reasoner.jar"
 
+#: Name of the XML catalog file written by create_xml_catalog_file() and passed to the
+#: reasoner via --catalog, so that owl:imports are resolved to the locally fetched graphs.
+CATALOG_FILENAME = "catalog-v001.xml"
+
+#: Name of the N-Triples file the reasoner writes via --output. The plugins append their
+#: annotation triples to it before uploading it as the output graph.
+RESULT_FILENAME = "result.nt"
+
 
 def create_xml_catalog_file(dir_: str, graphs: dict) -> None:
     """Create XML catalog file"""
-    file_name = Path(dir_) / "catalog-v001.xml"
+    file_name = Path(dir_) / CATALOG_FILENAME
     catalog = Element("catalog")
     catalog.set("prefer", "public")
     catalog.set("xmlns", "urn:oasis:names:tc:entity:xmlns:xml:catalog")
@@ -223,3 +233,58 @@ def eccenca_reasoner(cmd: list[str], max_ram_percentage: int) -> CompletedProces
     """Run eccenca_reasoner.jar"""
     full_cmd = ["java", f"-XX:MaxRAMPercentage={max_ram_percentage}", "-jar", str(REASONER), *cmd]
     return run(full_cmd, check=False, capture_output=True)  # noqa: S603
+
+
+# ============================================================================
+# 3. RDF vocabulary and N-Triples output-graph annotation
+# ============================================================================
+
+RDF_TYPE = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
+RDFS_LABEL = "http://www.w3.org/2000/01/rdf-schema#label"
+RDFS_COMMENT = "http://www.w3.org/2000/01/rdf-schema#comment"
+OWL_ONTOLOGY = "http://www.w3.org/2002/07/owl#Ontology"
+OWL_IMPORTS = "http://www.w3.org/2002/07/owl#imports"
+DCTERMS_SOURCE = "http://purl.org/dc/terms/source"
+DCTERMS_CREATED = "http://purl.org/dc/terms/created"
+XSD_DATETIME = "http://www.w3.org/2001/XMLSchema#dateTime"
+
+
+def utc_now_xsd() -> str:
+    """Return the current UTC time in the lexical form expected for XSD_DATETIME"""
+    return datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+
+def escape_nt_literal(text: str) -> str:
+    """Escape a string for use in an N-Triples literal (backslash, quote, control chars)."""
+    return (
+        text.replace("\\", "\\\\")
+        .replace('"', '\\"')
+        .replace("\n", "\\n")
+        .replace("\r", "\\r")
+        .replace("\t", "\\t")
+    )
+
+
+def build_annotation_nt(
+    graph_iri: str,
+    label: str,
+    comment: str,
+    sources: list[str],
+    created: str,
+) -> str:
+    """Build the N-Triples annotation both plugins prepend to their output graph.
+
+    Declares `graph_iri` as an owl:Ontology, gives it a human-readable rdfs:label and
+    rdfs:comment, links it back to each input graph via dcterms:source, and records a
+    dcterms:created timestamp (pass `utc_now_xsd()` unless a fixed value is needed).
+    Written as plain N-Triples lines (full IRIs, no prefixes) rather than via an RDF
+    library, so `label` and `comment` are escaped by hand; the IRIs are not escaped.
+    """
+    lines = [
+        f"<{graph_iri}> <{RDF_TYPE}> <{OWL_ONTOLOGY}> .",
+        f'<{graph_iri}> <{RDFS_LABEL}> "{escape_nt_literal(label)}"@en .',
+        f'<{graph_iri}> <{RDFS_COMMENT}> "{escape_nt_literal(comment)}"@en .',
+    ]
+    lines += [f"<{graph_iri}> <{DCTERMS_SOURCE}> <{source}> ." for source in sources]
+    lines.append(f'<{graph_iri}> <{DCTERMS_CREATED}> "{created}"^^<{XSD_DATETIME}> .')
+    return "\n".join(lines) + "\n"
