@@ -32,6 +32,10 @@ Optional IRI of an output graph to annotate with the validation result (label, c
 link back to the validated ontology). ⚠️ Existing graphs will be overwritten. Leave empty to
 skip.
 
+The output graph holds the explanation axioms plus the validation result and is declared a
+`void:Dataset`. It is not declared an `owl:Ontology`: it does not contain an ontology of its
+own, it describes the validated one.
+
 ### Reasoner
 
 The following reasoner options are supported:

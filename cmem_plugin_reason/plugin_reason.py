@@ -18,12 +18,15 @@ from cmem_plugin_base.dataintegration.types import BoolParameterType
 from cmem_plugin_reason.doc import REASON_DOC
 from cmem_plugin_reason.utils import (
     CATALOG_FILENAME,
+    DI_DATASET,
     IGNORE_MISSING_IMPORTS_PARAMETER,
     MAX_RAM_PERCENTAGE_DEFAULT,
     MAX_RAM_PERCENTAGE_PARAMETER,
     ONTOLOGY_GRAPH_IRI_PARAMETER,
     OWL_IMPORTS,
+    OWL_ONTOLOGY,
     RESULT_FILENAME,
+    VOID_DATASET,
     build_annotation_nt,
     cancel_workflow,
     create_xml_catalog_file,
@@ -167,13 +170,7 @@ Person`.
             description="Reasoner option.",
         ),
         PluginParameter(
-            param_type=GraphParameterType(
-                classes=[
-                    "http://www.w3.org/2002/07/owl#Ontology",
-                    "https://vocab.eccenca.com/di/Dataset",
-                    "http://rdfs.org/ns/void#Dataset",
-                ]
-            ),
+            param_type=GraphParameterType(classes=[OWL_ONTOLOGY, DI_DATASET, VOID_DATASET]),
             name="data_graph_iri",
             label="Data graph IRI",
             description="The IRI of the input data graph.",
@@ -181,7 +178,7 @@ Person`.
         PluginParameter(
             param_type=GraphParameterType(
                 allow_only_autocompleted_values=False,
-                classes=["http://www.w3.org/2002/07/owl#Ontology"],
+                classes=[OWL_ONTOLOGY],
             ),
             name="output_graph_iri",
             label="Output graph IRI",
@@ -450,6 +447,7 @@ class ReasonPlugin(WorkflowPlugin):
             f"with ontology <{self.ontology_graph_iri}>",
             sources=[self.data_graph_iri, self.ontology_graph_iri],
             created=utc_now_xsd(),
+            rdf_type=OWL_ONTOLOGY,
         )
         with Path(result_path).open("a", encoding="utf-8") as f:
             f.write("\n" + annotations)

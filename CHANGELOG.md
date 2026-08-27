@@ -7,6 +7,11 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 ## [Unreleased]
 
+### Fixed
+
+- Validate plugin: the output graph is now declared a `void:Dataset` instead of an
+  `owl:Ontology`.
+
 ### Changed
 
 - Use eccenca reasoner (OWLAPI5) instead of ROBOT (OWLAPI4).

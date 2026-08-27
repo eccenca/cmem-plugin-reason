@@ -1,9 +1,10 @@
 """Common constants and functions for the reasoning and validation plugins.
 
-Organized in three sections:
-  1. Shared across both plugins.
-  2. Generic reasoner (`eccenca-reasoner.jar`, bundled with this package).
-  3. RDF vocabulary and N-Triples output-graph annotation.
+Organized in four sections:
+  1. RDF vocabulary (IRIs used in graph type filters and in the output-graph annotation).
+  2. Shared across both plugins.
+  3. Generic reasoner (`eccenca-reasoner.jar`, bundled with this package).
+  4. N-Triples output-graph annotation.
 """
 
 import re
@@ -28,14 +29,30 @@ from defusedxml import minidom
 from . import __path__
 
 # ============================================================================
-# 1. Shared
+# 1. RDF vocabulary
+# ============================================================================
+
+RDF_TYPE = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
+RDFS_LABEL = "http://www.w3.org/2000/01/rdf-schema#label"
+RDFS_COMMENT = "http://www.w3.org/2000/01/rdf-schema#comment"
+OWL_ONTOLOGY = "http://www.w3.org/2002/07/owl#Ontology"
+OWL_IMPORTS = "http://www.w3.org/2002/07/owl#imports"
+DCTERMS_SOURCE = "http://purl.org/dc/terms/source"
+DCTERMS_CREATED = "http://purl.org/dc/terms/created"
+DI_DATASET = "https://vocab.eccenca.com/di/Dataset"
+VOID_DATASET = "http://rdfs.org/ns/void#Dataset"
+XSD_DATETIME = "http://www.w3.org/2001/XMLSchema#dateTime"
+
+
+# ============================================================================
+# 2. Shared
 # ============================================================================
 
 MAX_RAM_PERCENTAGE_DEFAULT = 20
 URN_PATTERN = re.compile(r"^urn:[a-zA-Z0-9][a-zA-Z0-9-]*(:.+)?$", re.IGNORECASE)
 
 ONTOLOGY_GRAPH_IRI_PARAMETER = PluginParameter(
-    param_type=GraphParameterType(classes=["http://www.w3.org/2002/07/owl#Ontology"]),
+    param_type=GraphParameterType(classes=[OWL_ONTOLOGY]),
     name="ontology_graph_iri",
     label="Ontology graph IRI",
     description="The IRI of the input ontology graph.",
@@ -198,7 +215,7 @@ def post_provenance(plugin: WorkflowPlugin) -> None:
 
 
 # ============================================================================
-# 2. Generic reasoner (eccenca-reasoner.jar, bundled)
+# 3. Generic reasoner (eccenca-reasoner.jar, bundled)
 # ============================================================================
 
 REASONER = Path(__path__[0]) / "eccenca-reasoner.jar"
@@ -236,17 +253,8 @@ def eccenca_reasoner(cmd: list[str], max_ram_percentage: int) -> CompletedProces
 
 
 # ============================================================================
-# 3. RDF vocabulary and N-Triples output-graph annotation
+# 4. N-Triples output-graph annotation
 # ============================================================================
-
-RDF_TYPE = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
-RDFS_LABEL = "http://www.w3.org/2000/01/rdf-schema#label"
-RDFS_COMMENT = "http://www.w3.org/2000/01/rdf-schema#comment"
-OWL_ONTOLOGY = "http://www.w3.org/2002/07/owl#Ontology"
-OWL_IMPORTS = "http://www.w3.org/2002/07/owl#imports"
-DCTERMS_SOURCE = "http://purl.org/dc/terms/source"
-DCTERMS_CREATED = "http://purl.org/dc/terms/created"
-XSD_DATETIME = "http://www.w3.org/2001/XMLSchema#dateTime"
 
 
 def utc_now_xsd() -> str:
@@ -265,23 +273,26 @@ def escape_nt_literal(text: str) -> str:
     )
 
 
-def build_annotation_nt(
+def build_annotation_nt(  # noqa: PLR0913, PLR0917
     graph_iri: str,
     label: str,
     comment: str,
     sources: list[str],
     created: str,
+    rdf_type: str,
 ) -> str:
     """Build the N-Triples annotation both plugins prepend to their output graph.
 
-    Declares `graph_iri` as an owl:Ontology, gives it a human-readable rdfs:label and
-    rdfs:comment, links it back to each input graph via dcterms:source, and records a
+    Declares `graph_iri` as an instance of `rdf_type`, gives it a human-readable rdfs:label
+    and rdfs:comment, links it back to each input graph via dcterms:source, and records a
     dcterms:created timestamp (pass `utc_now_xsd()` unless a fixed value is needed).
+    Pass OWL_ONTOLOGY for an output graph that is itself an OWL ontology (the reasoning result),
+    VOID_DATASET for a graph that merely reports on an input graph (the validation result).
     Written as plain N-Triples lines (full IRIs, no prefixes) rather than via an RDF
     library, so `label` and `comment` are escaped by hand; the IRIs are not escaped.
     """
     lines = [
-        f"<{graph_iri}> <{RDF_TYPE}> <{OWL_ONTOLOGY}> .",
+        f"<{graph_iri}> <{RDF_TYPE}> <{rdf_type}> .",
         f'<{graph_iri}> <{RDFS_LABEL}> "{escape_nt_literal(label)}"@en .',
         f'<{graph_iri}> <{RDFS_COMMENT}> "{escape_nt_literal(comment)}"@en .',
     ]

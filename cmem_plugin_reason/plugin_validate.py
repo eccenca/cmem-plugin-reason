@@ -19,6 +19,7 @@ from cmem_plugin_base.dataintegration.types import BoolParameterType, IntParamet
 from cmem_plugin_reason.doc import VALIDATE_DOC
 from cmem_plugin_reason.utils import (
     CATALOG_FILENAME,
+    DI_DATASET,
     IGNORE_MISSING_IMPORTS_PARAMETER,
     MAX_RAM_PERCENTAGE_DEFAULT,
     MAX_RAM_PERCENTAGE_PARAMETER,
@@ -26,6 +27,7 @@ from cmem_plugin_reason.utils import (
     OWL_ONTOLOGY,
     RDF_TYPE,
     RESULT_FILENAME,
+    VOID_DATASET,
     build_annotation_nt,
     cancel_workflow,
     create_xml_catalog_file,
@@ -67,11 +69,7 @@ MD_FILENAME = "mdfile.md"
         PluginParameter(
             param_type=GraphParameterType(
                 allow_only_autocompleted_values=False,
-                classes=[
-                    "https://vocab.eccenca.com/di/Dataset",
-                    "http://rdfs.org/ns/void#Dataset",
-                    "http://www.w3.org/2002/07/owl#Ontology",
-                ],
+                classes=[OWL_ONTOLOGY, DI_DATASET, VOID_DATASET],
             ),
             name="output_graph_iri",
             label="Output graph IRI",
@@ -197,10 +195,12 @@ class ValidatePlugin(WorkflowPlugin):
         """Build the N-Triples annotation written to the output graph.
 
         The shared preamble (type, label, comment, source, created) comes from
-        build_annotation_nt(). On top of that, the validated ontology is declared an
-        owl:Ontology so the profile statements have a typed subject, and if profiles
-        were validated, each conforming profile is added as a separate
-        VALIDATE_PROFILE_PREDICATE triple on the validated ontology.
+        build_annotation_nt(). The output graph is typed void:Dataset rather than
+        owl:Ontology: it does not hold an ontology of its own, it reports on one (its
+        payload is the explanation axioms, which are deliberately inconsistent). On top of
+        the preamble, the validated ontology is declared an owl:Ontology so the profile
+        statements have a typed subject, and if profiles were validated, each conforming
+        profile is added as a separate VALIDATE_PROFILE_PREDICATE triple on it.
         """
         ontology_graph_iri = self.ontology_graph_iri
         lines = [
@@ -210,6 +210,7 @@ class ValidatePlugin(WorkflowPlugin):
                 comment=f"Ontology validation of <{ontology_graph_iri}>",
                 sources=[ontology_graph_iri],
                 created=created,
+                rdf_type=VOID_DATASET,
             ).rstrip("\n"),
             f"<{ontology_graph_iri}> <{RDF_TYPE}> <{OWL_ONTOLOGY}> .",
         ]
@@ -294,14 +295,15 @@ class ValidatePlugin(WorkflowPlugin):
             f"{self.temp}/{MD_FILENAME}",
         ]
         if self.output_graph_iri:
-            # Ask the jar to also save the loaded ontology as N-Triples; write_output_graph()
+            # Ask the jar to also write the explanation axioms (the justification for the
+            # inconsistency, not the loaded ontology) as N-Triples; write_output_graph()
             # appends the label/comment/source/profile annotation onto this same file.
             cmd += ["--output", f"{self.temp}/{RESULT_FILENAME}", "--format", "nt"]
         response = eccenca_reasoner(cmd, self.max_ram_percentage)
         raise_on_error(response, "Explanation")
 
     def write_output_graph(self, valid_profiles: list[str]) -> None:
-        """Append the validation-result annotation onto the ontology graph explain() wrote."""
+        """Append the validation-result annotation onto the explanation axioms explain() wrote."""
         label = get_output_graph_label(self, self.ontology_graph_iri, "Validation Result")
         created = utc_now_xsd()
         annotations = self.build_output_graph_nt(
