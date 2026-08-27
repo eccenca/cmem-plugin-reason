@@ -60,8 +60,7 @@
     rdfs:label "Eccenca Reasoning Data - Reasoning Results"@en ;
     dcterms:source <https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/data/>,
         <https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/> ;
-    rdfs:comment "Reasoning results of data graph <https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/data/> with ontology <https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/>"@en ;
-    owl:imports <https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/> .
+    rdfs:comment "Reasoning results of data graph <https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/data/> with ontology <https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/>"@en .
 
 <https://ns.eccenca.com/reasoning/e02aaed014c94e0c91bf960fed127750/vocab/van_driver> rdfs:subClassOf _:n44061bbc45dc45f8834d04479761b77fb1 .
 

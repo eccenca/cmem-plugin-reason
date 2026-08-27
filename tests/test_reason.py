@@ -103,7 +103,6 @@ def test_reason(setup: None, client: Client, reasoner_parameter: str) -> None:
         sub_class=False,
         class_assertion=True,
         property_assertion=True,
-        imports=True,
     ).execute(inputs=(), context=TestExecutionContext())
 
     result = get_remote_graph(client, REASON_RESULT_GRAPH_IRI)
@@ -181,20 +180,3 @@ def test_reason_ontology_import(setup: None, client: Client) -> None:
     ).execute(inputs=(), context=TestExecutionContext())
 
     assert not client.store.sparql.query(ASK_QUERY).askAnswer
-
-
-def test_reason_ontology_import_2(setup: None, client: Client) -> None:
-    """Test Reason ontology import"""
-    ReasonPlugin(
-        data_graph_iri=REASON_DATA_GRAPH_IRI,
-        ontology_graph_iri=REASON_ONTOLOGY_GRAPH_IRI_1,
-        output_graph_iri=REASON_RESULT_GRAPH_IRI,
-        reasoner="structural",
-        sub_class=False,
-        class_assertion=True,
-        property_assertion=False,
-        ignore_missing_imports=True,
-        imports=True,
-    ).execute(inputs=(), context=TestExecutionContext())
-
-    assert client.store.sparql.query(ASK_QUERY).askAnswer

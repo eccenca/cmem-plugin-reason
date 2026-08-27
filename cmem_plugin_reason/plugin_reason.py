@@ -283,14 +283,6 @@ Person`.
             description=OBJECT_PROP_DOMAIN_DESC,
             default_value=False,
         ),
-        PluginParameter(
-            param_type=BoolParameterType(),
-            name="imports",
-            label="Output graph import",
-            description="""Add the triple <output_graph_iri> owl:imports <ontology_graph_iri> to the
-            output graph.""",
-            default_value=False,
-        ),
     ],
 )
 class ReasonPlugin(WorkflowPlugin):
@@ -317,7 +309,6 @@ class ReasonPlugin(WorkflowPlugin):
         inverse_object_properties: bool = False,
         sub_data_property: bool = False,
         equivalent_data_properties: bool = False,
-        imports: bool = False,
         max_ram_percentage: int = MAX_RAM_PERCENTAGE_DEFAULT,
     ) -> None:
         #: Keyed by parameter name; camel_case() turns a key into the reasoner's generator name.
@@ -361,7 +352,6 @@ class ReasonPlugin(WorkflowPlugin):
         self.ontology_graph_iri = ontology_graph_iri
         self.output_graph_iri = output_graph_iri
         self.reasoner = reasoner
-        self.imports = imports
         self.max_ram_percentage = max_ram_percentage
         self.ignore_missing_imports = ignore_missing_imports
         self.label = LABEL
@@ -462,18 +452,6 @@ class ReasonPlugin(WorkflowPlugin):
         with Path(result_path).open("a", encoding="utf-8") as f:
             f.write("\n" + annotations)
 
-    def insert_ontology_import(self) -> None:
-        """Insert ontology graph import to result graph"""
-        query = f"""
-            INSERT DATA {{
-                GRAPH <{self.output_graph_iri}> {{
-                    <{self.output_graph_iri}> <{OWL_IMPORTS}>
-                        <{self.ontology_graph_iri}>
-                }}
-            }}
-        """
-        self.client.store.sparql.update(query)
-
     def _execute(self) -> None:
         """`Execute plugin"""
         graphs, missing = self.get_graphs_tree()
@@ -486,9 +464,6 @@ class ReasonPlugin(WorkflowPlugin):
             return
         send_result(self.client, self.output_graph_iri, Path(self.temp) / RESULT_FILENAME)
         post_provenance(self)
-
-        if self.imports:
-            self.insert_ontology_import()
 
         self.context.report.update(
             ExecutionReport(

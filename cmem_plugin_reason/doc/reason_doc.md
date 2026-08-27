@@ -159,7 +159,3 @@ properties, i.e. `Domain:` statements.
 If there are classes `Person`, `Student` and `Professor` as wells as the object property
 `hasRoleIn`, such that `Professor SubClassOf: Person`, `Student SubClassOf: Person` and
 `hasRoleIn Domain: Professor or Student` holds, the reasoner will infer `hasRoleIn Domain: Person`.
-
-### Output graph import
-
-Add the triple `<output_graph_iri> owl:imports <ontology_graph_iri>` to the output graph.
