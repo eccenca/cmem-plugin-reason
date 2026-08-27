@@ -26,8 +26,6 @@ from cmem_plugin_base.dataintegration.plugins import WorkflowPlugin
 from cmem_plugin_base.dataintegration.types import BoolParameterType, IntParameterType
 from defusedxml import minidom
 
-from . import __path__
-
 # ============================================================================
 # 1. RDF vocabulary
 # ============================================================================
@@ -218,7 +216,7 @@ def post_provenance(plugin: WorkflowPlugin) -> None:
 # 3. Generic reasoner (eccenca-reasoner.jar, bundled)
 # ============================================================================
 
-REASONER = Path(__path__[0]) / "eccenca-reasoner.jar"
+REASONER = Path(__file__).parent / "eccenca-reasoner.jar"
 
 #: Name of the XML catalog file written by create_xml_catalog_file() and passed to the
 #: reasoner via --catalog, so that owl:imports are resolved to the locally fetched graphs.
