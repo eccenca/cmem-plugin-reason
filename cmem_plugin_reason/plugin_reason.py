@@ -320,21 +320,22 @@ class ReasonPlugin(WorkflowPlugin):
         imports: bool = False,
         max_ram_percentage: int = MAX_RAM_PERCENTAGE_DEFAULT,
     ) -> None:
+        #: Keyed by parameter name; camel_case() turns a key into the reasoner's generator name.
         self.axioms = {
-            "SubClass": sub_class,
-            "EquivalentClass": equivalent_class,
-            "DisjointClasses": disjoint_classes,
-            "DataPropertyCharacteristic": data_property_characteristic,
-            "EquivalentDataProperties": equivalent_data_properties,
-            "SubDataProperty": sub_data_property,
-            "ClassAssertion": class_assertion,
-            "PropertyAssertion": property_assertion,
-            "EquivalentObjectProperty": equivalent_object_property,
-            "InverseObjectProperties": inverse_object_properties,
-            "ObjectPropertyCharacteristic": object_property_characteristic,
-            "SubObjectProperty": sub_object_property,
-            "ObjectPropertyRange": object_property_range,
-            "ObjectPropertyDomain": object_property_domain,
+            "sub_class": sub_class,
+            "equivalent_class": equivalent_class,
+            "disjoint_classes": disjoint_classes,
+            "data_property_characteristic": data_property_characteristic,
+            "equivalent_data_properties": equivalent_data_properties,
+            "sub_data_property": sub_data_property,
+            "class_assertion": class_assertion,
+            "property_assertion": property_assertion,
+            "equivalent_object_property": equivalent_object_property,
+            "inverse_object_properties": inverse_object_properties,
+            "object_property_characteristic": object_property_characteristic,
+            "sub_object_property": sub_object_property,
+            "object_property_range": object_property_range,
+            "object_property_domain": object_property_domain,
         }
         errors = ""
         if not is_valid_uri(data_graph_iri):
@@ -363,9 +364,18 @@ class ReasonPlugin(WorkflowPlugin):
         self.imports = imports
         self.max_ram_percentage = max_ram_percentage
         self.ignore_missing_imports = ignore_missing_imports
+        self.label = LABEL
+
+        # expose the axiom generators as attributes too, so post_provenance() records them
+        self.__dict__.update(self.axioms)
 
         self.input_ports = FixedNumberOfInputs([])
         self.output_port = None
+
+    @staticmethod
+    def camel_case(word: str) -> str:
+        """Make an upper camel case axiom generator name from an underscored parameter name"""
+        return "".join(part.title() for part in word.split("_"))
 
     def get_graphs(self, graphs: dict, missing: list) -> None:
         """Get graphs from CMEM"""
@@ -407,7 +417,7 @@ class ReasonPlugin(WorkflowPlugin):
 
     def reason(self, graphs: dict) -> None:
         """Reason"""
-        axioms = " ".join(k for k, v in self.axioms.items() if v)
+        axioms = " ".join(self.camel_case(k) for k, v in self.axioms.items() if v)
         data_location = f"{self.temp}/{graphs[self.data_graph_iri]}"
         catalog_location = f"{self.temp}/{CATALOG_FILENAME}"
         result_path = f"{self.temp}/{RESULT_FILENAME}"
