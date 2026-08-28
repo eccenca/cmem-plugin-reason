@@ -185,12 +185,7 @@ class ValidatePlugin(WorkflowPlugin):
             paths.append(EntityPath("profiles"))
         return EntitySchema(type_uri="validate", paths=paths)
 
-    def build_output_graph_nt(
-        self,
-        label: str,
-        created: str,
-        valid_profiles: list[str],
-    ) -> str:
+    def build_output_graph_nt(self, label: str, created: str, valid_profiles: list[str]) -> str:
         """Build the N-Triples annotation written to the output graph.
 
         The shared preamble (type, label, comment, source, created) comes from
@@ -370,7 +365,7 @@ class ValidatePlugin(WorkflowPlugin):
             )
         return self.make_entities(text, valid_profiles)
 
-    def execute(self, inputs: Sequence[Entities], context: ExecutionContext) -> Entities | None:  # noqa: ARG002
+    def execute(self, inputs: Sequence, context: ExecutionContext) -> Entities:  # noqa: ARG002
         """Execute plugin with temporary directory"""
         self.client = get_client(context)
         if self.ontology_graph_iri not in self.client.graphs:
