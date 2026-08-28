@@ -365,8 +365,8 @@ class ValidatePlugin(WorkflowPlugin):
             )
         return self.make_entities(text, valid_profiles)
 
-    def execute(self, inputs: Sequence, context: ExecutionContext) -> Entities:  # noqa: ARG002
-        """Execute plugin with temporary directory"""
+    def execute(self, inputs: Sequence, context: ExecutionContext) -> Entities | None:  # noqa: ARG002
+        """Execute plugin with a temporary directory"""
         self.client = get_client(context)
         if self.ontology_graph_iri not in self.client.graphs:
             raise ValueError(f"Ontology graph does not exist: {self.ontology_graph_iri}")
