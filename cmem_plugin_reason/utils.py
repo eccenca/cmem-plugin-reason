@@ -271,12 +271,11 @@ def escape_nt_literal(text: str) -> str:
     )
 
 
-def build_annotation_nt(  # noqa: PLR0913, PLR0917
+def build_annotation_nt(
     graph_iri: str,
     label: str,
     comment: str,
     sources: list[str],
-    created: str,
     rdf_type: str,
 ) -> str:
     """Build the N-Triples annotation both plugins prepend to their output graph.
@@ -289,11 +288,12 @@ def build_annotation_nt(  # noqa: PLR0913, PLR0917
     Written as plain N-Triples lines (full IRIs, no prefixes) rather than via an RDF
     library, so `label` and `comment` are escaped by hand; the IRIs are not escaped.
     """
+    utc_now_xsd = datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
     lines = [
         f"<{graph_iri}> <{RDF_TYPE}> <{rdf_type}> .",
         f'<{graph_iri}> <{RDFS_LABEL}> "{escape_nt_literal(label)}"@en .',
         f'<{graph_iri}> <{RDFS_COMMENT}> "{comment}"@en .',
-        f'<{graph_iri}> <{DCTERMS_CREATED}> "{created}"^^<{XSD_DATETIME}> .',
+        f'<{graph_iri}> <{DCTERMS_CREATED}> "{utc_now_xsd}"^^<{XSD_DATETIME}> .',
     ]
     lines += [f"<{graph_iri}> <{DCTERMS_SOURCE}> <{source}> ." for source in sources]
     return "\n".join(lines) + "\n"

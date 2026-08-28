@@ -37,7 +37,6 @@ from cmem_plugin_reason.utils import (
     post_provenance,
     raise_on_error,
     send_result,
-    utc_now_xsd,
 )
 
 LABEL = "Reason"
@@ -446,7 +445,6 @@ class ReasonPlugin(WorkflowPlugin):
             comment=f"Reasoning results of data graph <{self.data_graph_iri}> "
             f"with ontology <{self.ontology_graph_iri}>",
             sources=[self.data_graph_iri, self.ontology_graph_iri],
-            created=utc_now_xsd(),
             rdf_type=OWL_ONTOLOGY,
         )
         with Path(result_path).open("a", encoding="utf-8") as f:

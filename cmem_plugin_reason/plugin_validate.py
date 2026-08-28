@@ -38,7 +38,6 @@ from cmem_plugin_reason.utils import (
     post_provenance,
     raise_on_error,
     send_result,
-    utc_now_xsd,
 )
 
 LABEL = "Validate OWL consistency"
@@ -185,7 +184,7 @@ class ValidatePlugin(WorkflowPlugin):
             paths.append(EntityPath("profiles"))
         return EntitySchema(type_uri="validate", paths=paths)
 
-    def build_output_graph_nt(self, label: str, created: str, valid_profiles: list[str]) -> str:
+    def build_output_graph_nt(self, label: str, valid_profiles: list[str]) -> str:
         """Build the N-Triples annotation written to the output graph.
 
         The shared preamble (type, label, comment, source, created) comes from
@@ -203,7 +202,6 @@ class ValidatePlugin(WorkflowPlugin):
                 label=label,
                 comment=f"Ontology validation of <{ontology_graph_iri}>",
                 sources=[ontology_graph_iri],
-                created=created,
                 rdf_type=VOID_DATASET,
             ).rstrip("\n"),
             f"<{ontology_graph_iri}> <{RDF_TYPE}> <{OWL_ONTOLOGY}> .",
@@ -298,10 +296,8 @@ class ValidatePlugin(WorkflowPlugin):
     def write_output_graph(self, valid_profiles: list[str]) -> None:
         """Append the validation-result annotation onto the explanation axioms explain() wrote."""
         label = get_output_graph_label(self, self.ontology_graph_iri, "Validation Result")
-        created = utc_now_xsd()
         annotations = self.build_output_graph_nt(
             label,
-            created,
             valid_profiles if self.validate_profile else [],
         )
         path = Path(self.temp) / RESULT_FILENAME
