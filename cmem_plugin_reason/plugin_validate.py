@@ -32,7 +32,6 @@ from cmem_plugin_reason.utils import (
     cancel_workflow,
     create_xml_catalog_file,
     eccenca_reasoner,
-    escape_nt_literal,
     get_graph_as_file,
     get_output_graph_label,
     is_valid_uri,
@@ -215,8 +214,7 @@ class ValidatePlugin(WorkflowPlugin):
             f"<{ontology_graph_iri}> <{RDF_TYPE}> <{OWL_ONTOLOGY}> .",
         ]
         lines.extend(
-            f"<{ontology_graph_iri}> <{VALIDATE_PROFILE_PREDICATE}> "
-            f'"{escape_nt_literal(profile)}" .'
+            f'<{ontology_graph_iri}> <{VALIDATE_PROFILE_PREDICATE}> "{profile}" .'
             for profile in valid_profiles or []
         )
         return "\n".join(lines) + "\n"
