@@ -189,7 +189,7 @@ class ValidatePlugin(WorkflowPlugin):
         self,
         label: str,
         created: str,
-        valid_profiles: list[str] | None,
+        valid_profiles: list[str],
     ) -> str:
         """Build the N-Triples annotation written to the output graph.
 
@@ -215,7 +215,7 @@ class ValidatePlugin(WorkflowPlugin):
         ]
         lines.extend(
             f'<{ontology_graph_iri}> <{VALIDATE_PROFILE_PREDICATE}> "{profile}" .'
-            for profile in valid_profiles or []
+            for profile in valid_profiles
         )
         return "\n".join(lines) + "\n"
 
@@ -307,7 +307,7 @@ class ValidatePlugin(WorkflowPlugin):
         annotations = self.build_output_graph_nt(
             label,
             created,
-            valid_profiles if self.validate_profile else None,
+            valid_profiles if self.validate_profile else [],
         )
         path = Path(self.temp) / RESULT_FILENAME
         with path.open("a", encoding="utf-8") as f:
