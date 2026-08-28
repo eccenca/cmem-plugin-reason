@@ -293,7 +293,7 @@ def build_annotation_nt(  # noqa: PLR0913, PLR0917
         f"<{graph_iri}> <{RDF_TYPE}> <{rdf_type}> .",
         f'<{graph_iri}> <{RDFS_LABEL}> "{escape_nt_literal(label)}"@en .',
         f'<{graph_iri}> <{RDFS_COMMENT}> "{comment}"@en .',
+        f'<{graph_iri}> <{DCTERMS_CREATED}> "{created}"^^<{XSD_DATETIME}> .',
     ]
     lines += [f"<{graph_iri}> <{DCTERMS_SOURCE}> <{source}> ." for source in sources]
-    lines.append(f'<{graph_iri}> <{DCTERMS_CREATED}> "{created}"^^<{XSD_DATETIME}> .')
     return "\n".join(lines) + "\n"
