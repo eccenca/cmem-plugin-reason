@@ -216,7 +216,7 @@ def post_provenance(plugin: WorkflowPlugin) -> None:
 # 3. Generic reasoner (eccenca-reasoner.jar, bundled)
 # ============================================================================
 
-REASONER = Path(__file__).parent / "eccenca-reasoner.jar"
+REASONER = str(Path(__file__).parent / "eccenca-reasoner.jar")
 
 #: Name of the XML catalog file written by create_xml_catalog_file() and passed to the
 #: reasoner via --catalog, so that owl:imports are resolved to the locally fetched graphs.
@@ -246,7 +246,7 @@ def create_xml_catalog_file(dir_: str, graphs: dict) -> None:
 
 def eccenca_reasoner(cmd: list[str], max_ram_percentage: int) -> CompletedProcess[bytes]:
     """Run eccenca_reasoner.jar"""
-    full_cmd = ["java", f"-XX:MaxRAMPercentage={max_ram_percentage}", "-jar", str(REASONER), *cmd]
+    full_cmd = ["java", f"-XX:MaxRAMPercentage={max_ram_percentage}", "-jar", REASONER, *cmd]
     return run(full_cmd, check=False, capture_output=True)  # noqa: S603
 
 
