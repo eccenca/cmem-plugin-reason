@@ -255,11 +255,6 @@ def eccenca_reasoner(cmd: list[str], max_ram_percentage: int) -> CompletedProces
 # ============================================================================
 
 
-def utc_now_xsd() -> str:
-    """Return the current UTC time in the lexical form expected for XSD_DATETIME"""
-    return datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
-
-
 def escape_nt_literal(text: str) -> str:
     """Escape a string for use in an N-Triples literal (backslash, quote, control chars)."""
     return (
