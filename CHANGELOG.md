@@ -7,6 +7,10 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 ## [2.3.0] 2026-08-17
 
+### Fixed
+
+- Fix robot.jar vulnerability CVE-2026-49844.
+
 ### Changed
 
 - Use cmem-client instead of cmempy for all Corporate Memory access
