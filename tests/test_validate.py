@@ -81,7 +81,7 @@ def setup() -> Generator[None, Any]:
 
 
 @pytest.mark.parametrize("reasoner_parameter", REASONERS)
-def test_validate(setup: None, reasoner_parameter: str) -> None:  # noqa: ARG001
+def test_validate(setup: None, reasoner_parameter: str) -> None:
     """Test Validate"""
     result = ValidatePlugin(
         ontology_graph_iri=VALIDATE_ONTOLOGY_GRAPH_IRI_1,
@@ -120,7 +120,7 @@ def test_validate(setup: None, reasoner_parameter: str) -> None:  # noqa: ARG001
         raise OSError(val_errors[:-1])
 
 
-def test_validate_input_not_exist(setup: None) -> None:  # noqa: ARG001
+def test_validate_input_not_exist(setup: None) -> None:
     """Test Validate with non-existing input graph"""
     plugin = ValidatePlugin(
         ontology_graph_iri=f"https://ns.eccenca.com/reasoning/{UID}/not-exist/",
@@ -138,7 +138,7 @@ def test_validate_input_not_exist(setup: None) -> None:  # noqa: ARG001
         plugin.execute(inputs=(), context=TestExecutionContext(PROJECT_ID))
 
 
-def test_validate_import_not_exist_not_ignore(setup: None) -> None:  # noqa: ARG001
+def test_validate_import_not_exist_not_ignore(setup: None) -> None:
     """Test Validate with missing import"""
     plugin = ValidatePlugin(
         ontology_graph_iri=ONTOLOGY_GRAPH_IMPORT_FAIL_IRI,
@@ -157,7 +157,7 @@ def test_validate_import_not_exist_not_ignore(setup: None) -> None:  # noqa: ARG
         plugin.execute(inputs=(), context=TestExecutionContext(PROJECT_ID))
 
 
-def test_validate_import_not_exist_ignore(setup: None) -> None:  # noqa: ARG001
+def test_validate_import_not_exist_ignore(setup: None) -> None:
     """Test Validate ignoring missing import"""
     ValidatePlugin(
         ontology_graph_iri=ONTOLOGY_GRAPH_IMPORT_FAIL_IRI,

@@ -116,7 +116,7 @@ LABEL = "Validate OWL consistency"
 class ValidatePlugin(WorkflowPlugin):
     """Validate plugin"""
 
-    def __init__(  # noqa: PLR0912 PLR0913 C901
+    def __init__(  # noqa: PLR0912 PLR0913 C901 PLR0917
         self,
         ontology_graph_iri: str,
         ignore_missing_imports: bool = False,
