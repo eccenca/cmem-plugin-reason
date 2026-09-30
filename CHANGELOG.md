@@ -43,7 +43,11 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 ### Changed
 
-- Use cmem-client instead of cmempy for all Corporate Memory access.
+- Use cmem-client instead of cmempy for all Corporate Memory access
+
+### Removed
+
+- Remove cmem-cmempy dependency and `setup_cmempy_user_access` calls
 
 
 ## [2.2.7] 2026-07-22
