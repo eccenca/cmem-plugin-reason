@@ -185,7 +185,9 @@ The Structural Reasoner only uses asserted hierarchies, so it does not infer thi
             param_type=ChoiceParameterType(REASON_REASONERS),
             name="reasoner",
             label="Reasoner",
-            description="Reasoner option.",
+            description="""Reasoner option. ELK and ELK (EMR) are limited to OWL 2 EL and support
+            fewer axiom generators; the Structural Reasoner only uses asserted hierarchies. See the
+            documentation for details.""",
         ),
         PluginParameter(
             param_type=GraphParameterType(classes=[OWL_ONTOLOGY, DI_DATASET, VOID_DATASET]),
