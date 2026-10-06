@@ -56,6 +56,7 @@ SUBCLASS_DESC = """The reasoner will infer assertions about the hierarchy of cla
 `SubClassOf:` statements.\n
 If there are classes `Person`, `Student` and `Professor`, such that `Person DisjointUnionOf:
 Student, Professor` holds, the reasoner will infer `Student SubClassOf: Person`.
+The Structural Reasoner only uses asserted hierarchies, so it does not infer this.
 """
 
 EQUIVALENCE_DESC = """The reasoner will infer assertions about the equivalence of named classes,
@@ -68,22 +69,25 @@ DISJOINT_DESC = """The reasoner will infer assertions about the disjointness of 
 `DisjointClasses:` statements.\n
 If there are classes `Person`, `Student` and `Professor`, such that `Person DisjointUnionOf:
 Student, Professor` holds, the reasoner will infer `DisjointClasses: Student, Professor`.
-**Not supported by ELK.**
+**Not supported by ELK or ELK (EMR).**
+The Structural Reasoner only uses asserted hierarchies, so it does not infer this.
 """
 
 DATA_PROP_CHAR_DESC = """The reasoner will infer characteristics of data properties, i.e.
 `Characteristics:` statements. For data properties, this only pertains to functionality.\n
 If there are data properties `identifier` and `enrollmentNumber`, such that `enrollmentNumber
 SubPropertyOf: identifier` and `identifier Characteristics: Functional` holds, the reasoner will
-infer `enrollmentNumber Characteristics: Functional`. ELK ignores functional properties (they are
-outside OWL 2 EL), so it does not infer this.
+infer `enrollmentNumber Characteristics: Functional`. ELK and ELK (EMR) ignore functional properties
+(they are outside OWL 2 EL), so they do not infer this.
+The Structural Reasoner only uses asserted hierarchies, so it does not infer this.
 """
 
 DATA_PROP_EQUIV_DESC = """The reasoner will infer axioms about the equivalence of data properties,
  i.e. `EquivalentProperties` statements.\n
 If there are data properties `identifier` and `enrollmentNumber`, such that `enrollmentNumber
 SubPropertyOf: identifier` and `identifier SubPropertyOf: enrollmentNumber` holds, the reasoner
-will infer `EquivalentProperties: identifier, enrollmentNumber`. **Not supported by ELK.**
+will infer `EquivalentProperties: identifier, enrollmentNumber`.
+**Not supported by ELK or ELK (EMR).**
 """
 
 DATA_PROP_SUB_DESC = """The reasoner will infer axioms about the hierarchy of data properties,
@@ -91,7 +95,7 @@ i.e. `SubPropertyOf:` statements.\n
 If there are data properties `identifier`, `studentIdentifier` and `enrollmentNumber`, such that
 `studentIdentifier SubPropertyOf: identifier` and `enrollmentNumber SubPropertyOf:
 studentIdentifier` holds, the reasoner will infer `enrollmentNumber SubPropertyOf: identifier`.
-**Not supported by ELK.**
+**Not supported by ELK or ELK (EMR).**
 """
 
 CLASS_ASSERT_DESC = """The reasoner will infer assertions about the classes of individuals, i.e.
@@ -100,6 +104,7 @@ Assume, there are classes `Person`, `Student` and `University` as well as the pr
 `enrolledIn`, such that `Student EquivalentTo: Person and enrolledIn some University` holds. For
 the individual `John` with the assertions `John Types: Person; Facts: enrolledIn
 LeipzigUniversity`, the reasoner will infer `John Types: Student`.
+The Structural Reasoner only uses asserted hierarchies, so it does not infer this.
 """
 
 PROPERTY_ASSERT_DESC = """The reasoner will infer assertions about the properties of individuals,
@@ -108,15 +113,18 @@ Assume, there are properties `enrolled`, `enrolledIn` and `offers`, such that `e
 SubPropertyChain: enrolledIn o inverse (offers)` holds. For the individuals `John` and
 `LeipzigUniversity` with the assertions `John Facts: enrolledIn KnowledgeRepresentation` and
 `LeipzigUniversity Facts: offers KnowledgeRepresentation`, the reasoner will infer `John Facts:
-enrolled LeipzigUniversity`. **Not supported by ELK.**
+enrolled LeipzigUniversity`.
+**Not supported by ELK or ELK (EMR).**
+The Structural Reasoner only uses asserted hierarchies, so it does not infer this.
 """
 
 OBJECT_PROP_CHAR_DESC = """The reasoner will infer characteristics of object properties, i.e.
 `Characteristics:` statements.\n
 If there are object properties `enrolledIn` and `studentOf`, such that `enrolledIn
 SubPropertyOf: studentOf` and `studentOf Characteristics: Functional` holds, the reasoner will
-infer `enrolledIn Characteristics: Functional`. ELK ignores functional properties (they are
-outside OWL 2 EL), so it does not infer this.
+infer `enrolledIn Characteristics: Functional`. ELK and ELK (EMR) ignore functional properties
+(they are outside OWL 2 EL), so they do not infer this.
+The Structural Reasoner only uses asserted hierarchies, so it does not infer this.
 """
 
 OBJECT_PROP_EQUIV_DESC = """The reasoner will infer assertions about the equivalence of object
@@ -124,29 +132,33 @@ properties, i.e. `EquivalentTo:` statements.\n
 If there are object properties `hasAlternativeLecture` and `hasSameTopicAs`, such that
 `hasAlternativeLecture Characteristics: Symmetric` and `hasSameTopicAs InverseOf:
 hasAlternativeLecture` holds, the reasoner will infer `EquivalentProperties:
-hasAlternativeLecture, hasSameTopicAs`. ELK ignores symmetric and inverse properties (they are
-outside OWL 2 EL), so it does not infer this.
+hasAlternativeLecture, hasSameTopicAs`. ELK and ELK (EMR) ignore symmetric and inverse
+properties (they are outside OWL 2 EL), so they do not infer this.
 """
 
 OBJECT_PROP_SUB_DESC = """The reasoner will infer axioms about the inclusion of object properties,
 i.e. `SubPropertyOf:` statements.\n
 If there are object properties `enrolledIn`, `studentOf` and `hasStudent`, such that `enrolledIn
 SubPropertyOf: studentOf` and `enrolledIn InverseOf: hasStudent` holds, the reasoner will infer
-`hasStudent SubPropertyOf: inverse (studentOf)`.
+`hasStudent SubPropertyOf: inverse (studentOf)`. ELK and ELK (EMR) ignore inverse properties
+(they are outside OWL 2 EL), so they do not infer this.
 """
 
 OBJECT_PROP_INV_DESC = """The reasoner will infer axioms about the inversion about object
 properties, i.e. `InverseOf:` statements.\n
 If there is a object property `hasAlternativeLecture`, such that `hasAlternativeLecture
 Characteristics: Symmetric` holds, the reasoner will infer `hasAlternativeLecture InverseOf:
-hasAlternativeLecture`. **Not supported by ELK.**
+hasAlternativeLecture`.
+**Not supported by ELK or ELK (EMR).**
 """
 
 OBJECT_PROP_RANGE_DESC = """The reasoner will infer axioms about the ranges of object properties,
 i.e. `Range:` statements.\n
 If there are classes `Student` and `Lecture` as wells as object properties `hasStudent` and
 `enrolledIn`, such that `hasStudent Range: Student and enrolledIn some Lecture` holds, the
-reasoner will infer `hasStudent Range: Student`. **Not supported by ELK.**
+reasoner will infer `hasStudent Range: Student`.
+**Not supported by ELK or ELK (EMR).**
+The Structural Reasoner only uses asserted hierarchies, so it does not infer this.
 """
 
 OBJECT_PROP_DOMAIN_DESC = """The reasoner will infer axioms about the domains of object
@@ -154,7 +166,9 @@ properties, i.e. `Domain:` statements.\n
 If there are classes `Person`, `Student` and `Professor` as wells as the object property
 `hasRoleIn`, such that `Professor SubClassOf: Person`, `Student SubClassOf: Person` and
 `hasRoleIn Domain: Professor or Student` holds, the reasoner will infer `hasRoleIn Domain:
-Person`. **Not supported by ELK.**
+Person`.
+**Not supported by ELK or ELK (EMR).**
+The Structural Reasoner only uses asserted hierarchies, so it does not infer this.
 """
 
 
