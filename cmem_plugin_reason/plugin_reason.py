@@ -58,30 +58,32 @@ If there are classes `Person`, `Student` and `Professor`, such that `Person Disj
 Student, Professor` holds, the reasoner will infer `Student SubClassOf: Person`.
 """
 
-EQUIVALENCE_DESC = """The reasoner will infer assertions about the equivalence of classes, i.e.
-`EquivalentTo:` statements.\n
-If there are classes `Person`, `Student` and `Professor`, such that `Person DisjointUnionOf:
-Student, Professor` holds, the reasoner will infer `Person EquivalentTo: Student and Professor`.
+EQUIVALENCE_DESC = """The reasoner will infer assertions about the equivalence of named classes,
+i.e. `EquivalentTo:` statements. Equivalences to class expressions are not inferred.\n
+If there are classes `Pupil` and `Learner`, such that `Pupil SubClassOf: Learner` and `Learner
+SubClassOf: Pupil` holds, the reasoner will infer `Pupil EquivalentTo: Learner`.
 """
 
 DISJOINT_DESC = """The reasoner will infer assertions about the disjointness of classes, i.e.
 `DisjointClasses:` statements.\n
 If there are classes `Person`, `Student` and `Professor`, such that `Person DisjointUnionOf:
 Student, Professor` holds, the reasoner will infer `DisjointClasses: Student, Professor`.
+**Not supported by ELK.**
 """
 
 DATA_PROP_CHAR_DESC = """The reasoner will infer characteristics of data properties, i.e.
 `Characteristics:` statements. For data properties, this only pertains to functionality.\n
 If there are data properties `identifier` and `enrollmentNumber`, such that `enrollmentNumber
 SubPropertyOf: identifier` and `identifier Characteristics: Functional` holds, the reasoner will
-infer `enrollmentNumber Characteristics: Functional`.
+infer `enrollmentNumber Characteristics: Functional`. ELK ignores functional properties (they are
+outside OWL 2 EL), so it does not infer this.
 """
 
 DATA_PROP_EQUIV_DESC = """The reasoner will infer axioms about the equivalence of data properties,
  i.e. `EquivalentProperties` statements.\n
 If there are data properties `identifier` and `enrollmentNumber`, such that `enrollmentNumber
 SubPropertyOf: identifier` and `identifier SubPropertyOf: enrollmentNumber` holds, the reasoner
-will infer `Student EquivalentProperties: identifier, enrollmentNumber`.
+will infer `EquivalentProperties: identifier, enrollmentNumber`. **Not supported by ELK.**
 """
 
 DATA_PROP_SUB_DESC = """The reasoner will infer axioms about the hierarchy of data properties,
@@ -89,6 +91,7 @@ i.e. `SubPropertyOf:` statements.\n
 If there are data properties `identifier`, `studentIdentifier` and `enrollmentNumber`, such that
 `studentIdentifier SubPropertyOf: identifier` and `enrollmentNumber SubPropertyOf:
 studentIdentifier` holds, the reasoner will infer `enrollmentNumber SubPropertyOf: identifier`.
+**Not supported by ELK.**
 """
 
 CLASS_ASSERT_DESC = """The reasoner will infer assertions about the classes of individuals, i.e.
@@ -101,18 +104,19 @@ LeipzigUniversity`, the reasoner will infer `John Types: Student`.
 
 PROPERTY_ASSERT_DESC = """The reasoner will infer assertions about the properties of individuals,
 i.e. `Facts:` statements.\n
-Assume, there are properties `enrolledIn` and `offers`, such that `enrolled SubPropertyChain:
-enrolledIn o inverse (offers)` holds. For the individuals `John`and `LeipzigUniversity` with the
-assertions `John Facts: enrolledIn KnowledgeRepresentation` and `LeipzigUniversity Facts: offers
-KnowledgeRepresentation`,  the reasoner will infer `John Facts: enrolledIn LeipzigUniversity`.
+Assume, there are properties `enrolled`, `enrolledIn` and `offers`, such that `enrolled
+SubPropertyChain: enrolledIn o inverse (offers)` holds. For the individuals `John` and
+`LeipzigUniversity` with the assertions `John Facts: enrolledIn KnowledgeRepresentation` and
+`LeipzigUniversity Facts: offers KnowledgeRepresentation`, the reasoner will infer `John Facts:
+enrolled LeipzigUniversity`. **Not supported by ELK.**
 """
 
 OBJECT_PROP_CHAR_DESC = """The reasoner will infer characteristics of object properties, i.e.
 `Characteristics:` statements.\n
 If there are object properties `enrolledIn` and `studentOf`, such that `enrolledIn
-SubPropertyOf: studentOf` and `enrolledIn Characteristics: Functional` holds, the reasoner will
-infer `studentOf Characteristics: Functional`. **Note: this inference does neither work in JFact
-nor in HermiT!**
+SubPropertyOf: studentOf` and `studentOf Characteristics: Functional` holds, the reasoner will
+infer `enrolledIn Characteristics: Functional`. ELK ignores functional properties (they are
+outside OWL 2 EL), so it does not infer this.
 """
 
 OBJECT_PROP_EQUIV_DESC = """The reasoner will infer assertions about the equivalence of object
@@ -120,7 +124,8 @@ properties, i.e. `EquivalentTo:` statements.\n
 If there are object properties `hasAlternativeLecture` and `hasSameTopicAs`, such that
 `hasAlternativeLecture Characteristics: Symmetric` and `hasSameTopicAs InverseOf:
 hasAlternativeLecture` holds, the reasoner will infer `EquivalentProperties:
-hasAlternativeLecture, hasSameTopicAs`.
+hasAlternativeLecture, hasSameTopicAs`. ELK ignores symmetric and inverse properties (they are
+outside OWL 2 EL), so it does not infer this.
 """
 
 OBJECT_PROP_SUB_DESC = """The reasoner will infer axioms about the inclusion of object properties,
@@ -134,14 +139,14 @@ OBJECT_PROP_INV_DESC = """The reasoner will infer axioms about the inversion abo
 properties, i.e. `InverseOf:` statements.\n
 If there is a object property `hasAlternativeLecture`, such that `hasAlternativeLecture
 Characteristics: Symmetric` holds, the reasoner will infer `hasAlternativeLecture InverseOf:
-hasAlternativeLecture`.
+hasAlternativeLecture`. **Not supported by ELK.**
 """
 
 OBJECT_PROP_RANGE_DESC = """The reasoner will infer axioms about the ranges of object properties,
 i.e. `Range:` statements.\n
 If there are classes `Student` and `Lecture` as wells as object properties `hasStudent` and
 `enrolledIn`, such that `hasStudent Range: Student and enrolledIn some Lecture` holds, the
-reasoner will infer `hasStudent Range: Student`.
+reasoner will infer `hasStudent Range: Student`. **Not supported by ELK.**
 """
 
 OBJECT_PROP_DOMAIN_DESC = """The reasoner will infer axioms about the domains of object
@@ -149,7 +154,7 @@ properties, i.e. `Domain:` statements.\n
 If there are classes `Person`, `Student` and `Professor` as wells as the object property
 `hasRoleIn`, such that `Professor SubClassOf: Person`, `Student SubClassOf: Person` and
 `hasRoleIn Domain: Professor or Student` holds, the reasoner will infer `hasRoleIn Domain:
-Person`.
+Person`. **Not supported by ELK.**
 """
 
 

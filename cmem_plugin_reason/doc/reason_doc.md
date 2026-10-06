@@ -22,11 +22,33 @@ Maximum heap size for the Java virtual machine in the DI container running the r
 
 The following reasoner options are supported:
 - [ELK](https://code.google.com/p/elk-reasoner/) (elk)
-- ELK wrapped in the geneontology `ExpressionMaterializingReasoner`, i.e. ELK with EMR
-  (Entailment Materializing Reasoning) support (elk_emr)
+- ELK wrapped in the geneontology `ExpressionMaterializingReasoner` (elk_emr), which additionally
+  infers existential restrictions (`SubClassOf: R some C`) as superclasses
 - [HermiT](http://www.hermit-reasoner.com/) (hermit)
 - [JFact](http://jfact.sourceforge.net/) (jfact)
 - [Structural Reasoner](http://owlcs.github.io/owlapi/apidocs_4/org/semanticweb/owlapi/reasoner/structural/StructuralReasoner.html) (structural)
+
+#### Reasoner limitations
+
+Not every reasoner supports every axiom generator. The table shows which generators produce
+inferences with which reasoner:
+
+| Axiom generator | ELK, ELK (EMR) | HermiT | JFact | Structural |
+|---|---|---|---|---|
+| Class inclusion and equivalence, individual class assertions, object property inclusion | ✓ | ✓ | ✓ | partly |
+| Class disjointness, individual property assertions, object property inversion, ranges and domains | **not supported** | ✓ | ✓ | partly |
+| Data property equivalence and inclusion | **not supported** | ✓ | ✓ | partly |
+| Data and object property characteristics, object property equivalence | outside OWL 2 EL | ✓ | ✓ | partly |
+
+- **Not supported:** ELK does not implement these inferences. The generator produces no result
+  and the task still succeeds; the reasoner only logs a warning.
+- **Outside OWL 2 EL:** ELK only reasons within the OWL 2 EL profile and ignores, for example,
+  functional, inverse and symmetric properties, so inferences depending on them are missed.
+- **Structural** does no real reasoning: it only finds what follows from the asserted class and
+  property hierarchies.
+- **Inconsistent ontologies:** reasoning fails with an `InconsistentOntologyException` for ELK,
+  HermiT and JFact (Structural produces an empty result). Check the ontology with the "Validate OWL
+  consistency" task first.
 
 ### Data graph IRI
 
@@ -52,37 +74,35 @@ The reasoner will infer assertions about the hierarchy of classes, i.e.
 If there are classes `Person`, `Student` and `Professor`, such that `Person DisjointUnionOf:
 Student, Professor` holds, the reasoner will infer `Student SubClassOf: Person`.
 
-
 - **Class equivalence (owl:equivalentClass)**
-The reasoner will infer assertions about the equivalence of classes, i.e.
-`EquivalentTo:` statements.
-If there are classes `Person`, `Student` and `Professor`, such that `Person DisjointUnionOf:
-Student, Professor` holds, the reasoner will infer `Person EquivalentTo: Student and Professor`.
-
+The reasoner will infer assertions about the equivalence of named classes,
+i.e. `EquivalentTo:` statements. Equivalences to class expressions are not inferred.
+If there are classes `Pupil` and `Learner`, such that `Pupil SubClassOf: Learner` and `Learner
+SubClassOf: Pupil` holds, the reasoner will infer `Pupil EquivalentTo: Learner`.
 
 - **Class disjointness (owl:disjointWith)**
 The reasoner will infer assertions about the disjointness of classes, i.e.
 `DisjointClasses:` statements.
 If there are classes `Person`, `Student` and `Professor`, such that `Person DisjointUnionOf:
 Student, Professor` holds, the reasoner will infer `DisjointClasses: Student, Professor`.
+**Not supported by ELK.**
 
 
 #### Data property axiom generators
 - **Data property characteristics**
-The reasoner will infer characteristics of data properties, i.e. `Characteristics:` statements.
-For data properties, this only pertains to functionality.
+The reasoner will infer characteristics of data properties, i.e.
+`Characteristics:` statements. For data properties, this only pertains to functionality.
 If there are data properties `identifier` and `enrollmentNumber`, such that `enrollmentNumber
 SubPropertyOf: identifier` and `identifier Characteristics: Functional` holds, the reasoner will
-infer `enrollmentNumber Characteristics: Functional`.
-
+infer `enrollmentNumber Characteristics: Functional`. ELK ignores functional properties (they are
+outside OWL 2 EL), so it does not infer this.
 
 - **Data property equivalence (owl:equivalentProperty)**
 The reasoner will infer axioms about the equivalence of data properties,
-i.e. `EquivalentProperties` statements.
+ i.e. `EquivalentProperties` statements.
 If there are data properties `identifier` and `enrollmentNumber`, such that `enrollmentNumber
 SubPropertyOf: identifier` and `identifier SubPropertyOf: enrollmentNumber` holds, the reasoner
-will infer `Student EquivalentProperties: identifier, enrollmentNumber`.
-
+will infer `EquivalentProperties: identifier, enrollmentNumber`. **Not supported by ELK.**
 
 - **Data property inclusion (rdfs:subPropertyOf)**
 The reasoner will infer axioms about the hierarchy of data properties,
@@ -90,6 +110,7 @@ i.e. `SubPropertyOf:` statements.
 If there are data properties `identifier`, `studentIdentifier` and `enrollmentNumber`, such that
 `studentIdentifier SubPropertyOf: identifier` and `enrollmentNumber SubPropertyOf:
 studentIdentifier` holds, the reasoner will infer `enrollmentNumber SubPropertyOf: identifier`.
+**Not supported by ELK.**
 
 
 #### Individual axiom generators
@@ -101,14 +122,14 @@ Assume, there are classes `Person`, `Student` and `University` as well as the pr
 the individual `John` with the assertions `John Types: Person; Facts: enrolledIn
 LeipzigUniversity`, the reasoner will infer `John Types: Student`.
 
-
 - **Individual property assertions**
 The reasoner will infer assertions about the properties of individuals,
 i.e. `Facts:` statements.
-Assume, there are properties `enrolledIn` and `offers`, such that `enrolled SubPropertyChain:
-enrolledIn o inverse (offers)` holds. For the individuals `John`and `LeipzigUniversity` with the
-assertions `John Facts: enrolledIn KnowledgeRepresentation` and `LeipzigUniversity Facts: offers
-KnowledgeRepresentation`,  the reasoner will infer `John Facts: enrolledIn LeipzigUniversity`.
+Assume, there are properties `enrolled`, `enrolledIn` and `offers`, such that `enrolled
+SubPropertyChain: enrolledIn o inverse (offers)` holds. For the individuals `John` and
+`LeipzigUniversity` with the assertions `John Facts: enrolledIn KnowledgeRepresentation` and
+`LeipzigUniversity Facts: offers KnowledgeRepresentation`, the reasoner will infer `John Facts:
+enrolled LeipzigUniversity`. **Not supported by ELK.**
 
 
 #### Object property axiom generators
@@ -117,25 +138,24 @@ The reasoner will infer assertions about the equivalence of object
 properties, i.e. `EquivalentTo:` statements.
 If there are object properties `hasAlternativeLecture` and `hasSameTopicAs`, such that
 `hasAlternativeLecture Characteristics: Symmetric` and `hasSameTopicAs InverseOf:
-hasAlternativeLecture` holds, the reasoner will infer `EquivalentProperties: hasAlternativeLecture,
-hasSameTopicAs`.
-
+hasAlternativeLecture` holds, the reasoner will infer `EquivalentProperties:
+hasAlternativeLecture, hasSameTopicAs`. ELK ignores symmetric and inverse properties (they are
+outside OWL 2 EL), so it does not infer this.
 
 - **Object property inversion (owl:inverseOf)**
 The reasoner will infer axioms about the inversion about object
 properties, i.e. `InverseOf:` statements.
 If there is a object property `hasAlternativeLecture`, such that `hasAlternativeLecture
 Characteristics: Symmetric` holds, the reasoner will infer `hasAlternativeLecture InverseOf:
-hasAlternativeLecture`.
-
+hasAlternativeLecture`. **Not supported by ELK.**
 
 - **Object property characteristics**
-The reasoner will infer characteristics of object properties, i.e. `Characteristics:` statements.
+The reasoner will infer characteristics of object properties, i.e.
+`Characteristics:` statements.
 If there are object properties `enrolledIn` and `studentOf`, such that `enrolledIn
-SubPropertyOf: studentOf` and `enrolledIn Characteristics: Functional` holds, the reasoner will
-infer `studentOf Characteristics: Functional`. **Note: this inference works with neither JFact
-nor HermiT!**
-
+SubPropertyOf: studentOf` and `studentOf Characteristics: Functional` holds, the reasoner will
+infer `enrolledIn Characteristics: Functional`. ELK ignores functional properties (they are
+outside OWL 2 EL), so it does not infer this.
 
 - **Object property inclusion (rdfs:subPropertyOf)**
 The reasoner will infer axioms about the inclusion of object properties,
@@ -144,18 +164,17 @@ If there are object properties `enrolledIn`, `studentOf` and `hasStudent`, such 
 SubPropertyOf: studentOf` and `enrolledIn InverseOf: hasStudent` holds, the reasoner will infer
 `hasStudent SubPropertyOf: inverse (studentOf)`.
 
-
 - **Object property ranges (rdfs:range)**
 The reasoner will infer axioms about the ranges of object properties,
 i.e. `Range:` statements.
 If there are classes `Student` and `Lecture` as wells as object properties `hasStudent` and
 `enrolledIn`, such that `hasStudent Range: Student and enrolledIn some Lecture` holds, the
-reasoner will infer `hasStudent Range: Student`.
-
+reasoner will infer `hasStudent Range: Student`. **Not supported by ELK.**
 
 - **Object property domains (rdfs:domain)**
 The reasoner will infer axioms about the domains of object
 properties, i.e. `Domain:` statements.
 If there are classes `Person`, `Student` and `Professor` as wells as the object property
 `hasRoleIn`, such that `Professor SubClassOf: Person`, `Student SubClassOf: Person` and
-`hasRoleIn Domain: Professor or Student` holds, the reasoner will infer `hasRoleIn Domain: Person`.
+`hasRoleIn Domain: Professor or Student` holds, the reasoner will infer `hasRoleIn Domain:
+Person`. **Not supported by ELK.**

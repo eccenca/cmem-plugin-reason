@@ -11,6 +11,10 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 - Validate plugin: the output graph is now declared a `void:Dataset` instead of an
   `owl:Ontology`.
+- Reason plugin documentation: corrected the examples for class equivalence (only named
+  classes), object property characteristics (functionality is inherited by sub-properties) and
+  individual property assertions, and documented which axiom generators each reasoner supports
+  (ELK does not support e.g. property assertions, disjointness, ranges and domains).
 
 ### Changed
 

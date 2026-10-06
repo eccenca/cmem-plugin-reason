@@ -111,7 +111,7 @@ MD_FILENAME = "mdfile.md"
             label="Mode",
             description="""Mode "inconsistency" generates an explanation for an inconsistent
             ontology. Mode "unsatisfiability" generates explanations for many unsatisfiable classes
-            at once.""",
+            at once; it fails on an inconsistent ontology, where every class is unsatisfiable.""",
             default_value="inconsistency",
         ),
         PluginParameter(

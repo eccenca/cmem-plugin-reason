@@ -52,7 +52,9 @@ Raise an error if inconsistencies are found. If enabled, the plugin does not out
 ### Mode
 
 Mode _inconsistency_ generates an explanation for an inconsistent ontology.
-Mode _unsatisfiability_ generates explanations for many unsatisfiable classes at once.
+Mode _unsatisfiability_ generates explanations for many unsatisfiable classes at once. In an
+inconsistent ontology every class is unsatisfiable, so this mode then fails with an error; use
+mode _inconsistency_ to explain the inconsistency.
 
 ### Maximum explanations
 
