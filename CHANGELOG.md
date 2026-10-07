@@ -18,6 +18,9 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 ### Changed
 
+- Reason and Validate plugins: provenance data is written whatever the workspace provider; it
+  no longer reads the project graph, which only exists if the workspace is stored as RDF
+  (`backend` or `fileAndDataPlatform`).
 - Reason plugin: only one of "Data graph IRI" and "Ontology graph IRI" is required; with only one
   given, that graph is reasoned on its own.
 - Reason and Validate plugins: no parameter is required when the task is created (so they can
@@ -32,6 +35,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 ### Added
 
+- Reason and Validate plugins: the provenance data in the output graph includes the plugin
+  version (`owl:versionInfo`).
 - Validate plugin: added "Maximum explanations" parameter to limit the number of justifications
   generated per inference.
 

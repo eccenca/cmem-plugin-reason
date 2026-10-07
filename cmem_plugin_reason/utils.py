@@ -9,10 +9,10 @@ Organized in four sections:
 
 import re
 from datetime import UTC, datetime
+from importlib.metadata import PackageNotFoundError, version
 from pathlib import Path
 from secrets import token_hex
 from subprocess import CompletedProcess, run
-from typing import Any
 from xml.etree.ElementTree import Element, SubElement, tostring
 
 import validators.url
@@ -20,7 +20,7 @@ from cmem_client.client import Client
 from cmem_client.repositories.graphs import GraphExportConfig, GraphsRepository
 from cmem_client.repositories.protocols.import_item import ImportConflictPolicy
 from cmem_plugin_base.dataintegration.context import ExecutionReport
-from cmem_plugin_base.dataintegration.description import PluginParameter
+from cmem_plugin_base.dataintegration.description import Plugin, PluginParameter
 from cmem_plugin_base.dataintegration.parameter.graph import GraphParameterType
 from cmem_plugin_base.dataintegration.plugins import WorkflowPlugin
 from cmem_plugin_base.dataintegration.types import BoolParameterType, IntParameterType
@@ -35,11 +35,17 @@ RDFS_LABEL = "http://www.w3.org/2000/01/rdf-schema#label"
 RDFS_COMMENT = "http://www.w3.org/2000/01/rdf-schema#comment"
 OWL_ONTOLOGY = "http://www.w3.org/2002/07/owl#Ontology"
 OWL_IMPORTS = "http://www.w3.org/2002/07/owl#imports"
+OWL_VERSION_INFO = "http://www.w3.org/2002/07/owl#versionInfo"
 DCTERMS_SOURCE = "http://purl.org/dc/terms/source"
 DCTERMS_CREATED = "http://purl.org/dc/terms/created"
 DI_DATASET = "https://vocab.eccenca.com/di/Dataset"
 VOID_DATASET = "http://rdfs.org/ns/void#Dataset"
 XSD_DATETIME = "http://www.w3.org/2001/XMLSchema#dateTime"
+DI_FUNCTIONS = "https://vocab.eccenca.com/di/functions/"
+DI_TASKS = "http://dataintegration.eccenca.com/"
+
+#: Distribution name of this plugin, for its version in the provenance data
+PACKAGE_NAME = "cmem-plugin-reason"
 
 
 # ============================================================================
@@ -137,57 +143,41 @@ def get_output_graph_label(plugin: WorkflowPlugin, iri: str, add_string: str) ->
 
 
 def get_provenance(plugin: WorkflowPlugin) -> dict | None:
-    """Get provenance information for the running plugin task"""
-    plugin_iri = (
-        f"http://dataintegration.eccenca.com/{plugin.context.task.project_id()}/"
-        f"{plugin.context.task.task_id()}"
-    )
-    project_graph = f"http://di.eccenca.com/project/{plugin.context.task.project_id()}"
+    """Get provenance information for the running plugin task, as a snapshot of the task.
 
-    type_query = f"""
-        SELECT ?type {{
-            GRAPH <{project_graph}> {{
-                <{plugin_iri}> a ?type .
-                FILTER(STRSTARTS(STR(?type), "https://vocab.eccenca.com/di/functions/"))
-            }}
-        }}
+    Everything is derived from the plugin's registration and the execution context, not read
+    from the project graph: that graph only exists if the workspace is stored as RDF
+    (workspace provider "backend" or "fileAndDataPlatform").
     """
-    result = list(plugin.client.store.sparql.query(type_query))
-    if not result:
+    task = getattr(plugin.context, "task", None)
+    description = next((d for d in Plugin.plugins if d.plugin_class is type(plugin)), None)
+    if task is None or description is None:
         plugin.log.warning("Could not add provenance data to output graph.")
         return None
-    plugin_type = str(result[0].type)  # type: ignore[union-attr]
 
-    param_split = (
-        plugin_type.replace(
-            "https://vocab.eccenca.com/di/functions/Plugin_",
-            "https://vocab.eccenca.com/di/functions/param_",
-        )
-        + "_"
-    )
-    parameter_query = f"""
-        SELECT ?parameter {{
-            GRAPH <{project_graph}> {{
-                <{plugin_iri}> ?parameter ?o .
-                FILTER(STRSTARTS(STR(?parameter), "https://vocab.eccenca.com/di/functions/param_"))
-            }}
-        }}
-    """
-    new_plugin_iri = f"{'_'.join(plugin_iri.split('_')[:-1])}_{token_hex(8)}"
-    label = f"{plugin.label} plugin"
-    result = list(plugin.client.store.sparql.query(parameter_query))
+    # The same IRIs DataIntegration uses for the task type and its parameters in the project graph
+    plugin_type = f"{DI_FUNCTIONS}Plugin_{description.plugin_id}"
+    param_prefix = f"{DI_FUNCTIONS}param_{description.plugin_id}_"
+    # A snapshot of the task: replace the random suffix of the task ID, so that the provenance
+    # does not merge with the live task
+    task_name = task.task_id().rsplit("_", 1)[0]
+    plugin_iri = f"{DI_TASKS}{task.project_id()}/{task_name}_{token_hex(8)}"
 
-    prov: dict[str, Any] = {
-        "plugin_iri": new_plugin_iri,
-        "plugin_label": label,
+    return {
+        "plugin_iri": plugin_iri,
+        "plugin_label": f"{plugin.label} plugin",
         "plugin_type": plugin_type,
-        "parameters": {},
+        "plugin_version": get_plugin_version(),
+        "parameters": {p.name: f"{param_prefix}{p.name}" for p in description.parameters},
     }
-    for row in result:
-        param_iri = str(row.parameter)  # type: ignore[union-attr]
-        param_name = param_iri.split(param_split)[1]
-        prov["parameters"][param_name] = param_iri
-    return prov
+
+
+def get_plugin_version() -> str | None:
+    """Get the installed version of this plugin package (None if it is not installed)"""
+    try:
+        return version(PACKAGE_NAME)
+    except PackageNotFoundError:
+        return None
 
 
 def post_provenance(plugin: WorkflowPlugin) -> None:
@@ -199,6 +189,11 @@ def post_provenance(plugin: WorkflowPlugin) -> None:
             # only record parameters that are exposed as plugin attributes
             if name in plugin.__dict__:
                 param_sparql += f'\n<{prov["plugin_iri"]}> <{iri}> "{plugin.__dict__[name]}" .'
+        version_sparql = (
+            f'<{prov["plugin_iri"]}> <{OWL_VERSION_INFO}> "{prov["plugin_version"]}" .'
+            if prov["plugin_version"]
+            else ""
+        )
         insert_query = f"""
             INSERT DATA {{
                 GRAPH <{plugin.output_graph_iri}> {{
@@ -208,6 +203,7 @@ def post_provenance(plugin: WorkflowPlugin) -> None:
                         <https://vocab.eccenca.com/di/CustomTask> .
                     <{prov["plugin_iri"]}> <http://www.w3.org/2000/01/rdf-schema#label>
                         "{prov["plugin_label"]}" .
+                    {version_sparql}
                     {param_sparql}
                 }}
             }}

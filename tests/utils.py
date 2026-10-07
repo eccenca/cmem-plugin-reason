@@ -18,8 +18,8 @@ def get_client() -> Client:
     return Client.from_env()
 
 
-def get_remote_graph(client: Client, iri: str) -> Graph:
-    """Get remote graph IRI"""
+def get_remote_graph(client: Client, iri: str, provenance: bool = False) -> Graph:
+    """Get remote graph IRI, without the provenance data unless requested"""
     # the plugin under test uses its own Client instance internally, so this client's
     # cached graph list may not know about graphs created/updated since it was built
     client.graphs.fetch_data()
@@ -29,6 +29,10 @@ def get_remote_graph(client: Client, iri: str) -> Graph:
         graph = Graph().parse(path, format="turtle")
     graph.remove((URIRef(iri), DCTERMS.created, None))
     graph.remove((None, RDF.type, OWL.AnnotationProperty))
+    if not provenance:
+        for task in list(graph.objects(URIRef(iri), DCTERMS.creator)):
+            graph.remove((task, None, None))
+        graph.remove((URIRef(iri), DCTERMS.creator, None))
     return graph
 
 

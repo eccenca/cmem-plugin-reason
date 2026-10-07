@@ -1,12 +1,13 @@
 """Plugin tests."""
 
 from collections.abc import Generator
+from importlib.metadata import version
 from typing import Any
 
 import pytest
 from cmem_client.client import Client
 from cmem_plugin_base.testing import TestExecutionContext
-from rdflib import RDFS, Graph, Literal, URIRef
+from rdflib import DCTERMS, OWL, RDF, RDFS, Graph, Literal, URIRef
 from rdflib.compare import isomorphic
 
 from cmem_plugin_reason.plugin_reason import REASON_REASONERS, ReasonPlugin
@@ -111,6 +112,37 @@ def test_reason(setup: None, client: Client, reasoner_parameter: str) -> None:
     )
 
     assert isomorphic(result, test)
+
+
+def test_reason_provenance(setup: None, client: Client) -> None:
+    """Test Reason writes provenance without needing the project graph"""
+    ReasonPlugin(
+        data_graph_iri=REASON_DATA_GRAPH_IRI,
+        ontology_graph_iri=REASON_ONTOLOGY_GRAPH_IRI_1,
+        output_graph_iri=REASON_RESULT_GRAPH_IRI,
+        reasoner="structural",
+    ).execute(inputs=(), context=TestExecutionContext())
+
+    result = get_remote_graph(client, REASON_RESULT_GRAPH_IRI, provenance=True)
+    tasks = list(result.objects(URIRef(REASON_RESULT_GRAPH_IRI), DCTERMS.creator))
+    assert len(tasks) == 1
+    task = tasks[0]
+    # a snapshot of the task, not the task itself
+    assert str(task).startswith("http://dataintegration.eccenca.com/TestProject/TestTask_")
+    assert str(task) != "http://dataintegration.eccenca.com/TestProject/TestTask"
+    functions = "https://vocab.eccenca.com/di/functions/"
+    assert (
+        task,
+        RDF.type,
+        URIRef(f"{functions}Plugin_cmem_plugin_reason-plugin_reason-ReasonPlugin"),
+    ) in result
+    assert (task, RDFS.label, Literal("Reason plugin")) in result
+    assert (task, OWL.versionInfo, Literal(version("cmem-plugin-reason"))) in result
+    assert (
+        task,
+        URIRef(f"{functions}param_cmem_plugin_reason-plugin_reason-ReasonPlugin_reasoner"),
+        Literal("structural"),
+    ) in result
 
 
 def test_reason_input_not_exist(setup: None) -> None:

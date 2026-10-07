@@ -1,13 +1,14 @@
 """Plugin tests."""
 
 from collections.abc import Generator
+from importlib.metadata import version
 from typing import Any
 
 import pytest
 from cmem_client.client import Client
 from cmem_plugin_base.dataintegration.entity import Entities
 from cmem_plugin_base.testing import TestExecutionContext
-from rdflib import Graph
+from rdflib import DCTERMS, OWL, RDF, RDFS, Graph, Literal, URIRef
 from rdflib.compare import isomorphic
 
 from cmem_plugin_reason.plugin_validate import VALIDATE_REASONERS, ValidatePlugin
@@ -125,6 +126,37 @@ def test_validate_output_graph(setup: None, client: Client) -> None:
         data=replace_uuid(f"{FIXTURE_DIR}/test_validate_output_hermit.ttl"),
     )
     assert isomorphic(result, test)
+
+
+def test_validate_provenance(setup: None, client: Client) -> None:
+    """Test Validate writes provenance without needing the project graph"""
+    ValidatePlugin(
+        ontology_graph_iri=VALIDATE_ONTOLOGY_GRAPH_IRI_1,
+        output_graph_iri=VALIDATE_OUTPUT_GRAPH_IRI,
+        reasoner="hermit",
+        mode="inconsistency",
+    ).execute(inputs=(), context=TestExecutionContext())
+
+    result = get_remote_graph(client, VALIDATE_OUTPUT_GRAPH_IRI, provenance=True)
+    tasks = list(result.objects(URIRef(VALIDATE_OUTPUT_GRAPH_IRI), DCTERMS.creator))
+    assert len(tasks) == 1
+    task = tasks[0]
+    # a snapshot of the task, not the task itself
+    assert str(task).startswith("http://dataintegration.eccenca.com/TestProject/TestTask_")
+    assert str(task) != "http://dataintegration.eccenca.com/TestProject/TestTask"
+    functions = "https://vocab.eccenca.com/di/functions/"
+    assert (
+        task,
+        RDF.type,
+        URIRef(f"{functions}Plugin_cmem_plugin_reason-plugin_validate-ValidatePlugin"),
+    ) in result
+    assert (task, RDFS.label, Literal("Validate OWL consistency plugin")) in result
+    assert (task, OWL.versionInfo, Literal(version("cmem-plugin-reason"))) in result
+    assert (
+        task,
+        URIRef(f"{functions}param_cmem_plugin_reason-plugin_validate-ValidatePlugin_reasoner"),
+        Literal("hermit"),
+    ) in result
 
 
 def test_validate_input_not_exist(setup: None) -> None:
