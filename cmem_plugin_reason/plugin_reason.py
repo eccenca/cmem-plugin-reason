@@ -193,7 +193,8 @@ The Structural Reasoner only uses asserted hierarchies, so it does not infer thi
             param_type=GraphParameterType(classes=[OWL_ONTOLOGY, DI_DATASET, VOID_DATASET]),
             name="data_graph_iri",
             label="Data graph IRI",
-            description="The IRI of the input data graph.",
+            description="""The IRI of the input data graph. At least one of data graph and
+            ontology graph must be specified.""",
         ),
         PluginParameter(
             param_type=GraphParameterType(
@@ -310,9 +311,9 @@ class ReasonPlugin(WorkflowPlugin):
 
     def __init__(  # noqa: PLR0913, PLR0917
         self,
-        data_graph_iri: str,
-        ontology_graph_iri: str,
-        output_graph_iri: str,
+        data_graph_iri: str = "",
+        ontology_graph_iri: str = "",
+        output_graph_iri: str = "",
         ignore_missing_imports: bool = False,
         reasoner: str = "hermit",
         class_assertion: bool = True,
@@ -348,26 +349,6 @@ class ReasonPlugin(WorkflowPlugin):
             "object_property_range": object_property_range,
             "object_property_domain": object_property_domain,
         }
-        errors = ""
-        if not is_valid_uri(data_graph_iri):
-            errors += 'Invalid IRI for parameter "Data graph IRI". '
-        if not is_valid_uri(ontology_graph_iri):
-            errors += 'Invalid IRI for parameter "Ontology graph IRI". '
-        if not is_valid_uri(output_graph_iri):
-            errors += 'Invalid IRI for parameter "Result graph IRI". '
-        if output_graph_iri == data_graph_iri:
-            errors += "Result graph IRI cannot be the same as the data graph IRI. "
-        if output_graph_iri == ontology_graph_iri:
-            errors += "Result graph IRI cannot be the same as the ontology graph IRI. "
-        if reasoner not in REASON_REASONERS:
-            errors += 'Invalid value for parameter "Reasoner". '
-        if True not in self.axioms.values():
-            errors += "No axiom generator selected. "
-        if max_ram_percentage not in range(1, 101):
-            errors += 'Invalid value for parameter "Maximum RAM Percentage". '
-        if errors:
-            raise ValueError(errors[:-1])
-
         self.data_graph_iri = data_graph_iri
         self.ontology_graph_iri = ontology_graph_iri
         self.output_graph_iri = output_graph_iri
@@ -381,6 +362,49 @@ class ReasonPlugin(WorkflowPlugin):
 
         self.input_ports = FixedNumberOfInputs([])
         self.output_port = None
+
+    @property
+    def input_graph_iris(self) -> list[str]:
+        """The specified input graphs: data graph and/or ontology graph"""
+        return [iri for iri in (self.data_graph_iri, self.ontology_graph_iri) if iri]
+
+    @property
+    def main_graph_iri(self) -> str:
+        """The graph passed to the reasoner, importing the ontology if both are given"""
+        return self.input_graph_iris[0]
+
+    def graph_parameter_errors(self) -> str:
+        """Check the graph IRI parameters, return the problems found"""
+        errors = ""
+        if not self.input_graph_iris:
+            errors += "At least one of data graph IRI and ontology graph IRI must be specified. "
+        if not self.output_graph_iri:
+            errors += 'Parameter "Output graph IRI" must be specified. '
+        graph_parameters = {
+            "Data graph IRI": self.data_graph_iri,
+            "Ontology graph IRI": self.ontology_graph_iri,
+            "Output graph IRI": self.output_graph_iri,
+        }
+        for label, iri in graph_parameters.items():
+            if iri and not is_valid_uri(iri):
+                errors += f'Invalid IRI for parameter "{label}". '
+        if self.output_graph_iri and self.output_graph_iri == self.data_graph_iri:
+            errors += "Output graph IRI cannot be the same as the data graph IRI. "
+        if self.output_graph_iri and self.output_graph_iri == self.ontology_graph_iri:
+            errors += "Output graph IRI cannot be the same as the ontology graph IRI. "
+        return errors
+
+    def validate_parameters(self) -> None:
+        """Validate the parameters, raise a ValueError listing all problems"""
+        errors = self.graph_parameter_errors()
+        if self.reasoner not in REASON_REASONERS:
+            errors += 'Invalid value for parameter "Reasoner". '
+        if True not in self.axioms.values():
+            errors += "No axiom generator selected. "
+        if self.max_ram_percentage not in range(1, 101):
+            errors += 'Invalid value for parameter "Maximum RAM Percentage". '
+        if errors:
+            raise ValueError(errors[:-1])
 
     @staticmethod
     def camel_case(word: str) -> str:
@@ -397,7 +421,7 @@ class ReasonPlugin(WorkflowPlugin):
                 continue
             self.log.info(f"Fetching graph {iri}.")
             get_graph_as_file(self.client, iri, path)
-            if iri == self.data_graph_iri:
+            if iri == self.data_graph_iri and self.ontology_graph_iri:
                 with path.open("a", encoding="utf-8") as file:
                     file.write(f"\n<{iri}> <{OWL_IMPORTS}> <{self.ontology_graph_iri}> .")
 
@@ -405,7 +429,7 @@ class ReasonPlugin(WorkflowPlugin):
         """Get graph import tree. Last item in graph_iris is output_graph_iri which is excluded"""
         missing = []
         graphs = {}
-        for graph_iri in [self.data_graph_iri, self.ontology_graph_iri]:
+        for graph_iri in self.input_graph_iris:
             if graph_iri not in graphs:
                 graphs[graph_iri] = f"{uuid4().hex}.nt"
                 tree = self.client.graph_imports.get_import_tree(graph_iri).tree
@@ -428,10 +452,10 @@ class ReasonPlugin(WorkflowPlugin):
     def reason(self, graphs: dict) -> None:
         """Reason"""
         axioms = " ".join(self.camel_case(k) for k, v in self.axioms.items() if v)
-        data_location = f"{self.temp}/{graphs[self.data_graph_iri]}"
+        data_location = f"{self.temp}/{graphs[self.main_graph_iri]}"
         catalog_location = f"{self.temp}/{CATALOG_FILENAME}"
         result_path = f"{self.temp}/{RESULT_FILENAME}"
-        label = get_output_graph_label(self, self.data_graph_iri, "Reasoning Results")
+        label = get_output_graph_label(self, self.main_graph_iri, "Reasoning Results")
 
         cmd = [
             "reason",
@@ -463,13 +487,23 @@ class ReasonPlugin(WorkflowPlugin):
         annotations = build_annotation_nt(
             graph_iri=self.output_graph_iri,
             label=label,
-            comment=f"Reasoning results of data graph <{self.data_graph_iri}> "
-            f"with ontology <{self.ontology_graph_iri}>",
-            sources=[self.data_graph_iri, self.ontology_graph_iri],
+            comment=self.result_comment(),
+            sources=self.input_graph_iris,
             rdf_type=OWL_ONTOLOGY,
         )
         with Path(result_path).open("a", encoding="utf-8") as f:
             f.write("\n" + annotations)
+
+    def result_comment(self) -> str:
+        """Describe the input graphs of the reasoning result"""
+        if self.data_graph_iri and self.ontology_graph_iri:
+            return (
+                f"Reasoning results of data graph <{self.data_graph_iri}> "
+                f"with ontology <{self.ontology_graph_iri}>"
+            )
+        if self.data_graph_iri:
+            return f"Reasoning results of data graph <{self.data_graph_iri}>"
+        return f"Reasoning results of ontology <{self.ontology_graph_iri}>"
 
     def _execute(self) -> None:
         """`Execute plugin"""
@@ -494,12 +528,9 @@ class ReasonPlugin(WorkflowPlugin):
 
     def execute(self, inputs: Sequence, context: ExecutionContext) -> None:  # noqa: ARG002
         """Execute plugin with temporary directory"""
+        self.validate_parameters()
         self.client = get_client(context)
-        not_exist = []
-        if self.data_graph_iri not in self.client.graphs:
-            not_exist.append(self.data_graph_iri)
-        if self.ontology_graph_iri not in self.client.graphs:
-            not_exist.append(self.ontology_graph_iri)
+        not_exist = [iri for iri in self.input_graph_iris if iri not in self.client.graphs]
         if not_exist:
             raise ValueError(f"Graphs do not exist: {', '.join(not_exist)}")
 

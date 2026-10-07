@@ -54,6 +54,9 @@ ONTOLOGY_GRAPH_IRI_PARAMETER = PluginParameter(
     name="ontology_graph_iri",
     label="Ontology graph IRI",
     description="The IRI of the input ontology graph.",
+    # no parameter is required at creation (they may be set via the config port); the plugins
+    # validate them at execution
+    default_value="",
 )
 
 MAX_RAM_PERCENTAGE_PARAMETER = PluginParameter(

@@ -130,7 +130,7 @@ class ValidatePlugin(WorkflowPlugin):
 
     def __init__(  # noqa: PLR0913, PLR0917
         self,
-        ontology_graph_iri: str,
+        ontology_graph_iri: str = "",
         ignore_missing_imports: bool = False,
         reasoner: str = "hermit",
         mode: str = "inconsistency",
@@ -140,23 +140,6 @@ class ValidatePlugin(WorkflowPlugin):
         stop_at_inconsistencies: bool = False,
         max_ram_percentage: int = MAX_RAM_PERCENTAGE_DEFAULT,
     ) -> None:
-        errors = ""
-        if not is_valid_uri(ontology_graph_iri):
-            errors += 'Invalid IRI for parameter "Ontology graph IRI." '
-        if reasoner not in VALIDATE_REASONERS:
-            errors += 'Invalid value for parameter "Reasoner". '
-        if mode not in ("inconsistency", "unsatisfiability"):
-            errors += 'Invalid value for parameter "Mode". '
-        if max_explanations < 1:
-            errors += 'Invalid value for parameter "Maximum explanations". '
-        if output_graph_iri and not is_valid_uri(output_graph_iri):
-            errors += 'Invalid IRI for parameter "Output graph IRI". '
-        if output_graph_iri and output_graph_iri == ontology_graph_iri:
-            errors += "Output graph IRI cannot be the same as the Ontology graph IRI. "
-        if max_ram_percentage not in range(1, 101):
-            errors += 'Invalid value for parameter "Maximum RAM Percentage". '
-        if errors:
-            raise ValueError(errors[:-1])
         self.ontology_graph_iri = ontology_graph_iri
         self.reasoner = reasoner
         self.mode = mode
@@ -172,6 +155,28 @@ class ValidatePlugin(WorkflowPlugin):
         self.input_ports = FixedNumberOfInputs([])
         self.schema = self.generate_output_schema()
         self.output_port = FixedSchemaPort(self.schema)
+
+    def validate_parameters(self) -> None:
+        """Validate the parameters, raise a ValueError listing all problems"""
+        errors = ""
+        if not self.ontology_graph_iri:
+            errors += 'Parameter "Ontology graph IRI" must be specified. '
+        elif not is_valid_uri(self.ontology_graph_iri):
+            errors += 'Invalid IRI for parameter "Ontology graph IRI". '
+        if self.reasoner not in VALIDATE_REASONERS:
+            errors += 'Invalid value for parameter "Reasoner". '
+        if self.mode not in ("inconsistency", "unsatisfiability"):
+            errors += 'Invalid value for parameter "Mode". '
+        if self.max_explanations < 1:
+            errors += 'Invalid value for parameter "Maximum explanations". '
+        if self.output_graph_iri and not is_valid_uri(self.output_graph_iri):
+            errors += 'Invalid IRI for parameter "Output graph IRI". '
+        if self.output_graph_iri and self.output_graph_iri == self.ontology_graph_iri:
+            errors += "Output graph IRI cannot be the same as the Ontology graph IRI. "
+        if self.max_ram_percentage not in range(1, 101):
+            errors += 'Invalid value for parameter "Maximum RAM Percentage". '
+        if errors:
+            raise ValueError(errors[:-1])
 
     def generate_output_schema(self) -> EntitySchema:
         """Generate output entity schema."""
@@ -363,6 +368,7 @@ class ValidatePlugin(WorkflowPlugin):
 
     def execute(self, inputs: Sequence, context: ExecutionContext) -> Entities | None:  # noqa: ARG002
         """Execute plugin with a temporary directory"""
+        self.validate_parameters()
         self.client = get_client(context)
         if self.ontology_graph_iri not in self.client.graphs:
             raise ValueError(f"Ontology graph does not exist: {self.ontology_graph_iri}")

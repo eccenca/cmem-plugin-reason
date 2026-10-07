@@ -18,6 +18,10 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 ### Changed
 
+- Reason plugin: only one of "Data graph IRI" and "Ontology graph IRI" is required; with only one
+  given, that graph is reasoned on its own.
+- Reason and Validate plugins: no parameter is required when the task is created (so they can
+  also be set via the config port); parameters are validated when the task is executed.
 - Use eccenca reasoner (OWLAPI5) instead of ROBOT (OWLAPI4).
 - Reason plugin: reasoner options are now ELK, ELK (EMR), HermiT, JFact and Structural Reasoner
   (Whelk removed, EMR merged into ELK (EMR)).

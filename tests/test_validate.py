@@ -142,6 +142,37 @@ def test_validate_input_not_exist(setup: None) -> None:
         plugin.execute(inputs=(), context=TestExecutionContext())
 
 
+def test_validate_invalid_parameters() -> None:
+    """Test Validate parameter validation at execution, not at creation"""
+    plugin = ValidatePlugin(
+        ontology_graph_iri="not an IRI",
+        reasoner="not-a-reasoner",
+        mode="not-a-mode",
+        max_explanations=0,
+        output_graph_iri="also not an IRI",
+        max_ram_percentage=0,
+    )
+    with pytest.raises(ValueError) as exc_info:  # noqa: PT011
+        plugin.execute(inputs=(), context=TestExecutionContext())
+    message = str(exc_info.value)
+    for error in (
+        'Invalid IRI for parameter "Ontology graph IRI".',
+        'Invalid value for parameter "Reasoner".',
+        'Invalid value for parameter "Mode".',
+        'Invalid value for parameter "Maximum explanations".',
+        'Invalid IRI for parameter "Output graph IRI".',
+        'Invalid value for parameter "Maximum RAM Percentage".',
+    ):
+        assert error in message
+
+
+def test_validate_missing_parameters() -> None:
+    """Test Validate can be created without parameters and reports the missing ones at execution"""
+    plugin = ValidatePlugin()
+    with pytest.raises(ValueError, match=r'Parameter "Ontology graph IRI" must be specified\.'):
+        plugin.execute(inputs=(), context=TestExecutionContext())
+
+
 def test_validate_import_not_exist_not_ignore(setup: None) -> None:
     """Test Validate with missing import"""
     plugin = ValidatePlugin(

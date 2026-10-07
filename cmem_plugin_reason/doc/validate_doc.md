@@ -4,6 +4,9 @@ outputs entities: the explanation as text in Markdown format on the path "explan
 ontology IRI on the path "ontology_graph_iri", the reasoner option on the path "reasoner", and,
 if OWL2 profile validation is enabled, the valid profiles on the path "profiles".
 
+No parameter is required when the task is created, so parameters can also be set via the config
+port of a workflow. The parameters are validated when the task is executed.
+
 ## Options
 
 ### Ignore missing imports

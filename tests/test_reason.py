@@ -6,7 +6,7 @@ from typing import Any
 import pytest
 from cmem_client.client import Client
 from cmem_plugin_base.testing import TestExecutionContext
-from rdflib import Graph
+from rdflib import RDFS, Graph, Literal, URIRef
 from rdflib.compare import isomorphic
 
 from cmem_plugin_reason.plugin_reason import REASON_REASONERS, ReasonPlugin
@@ -131,6 +131,69 @@ def test_reason_input_not_exist(setup: None) -> None:
         f"https://ns.eccenca.com/reasoning/{UID}/not-exist2/",
     ):
         plugin.execute(inputs=(), context=TestExecutionContext())
+
+
+def test_reason_invalid_parameters() -> None:
+    """Test Reason parameter validation at execution, not at creation"""
+    plugin = ReasonPlugin(
+        output_graph_iri="not an IRI",
+        reasoner="not-a-reasoner",
+        class_assertion=False,
+        property_assertion=False,
+        max_ram_percentage=0,
+    )
+    with pytest.raises(ValueError) as exc_info:  # noqa: PT011
+        plugin.execute(inputs=(), context=TestExecutionContext())
+    message = str(exc_info.value)
+    for error in (
+        "At least one of data graph IRI and ontology graph IRI must be specified.",
+        'Invalid IRI for parameter "Output graph IRI".',
+        'Invalid value for parameter "Reasoner".',
+        "No axiom generator selected.",
+        'Invalid value for parameter "Maximum RAM Percentage".',
+    ):
+        assert error in message
+
+
+def test_reason_missing_parameters() -> None:
+    """Test Reason can be created without parameters and reports the missing ones at execution"""
+    plugin = ReasonPlugin()
+    with pytest.raises(ValueError) as exc_info:  # noqa: PT011
+        plugin.execute(inputs=(), context=TestExecutionContext())
+    message = str(exc_info.value)
+    for error in (
+        "At least one of data graph IRI and ontology graph IRI must be specified.",
+        'Parameter "Output graph IRI" must be specified.',
+    ):
+        assert error in message
+    assert "cannot be the same" not in message
+
+
+@pytest.mark.parametrize(
+    ("data_graph_iri", "ontology_graph_iri", "comment"),
+    [
+        (REASON_DATA_GRAPH_IRI, "", f"Reasoning results of data graph <{REASON_DATA_GRAPH_IRI}>"),
+        (
+            "",
+            REASON_ONTOLOGY_GRAPH_IRI_1,
+            f"Reasoning results of ontology <{REASON_ONTOLOGY_GRAPH_IRI_1}>",
+        ),
+    ],
+)
+def test_reason_single_input(
+    setup: None, client: Client, data_graph_iri: str, ontology_graph_iri: str, comment: str
+) -> None:
+    """Test Reason with only a data graph or only an ontology graph"""
+    ReasonPlugin(
+        data_graph_iri=data_graph_iri,
+        ontology_graph_iri=ontology_graph_iri,
+        output_graph_iri=REASON_RESULT_GRAPH_IRI,
+        reasoner="hermit",
+        sub_class=True,
+    ).execute(inputs=(), context=TestExecutionContext())
+
+    result = get_remote_graph(client, REASON_RESULT_GRAPH_IRI)
+    assert (URIRef(REASON_RESULT_GRAPH_IRI), RDFS.comment, Literal(comment, lang="en")) in result
 
 
 def test_reason_import_not_exist_not_ignore(setup: None) -> None:

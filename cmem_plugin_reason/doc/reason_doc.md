@@ -1,5 +1,9 @@
-A task performing OWL reasoning. With an OWL ontology and a data graph as input the reasoning
-result is written to a specified graph.
+A task performing OWL reasoning. With an OWL ontology and/or a data graph as input the reasoning
+result is written to a specified graph. At least one of the two input graphs must be specified; if
+both are given, the data graph is reasoned with the ontology imported.
+
+No parameter is required when the task is created, so parameters can also be set via the config
+port of a workflow. The parameters are validated when the task is executed.
 
 ## Options
 
@@ -10,7 +14,7 @@ If enabled, missing imports (`owl:imports`) in the input graphs are ignored.
 ### Ontology graph IRI
 
 The IRI of the input ontology graph. The graph IRI is selected from a list of graphs of type
-`owl:Ontology`.
+`owl:Ontology`. Optional if a data graph is specified.
 
 ### Maximum RAM Percentage
 
@@ -53,7 +57,7 @@ inferences with which reasoner:
 ### Data graph IRI
 
 The IRI of the input data graph. The graph IRI is selected from a list of graphs of types
-`di:Dataset`, `void:Dataset` and `owl:Ontology`.
+`di:Dataset`, `void:Dataset` and `owl:Ontology`. Optional if an ontology graph is specified.
 
 ### Output graph IRI
 
