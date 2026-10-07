@@ -7,9 +7,13 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 ## [Unreleased]
 
+### Fixed
+
+- Fix robot.jar vulnerability CVE-2026-68497, CVE-2026-19032, CVE-2026-83557.
+
 ### Changed
 
-- updated dependencies and template
+- Updated dependencies and template.
 
 ## [2.3.0] 2026-08-17
 
