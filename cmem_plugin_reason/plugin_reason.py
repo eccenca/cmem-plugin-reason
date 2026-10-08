@@ -37,9 +37,16 @@ from cmem_plugin_reason.utils import (
     post_provenance,
     raise_on_error,
     send_result,
+    skolem_args,
 )
 
 LABEL = "Reason"
+
+SKOLEMIZE_DESC = """Replace the blank nodes of the result (e.g. for inferred class expressions
+such as `p some B` or inverse properties) with IRIs, so no information is lost if the result is
+processed by tools that do not keep blank nodes. The IRIs are UUIDs computed from the content and
+the output graph, so re-running the task produces the same IRIs. ⚠️ The result is then no longer
+valid OWL 2 in RDF; tools that read it as an ontology may misinterpret these nodes."""
 
 REASON_REASONERS = OrderedDict(
     {
@@ -181,6 +188,14 @@ The Structural Reasoner only uses asserted hierarchies, so it does not infer thi
         IGNORE_MISSING_IMPORTS_PARAMETER,
         ONTOLOGY_GRAPH_IRI_PARAMETER,
         MAX_RAM_PERCENTAGE_PARAMETER,
+        PluginParameter(
+            param_type=BoolParameterType(),
+            name="skolemize",
+            label="Replace blank nodes with IRIs",
+            description=SKOLEMIZE_DESC,
+            default_value=False,
+            advanced=True,
+        ),
         PluginParameter(
             param_type=ChoiceParameterType(REASON_REASONERS),
             name="reasoner",
@@ -331,6 +346,7 @@ class ReasonPlugin(WorkflowPlugin):
         sub_data_property: bool = False,
         equivalent_data_properties: bool = False,
         max_ram_percentage: int = MAX_RAM_PERCENTAGE_DEFAULT,
+        skolemize: bool = False,
     ) -> None:
         #: Keyed by parameter name; camel_case() turns a key into the reasoner's generator name.
         self.axioms = {
@@ -355,6 +371,7 @@ class ReasonPlugin(WorkflowPlugin):
         self.reasoner = reasoner
         self.max_ram_percentage = max_ram_percentage
         self.ignore_missing_imports = ignore_missing_imports
+        self.skolemize = skolemize
         self.label = LABEL
 
         # expose the axiom generators as attributes too, so post_provenance() records them
@@ -480,6 +497,8 @@ class ReasonPlugin(WorkflowPlugin):
             result_path,
             "--reduce",
         ]
+        if self.skolemize:
+            cmd += skolem_args(self.output_graph_iri)
         response = eccenca_reasoner(cmd, self.max_ram_percentage)
         raise_on_error(response, "Reasoning")
 

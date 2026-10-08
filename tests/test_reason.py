@@ -7,7 +7,7 @@ from typing import Any
 import pytest
 from cmem_client.client import Client
 from cmem_plugin_base.testing import TestExecutionContext
-from rdflib import DCTERMS, OWL, RDF, RDFS, Graph, Literal, URIRef
+from rdflib import DCTERMS, OWL, RDF, RDFS, BNode, Graph, Literal, Node, URIRef
 from rdflib.compare import isomorphic
 
 from cmem_plugin_reason.plugin_reason import REASON_REASONERS, ReasonPlugin
@@ -275,3 +275,75 @@ def test_reason_ontology_import(setup: None, client: Client) -> None:
     ).execute(inputs=(), context=TestExecutionContext())
 
     assert not client.store.sparql.query(ASK_QUERY).askAnswer
+
+
+# --- skolemize ------------------------------------------------------------------------------
+
+REASON_SKOLEM_ONTOLOGY_IRI = f"https://ns.eccenca.com/reasoning/{UID}/skolem/"
+SKOLEM_NS = f"https://ns.eccenca.com/reasoning/{UID}/skolem/vocab#"
+#: skolem_base() of REASON_RESULT_GRAPH_IRI
+SKOLEM_BASE = "https://ns.eccenca.com/.well-known/genid/"
+
+
+@pytest.fixture
+def skolem_setup(client: Client) -> Generator[None, Any]:
+    """Set up the skolemize tests"""
+    client.graphs.delete_item(REASON_RESULT_GRAPH_IRI, skip_if_missing=True)
+    # hasStudent ⊑ studentOf⁻ is inferred; RDF writes the inverse property with a blank node.
+    import_graph(
+        client,
+        REASON_SKOLEM_ONTOLOGY_IRI,
+        get_bytes_io(f"{FIXTURE_DIR}/test_reason_skolem.ttl"),
+    )
+
+    yield
+
+    client.graphs.fetch_data()
+    client.graphs.delete_item(REASON_SKOLEM_ONTOLOGY_IRI, skip_if_missing=True)
+    client.graphs.delete_item(REASON_RESULT_GRAPH_IRI, skip_if_missing=True)
+
+
+def reason_skolem(skolemize: bool) -> None:
+    """Infer the sub-property axioms of the skolem ontology into REASON_RESULT_GRAPH_IRI"""
+    ReasonPlugin(
+        ontology_graph_iri=REASON_SKOLEM_ONTOLOGY_IRI,
+        output_graph_iri=REASON_RESULT_GRAPH_IRI,
+        reasoner="hermit",
+        sub_object_property=True,
+        class_assertion=False,
+        property_assertion=False,
+        skolemize=skolemize,
+    ).execute(inputs=(), context=TestExecutionContext())
+
+
+def inverse_node(result: Graph) -> Node:
+    """Get the node standing for studentOf⁻ in hasStudent rdfs:subPropertyOf studentOf⁻"""
+    nodes = [
+        node
+        for node in result.objects(URIRef(f"{SKOLEM_NS}hasStudent"), RDFS.subPropertyOf)
+        if (node, OWL.inverseOf, URIRef(f"{SKOLEM_NS}studentOf")) in result
+    ]
+    assert len(nodes) == 1, result.serialize(format="nt")
+    return nodes[0]
+
+
+def test_reason_without_skolemize_keeps_blank_nodes(skolem_setup: None, client: Client) -> None:
+    """Test Reason writes blank nodes by default"""
+    reason_skolem(skolemize=False)
+
+    result = get_remote_graph(client, REASON_RESULT_GRAPH_IRI)
+    assert isinstance(inverse_node(result), BNode)
+
+
+def test_reason_skolemize(skolem_setup: None, client: Client) -> None:
+    """Test Reason replaces blank nodes with stable IRIs"""
+    reason_skolem(skolemize=True)
+    result = get_remote_graph(client, REASON_RESULT_GRAPH_IRI)
+
+    assert not any(isinstance(term, BNode) for triple in result for term in triple)
+    node = inverse_node(result)
+    assert str(node).startswith(SKOLEM_BASE)
+
+    # re-running replaces the output graph with the same IRIs
+    reason_skolem(skolemize=True)
+    assert inverse_node(get_remote_graph(client, REASON_RESULT_GRAPH_IRI)) == node

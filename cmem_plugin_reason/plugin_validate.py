@@ -38,9 +38,16 @@ from cmem_plugin_reason.utils import (
     post_provenance,
     raise_on_error,
     send_result,
+    skolem_args,
 )
 
 LABEL = "Validate OWL consistency"
+
+SKOLEMIZE_DESC = """Only relevant if an output graph is set. Replace the blank nodes of the
+explanation axioms written to the output graph (e.g. for class expressions such as `p some B` or
+inverse properties) with IRIs, so no information is lost if the graph is processed by tools that
+do not keep blank nodes. The IRIs are UUIDs computed from the content and the output graph, so
+re-running the task produces the same IRIs."""
 
 #: Predicate used to annotate the output graph with the validated ontology's OWL 2 profiles.
 VALIDATE_PROFILE_PREDICATE = "https://vocab.eccenca.com/plugin/validate/profile"
@@ -64,6 +71,14 @@ MD_FILENAME = "mdfile.md"
         IGNORE_MISSING_IMPORTS_PARAMETER,
         ONTOLOGY_GRAPH_IRI_PARAMETER,
         MAX_RAM_PERCENTAGE_PARAMETER,
+        PluginParameter(
+            param_type=BoolParameterType(),
+            name="skolemize",
+            label="Replace blank nodes with IRIs",
+            description=SKOLEMIZE_DESC,
+            default_value=False,
+            advanced=True,
+        ),
         PluginParameter(
             param_type=GraphParameterType(
                 allow_only_autocompleted_values=False,
@@ -139,6 +154,7 @@ class ValidatePlugin(WorkflowPlugin):
         validate_profile: bool = False,
         stop_at_inconsistencies: bool = False,
         max_ram_percentage: int = MAX_RAM_PERCENTAGE_DEFAULT,
+        skolemize: bool = False,
     ) -> None:
         self.ontology_graph_iri = ontology_graph_iri
         self.reasoner = reasoner
@@ -148,6 +164,7 @@ class ValidatePlugin(WorkflowPlugin):
         self.stop_at_inconsistencies = stop_at_inconsistencies
         self.validate_profile = validate_profile
         self.max_ram_percentage = max_ram_percentage
+        self.skolemize = skolemize
         self.ignore_missing_imports = ignore_missing_imports
 
         self.label = LABEL
@@ -295,6 +312,8 @@ class ValidatePlugin(WorkflowPlugin):
             # inconsistency, not the loaded ontology) as N-Triples; write_output_graph()
             # appends the label/comment/source/profile annotation onto this same file.
             cmd += ["--output", f"{self.temp}/{RESULT_FILENAME}", "--format", "nt"]
+            if self.skolemize:
+                cmd += skolem_args(self.output_graph_iri)
         response = eccenca_reasoner(cmd, self.max_ram_percentage)
         raise_on_error(response, "Explanation")
 

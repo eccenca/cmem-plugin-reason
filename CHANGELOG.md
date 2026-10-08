@@ -7,6 +7,13 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 ## [Unreleased]
 
+### Added
+
+- Reason and Validate plugins: advanced parameter "Replace blank nodes with IRIs" (requires an
+  eccenca reasoner jar with `--skolemize`). Blank nodes in the output graph are replaced by stable
+  UUID IRIs under `/.well-known/genid/` of the output graph's domain. In the Validate plugin it
+  applies to the explanation axioms, so only if an output graph is set.
+
 ### Fixed
 
 - Validate plugin: the output graph is now declared a `void:Dataset` instead of an

@@ -1,0 +1,11 @@
+@prefix : <https://ns.eccenca.com/validateontology/{uuid}/skolem/vocab#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+<https://ns.eccenca.com/validateontology/{uuid}/skolem/> a owl:Ontology .
+:p a owl:ObjectProperty .
+:A a owl:Class ; rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :p ; owl:someValuesFrom :B ] .
+:B a owl:Class ; owl:disjointWith :C .
+:C a owl:Class .
+:D a owl:Class ;
+    owl:equivalentClass [ a owl:Restriction ; owl:onProperty :p ; owl:allValuesFrom :C ] .
+:x a owl:NamedIndividual , :A , :D .

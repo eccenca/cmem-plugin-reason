@@ -13,6 +13,7 @@ from importlib.metadata import PackageNotFoundError, version
 from pathlib import Path
 from secrets import token_hex
 from subprocess import CompletedProcess, run
+from urllib.parse import urlparse
 from xml.etree.ElementTree import Element, SubElement, tostring
 
 import validators.url
@@ -241,6 +242,33 @@ def create_xml_catalog_file(dir_: str, graphs: dict) -> None:
     with Path(file_name).open("w", encoding="utf-8") as file:
         file.truncate(0)
         file.write(reparsed)
+
+
+def skolem_base(graph_iri: str) -> str:
+    """IRI prefix for the reasoner's --skolem-base, derived from the output graph IRI.
+
+    For an http(s) graph IRI this is the RDF 1.1 well-known path for skolem IRIs at the root of
+    its domain (https://example.org/.well-known/genid/), so consumers can recognize them as
+    replaced blank nodes. Other IRIs (e.g. urn:) have no domain; they get urn:uuid: IRIs.
+    """
+    parsed = urlparse(graph_iri)
+    if parsed.scheme in ("http", "https") and parsed.netloc:
+        return f"{parsed.scheme}://{parsed.netloc}/.well-known/genid/"
+    return "urn:uuid:"
+
+
+def skolem_args(output_graph_iri: str) -> list[str]:
+    """Reasoner arguments that replace the blank nodes of --output with IRIs.
+
+    The output graph IRI is the scope, so different output graphs never share IRIs.
+    """
+    return [
+        "--skolemize",
+        "--skolem-base",
+        skolem_base(output_graph_iri),
+        "--skolem-scope",
+        output_graph_iri,
+    ]
 
 
 def eccenca_reasoner(cmd: list[str], max_ram_percentage: int) -> CompletedProcess[bytes]:

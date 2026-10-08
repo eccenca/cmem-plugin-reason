@@ -22,6 +22,24 @@ Maximum heap size for the Java virtual machine in the DI container running the r
 
 ⚠️ Setting the percentage too high may result in an out of memory error.
 
+### Replace blank nodes with IRIs
+
+Advanced option, disabled by default. Inferred axioms with class expressions (e.g.
+`A SubClassOf: p some B`, which ELK (EMR) adds), inverse properties or disjointness of three or
+more classes are written with blank nodes. If enabled, every blank node of the result is replaced
+by an IRI, so no information is lost if the result is processed by tools that do not keep blank
+nodes.
+
+- The IRIs are `https://<domain of the output graph>/.well-known/genid/<uuid>`, the form RDF 1.1
+  recommends for replaced blank nodes; for an output graph IRI without a domain (e.g. `urn:`) they
+  are `urn:uuid:<uuid>`.
+- The UUIDs are computed from what the blank node stands for and from the output graph IRI, so
+  re-running the task produces the same IRIs, and different output graphs never share IRIs.
+
+⚠️ The result is then no longer valid OWL 2 in RDF: the OWL mapping requires blank nodes for
+class expressions, so tools that read the output graph as an ontology may misinterpret these
+nodes.
+
 ### Reasoner
 
 The following reasoner options are supported:

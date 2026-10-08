@@ -39,6 +39,20 @@ The output graph holds the explanation axioms plus the validation result and is 
 `void:Dataset`. It is not declared an `owl:Ontology`: it does not contain an ontology of its
 own, it describes the validated one.
 
+### Replace blank nodes with IRIs
+
+Advanced option, disabled by default, only relevant if an output graph is set. The explanation
+axioms written to the output graph often contain class expressions (e.g. `A SubClassOf: p some B`)
+or inverse properties, which are written with blank nodes. If enabled, every blank node is
+replaced by an IRI, so no information is lost if the graph is processed by tools that do not keep
+blank nodes.
+
+- The IRIs are `https://<domain of the output graph>/.well-known/genid/<uuid>`, the form RDF 1.1
+  recommends for replaced blank nodes; for an output graph IRI without a domain (e.g. `urn:`) they
+  are `urn:uuid:<uuid>`.
+- The UUIDs are computed from what the blank node stands for and from the output graph IRI, so
+  re-running the task produces the same IRIs, and different output graphs never share IRIs.
+
 ### Reasoner
 
 The following reasoner options are supported:

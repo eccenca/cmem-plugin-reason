@@ -1,0 +1,7 @@
+@prefix : <https://ns.eccenca.com/reasoning/{uuid}/skolem/vocab#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+<https://ns.eccenca.com/reasoning/{uuid}/skolem/> a owl:Ontology .
+:studentOf a owl:ObjectProperty .
+:hasStudent a owl:ObjectProperty .
+:enrolledIn a owl:ObjectProperty ; rdfs:subPropertyOf :studentOf ; owl:inverseOf :hasStudent .

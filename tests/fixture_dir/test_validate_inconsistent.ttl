@@ -1,0 +1,7 @@
+@prefix : <https://ns.eccenca.com/validateontology/{uuid}/unsat/vocab#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+<https://ns.eccenca.com/validateontology/{uuid}/inconsistent/> a owl:Ontology .
+:A a owl:Class ; owl:disjointWith :B .
+:B a owl:Class .
+:x a owl:NamedIndividual , :A , :B .
