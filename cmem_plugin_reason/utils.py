@@ -37,6 +37,9 @@ RDFS_COMMENT = "http://www.w3.org/2000/01/rdf-schema#comment"
 OWL_ONTOLOGY = "http://www.w3.org/2002/07/owl#Ontology"
 OWL_IMPORTS = "http://www.w3.org/2002/07/owl#imports"
 OWL_VERSION_INFO = "http://www.w3.org/2002/07/owl#versionInfo"
+#: The build of the bundled reasoner jar that produced an output graph, recorded in the provenance
+REASONER_VERSION = "https://vocab.eccenca.com/plugin/reason/reasonerVersion"
+REASONER_COMMIT = "https://vocab.eccenca.com/plugin/reason/reasonerCommit"
 DCTERMS_SOURCE = "http://purl.org/dc/terms/source"
 DCTERMS_CREATED = "http://purl.org/dc/terms/created"
 DI_DATASET = "https://vocab.eccenca.com/di/Dataset"
@@ -169,6 +172,7 @@ def get_provenance(plugin: WorkflowPlugin) -> dict | None:
         "plugin_label": f"{plugin.label} plugin",
         "plugin_type": plugin_type,
         "plugin_version": get_plugin_version(),
+        "reasoner_version": get_reasoner_version(plugin.max_ram_percentage),
         "parameters": {p.name: f"{param_prefix}{p.name}" for p in description.parameters},
     }
 
@@ -195,6 +199,12 @@ def post_provenance(plugin: WorkflowPlugin) -> None:
             if prov["plugin_version"]
             else ""
         )
+        if prov["reasoner_version"]:
+            reasoner_version, reasoner_commit = prov["reasoner_version"]
+            version_sparql += (
+                f'\n<{prov["plugin_iri"]}> <{REASONER_VERSION}> "{reasoner_version}" .'
+                f'\n<{prov["plugin_iri"]}> <{REASONER_COMMIT}> "{reasoner_commit}" .'
+            )
         insert_query = f"""
             INSERT DATA {{
                 GRAPH <{plugin.output_graph_iri}> {{
@@ -269,6 +279,25 @@ def skolem_args(output_graph_iri: str) -> list[str]:
         "--skolem-scope",
         output_graph_iri,
     ]
+
+
+#: Output of `java -jar eccenca-reasoner.jar --version`
+REASONER_VERSION_LINE = re.compile(
+    r"^eccenca-reasoner (?P<version>\S+) \(commit (?P<commit>\S+)\)$"
+)
+
+
+def get_reasoner_version(max_ram_percentage: int) -> tuple[str, str] | None:
+    """Get version and commit of the bundled reasoner jar.
+
+    None if the jar can't report them: jars built before the --version option reject it, and
+    jars built without git information report "unknown".
+    """
+    response = eccenca_reasoner(["--version"], max_ram_percentage)
+    match = REASONER_VERSION_LINE.match(response.stdout.decode().strip())
+    if response.returncode != 0 or match is None or "unknown" in match.groups():
+        return None
+    return match["version"], match["commit"]
 
 
 def eccenca_reasoner(cmd: list[str], max_ram_percentage: int) -> CompletedProcess[bytes]:

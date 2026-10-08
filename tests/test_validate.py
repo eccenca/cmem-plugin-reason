@@ -12,6 +12,12 @@ from rdflib import DCTERMS, OWL, RDF, RDFS, BNode, Graph, Literal, URIRef
 from rdflib.compare import isomorphic
 
 from cmem_plugin_reason.plugin_validate import VALIDATE_REASONERS, ValidatePlugin
+from cmem_plugin_reason.utils import (
+    MAX_RAM_PERCENTAGE_DEFAULT,
+    REASONER_COMMIT,
+    REASONER_VERSION,
+    get_reasoner_version,
+)
 from tests.utils import (
     FIXTURE_DIR,
     UID,
@@ -152,6 +158,11 @@ def test_validate_provenance(setup: None, client: Client) -> None:
     ) in result
     assert (task, RDFS.label, Literal("Validate OWL consistency plugin")) in result
     assert (task, OWL.versionInfo, Literal(version("cmem-plugin-reason"))) in result
+    # the build of the bundled reasoner jar (needs a jar with --version)
+    reasoner_version = get_reasoner_version(MAX_RAM_PERCENTAGE_DEFAULT)
+    assert reasoner_version is not None
+    assert (task, URIRef(REASONER_VERSION), Literal(reasoner_version[0])) in result
+    assert (task, URIRef(REASONER_COMMIT), Literal(reasoner_version[1])) in result
     assert (
         task,
         URIRef(f"{functions}param_cmem_plugin_reason-plugin_validate-ValidatePlugin_reasoner"),
