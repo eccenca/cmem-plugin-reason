@@ -4,8 +4,10 @@ import tempfile
 from io import BytesIO
 from pathlib import Path
 
+import pytest
 from cmem_client.client import Client
 from cmem_client.repositories.protocols.import_item import ImportConflictPolicy
+from cmem_plugin_base.dataintegration.description import Plugin
 from rdflib import DCTERMS, OWL, RDF, Graph, URIRef
 
 UID = "e02aaed014c94e0c91bf960fed127750"
@@ -34,6 +36,23 @@ def get_remote_graph(client: Client, iri: str, provenance: bool = False) -> Grap
             graph.remove((task, None, None))
         graph.remove((URIRef(iri), DCTERMS.creator, None))
     return graph
+
+
+#: Parametrizes a test over the plugin registry as pytest leaves it and as DataIntegration does
+REGISTRY_STATES = pytest.mark.parametrize(
+    "after_discovery", [False, True], ids=["plugin registered", "after DataIntegration discovery"]
+)
+
+
+def simulate_dataintegration_discovery(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Leave Plugin.plugins as DataIntegration's plugin discovery does at execution time
+
+    DataIntegration discovers every installed cmem_plugin_* package, and the import of each one
+    starts with emptying Plugin.plugins. So when a task runs, the list holds only the plugins of
+    the last package discovered - normally not this one. Within pytest only this package is
+    imported, so the plugins stay registered unless a test empties the list.
+    """
+    monkeypatch.setattr(Plugin, "plugins", [])
 
 
 def import_graph(client: Client, iri: str, file: BytesIO) -> None:

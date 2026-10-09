@@ -7,6 +7,7 @@ Organized in four sections:
   4. N-Triples output-graph annotation.
 """
 
+import inspect
 import re
 from datetime import UTC, datetime
 from importlib.metadata import PackageNotFoundError, version
@@ -21,10 +22,11 @@ from cmem_client.client import Client
 from cmem_client.repositories.graphs import GraphExportConfig, GraphsRepository
 from cmem_client.repositories.protocols.import_item import ImportConflictPolicy
 from cmem_plugin_base.dataintegration.context import ExecutionReport
-from cmem_plugin_base.dataintegration.description import Plugin, PluginParameter
+from cmem_plugin_base.dataintegration.description import PluginParameter
 from cmem_plugin_base.dataintegration.parameter.graph import GraphParameterType
 from cmem_plugin_base.dataintegration.plugins import WorkflowPlugin
 from cmem_plugin_base.dataintegration.types import BoolParameterType, IntParameterType
+from cmem_plugin_base.dataintegration.utils import generate_id
 from defusedxml import minidom
 
 # ============================================================================
@@ -149,19 +151,27 @@ def get_output_graph_label(plugin: WorkflowPlugin, iri: str, add_string: str) ->
 def get_provenance(plugin: WorkflowPlugin) -> dict | None:
     """Get provenance information for the running plugin task, as a snapshot of the task.
 
-    Everything is derived from the plugin's registration and the execution context, not read
-    from the project graph: that graph only exists if the workspace is stored as RDF
-    (workspace provider "backend" or "fileAndDataPlatform").
+    Everything is derived from the plugin class and the execution context, not read from the
+    project graph: that graph only exists if the workspace is stored as RDF (workspace provider
+    "backend" or "fileAndDataPlatform").
     """
     task = getattr(plugin.context, "task", None)
-    description = next((d for d in Plugin.plugins if d.plugin_class is type(plugin)), None)
-    if task is None or description is None:
+    if task is None:
         plugin.log.warning("Could not add provenance data to output graph.")
         return None
 
+    # The plugin ID and parameters are derived the way cmem-plugin-base does for a @Plugin without
+    # an explicit plugin_id - if one is ever set, use it here too. They are not looked up in
+    # Plugin.plugins: DataIntegration's plugin discovery empties that list for every
+    # cmem_plugin_* package it imports, so at execution time it only holds the last package's.
+    plugin_class = type(plugin)
+    plugin_id = generate_id(f"{plugin_class.__module__}-{plugin_class.__name__}".replace(".", "-"))
+    parameter_names = [
+        name for name in inspect.signature(plugin_class.__init__).parameters if name != "self"
+    ]
     # The same IRIs DataIntegration uses for the task type and its parameters in the project graph
-    plugin_type = f"{DI_FUNCTIONS}Plugin_{description.plugin_id}"
-    param_prefix = f"{DI_FUNCTIONS}param_{description.plugin_id}_"
+    plugin_type = f"{DI_FUNCTIONS}Plugin_{plugin_id}"
+    param_prefix = f"{DI_FUNCTIONS}param_{plugin_id}_"
     # A snapshot of the task: replace the random suffix of the task ID, so that the provenance
     # does not merge with the live task
     task_name = task.task_id().rsplit("_", 1)[0]
@@ -173,7 +183,7 @@ def get_provenance(plugin: WorkflowPlugin) -> dict | None:
         "plugin_type": plugin_type,
         "plugin_version": get_plugin_version(),
         "reasoner_version": get_reasoner_version(plugin.max_ram_percentage),
-        "parameters": {p.name: f"{param_prefix}{p.name}" for p in description.parameters},
+        "parameters": {name: f"{param_prefix}{name}" for name in parameter_names},
     }
 
 

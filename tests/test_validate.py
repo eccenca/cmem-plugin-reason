@@ -20,12 +20,14 @@ from cmem_plugin_reason.utils import (
 )
 from tests.utils import (
     FIXTURE_DIR,
+    REGISTRY_STATES,
     UID,
     get_bytes_io,
     get_client,
     get_remote_graph,
     import_graph,
     replace_uuid,
+    simulate_dataintegration_discovery,
 )
 
 VALIDATE_ONTOLOGY_GRAPH_IRI_1 = f"https://ns.eccenca.com/validateontology/{UID}/vocab/"
@@ -134,8 +136,13 @@ def test_validate_output_graph(setup: None, client: Client) -> None:
     assert isomorphic(result, test)
 
 
-def test_validate_provenance(setup: None, client: Client) -> None:
-    """Test Validate writes provenance without needing the project graph"""
+@REGISTRY_STATES
+def test_validate_provenance(
+    setup: None, client: Client, monkeypatch: pytest.MonkeyPatch, after_discovery: bool
+) -> None:
+    """Test Validate writes provenance without needing the project graph or the plugin registry"""
+    if after_discovery:
+        simulate_dataintegration_discovery(monkeypatch)
     ValidatePlugin(
         ontology_graph_iri=VALIDATE_ONTOLOGY_GRAPH_IRI_1,
         output_graph_iri=VALIDATE_OUTPUT_GRAPH_IRI,

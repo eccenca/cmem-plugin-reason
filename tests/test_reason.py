@@ -19,12 +19,14 @@ from cmem_plugin_reason.utils import (
 )
 from tests.utils import (
     FIXTURE_DIR,
+    REGISTRY_STATES,
     UID,
     get_bytes_io,
     get_client,
     get_remote_graph,
     import_graph,
     replace_uuid,
+    simulate_dataintegration_discovery,
 )
 
 REASON_DATA_GRAPH_IRI = f"https://ns.eccenca.com/reasoning/{UID}/data/"
@@ -120,8 +122,13 @@ def test_reason(setup: None, client: Client, reasoner_parameter: str) -> None:
     assert isomorphic(result, test)
 
 
-def test_reason_provenance(setup: None, client: Client) -> None:
-    """Test Reason writes provenance without needing the project graph"""
+@REGISTRY_STATES
+def test_reason_provenance(
+    setup: None, client: Client, monkeypatch: pytest.MonkeyPatch, after_discovery: bool
+) -> None:
+    """Test Reason writes provenance without needing the project graph or the plugin registry"""
+    if after_discovery:
+        simulate_dataintegration_discovery(monkeypatch)
     ReasonPlugin(
         data_graph_iri=REASON_DATA_GRAPH_IRI,
         ontology_graph_iri=REASON_ONTOLOGY_GRAPH_IRI_1,
