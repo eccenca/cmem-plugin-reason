@@ -12,12 +12,11 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 - Reason and Validate plugins: the provenance data in the output graph includes the plugin
   version (`owl:versionInfo`).
 - Reason and Validate plugins: the provenance data in the output graph includes the version and
-  commit of the bundled reasoner jar (`reasonerVersion`, `reasonerCommit`), if the jar reports
-  them (`--version`, eccenca reasoner built with git versioning).
-- Reason and Validate plugins: advanced parameter "Replace blank nodes with IRIs" (requires an
-  eccenca reasoner jar with `--skolemize`). Blank nodes in the output graph are replaced by stable
-  UUID IRIs under `/.well-known/genid/` of the output graph's domain. In the Validate plugin it
-  applies to the explanation axioms, so only if an output graph is set.
+  commit of the bundled reasoner jar (`reasonerVersion`, `reasonerCommit`).
+- Reason and Validate plugins: advanced parameter "Replace blank nodes with IRIs". Blank nodes in
+  the output graph are replaced by stable UUID IRIs under `/.well-known/genid/` of the output
+  graph's domain. In the Validate plugin it applies to the explanation axioms, so only if an
+  output graph is set.
 - Validate plugin: added "Maximum explanations" parameter to limit the number of justifications
   generated per inference.
 
