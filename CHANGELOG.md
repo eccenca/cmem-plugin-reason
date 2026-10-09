@@ -9,6 +9,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 ### Added
 
+- Reason and Validate plugins: the provenance data in the output graph includes the plugin
+  version (`owl:versionInfo`).
 - Reason and Validate plugins: the provenance data in the output graph includes the version and
   commit of the bundled reasoner jar (`reasonerVersion`, `reasonerCommit`), if the jar reports
   them (`--version`, eccenca reasoner built with git versioning).
@@ -16,21 +18,11 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
   eccenca reasoner jar with `--skolemize`). Blank nodes in the output graph are replaced by stable
   UUID IRIs under `/.well-known/genid/` of the output graph's domain. In the Validate plugin it
   applies to the explanation axioms, so only if an output graph is set.
-
-### Fixed
-
-- Validate plugin: the output graph is now declared a `void:Dataset` instead of an
-  `owl:Ontology`.
-- Reason plugin documentation: corrected the examples for class equivalence (only named
-  classes), object property characteristics (functionality is inherited by sub-properties) and
-  individual property assertions, and documented which axiom generators each reasoner supports
-  (ELK does not support e.g. property assertions, disjointness, ranges and domains).
+- Validate plugin: added "Maximum explanations" parameter to limit the number of justifications
+  generated per inference.
 
 ### Changed
 
-- Reason and Validate plugins: provenance data is written whatever the workspace provider; it
-  no longer reads the project graph, which only exists if the workspace is stored as RDF
-  (`backend` or `fileAndDataPlatform`).
 - Reason plugin: only one of "Data graph IRI" and "Ontology graph IRI" is required; with only one
   given, that graph is reasoned on its own.
 - Reason and Validate plugins: no parameter is required when the task is created (so they can
@@ -43,13 +35,6 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
   profiles are output as a list instead of a comma-separated string.
 - Update template to 9.7.0.
 
-### Added
-
-- Reason and Validate plugins: the provenance data in the output graph includes the plugin
-  version (`owl:versionInfo`).
-- Validate plugin: added "Maximum explanations" parameter to limit the number of justifications
-  generated per inference.
-
 ### Removed
 
 - Reason plugin: "Validate OWL2 profiles" (and related "Process valid OWL profiles from input" /
@@ -57,6 +42,33 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 - Reason plugin: "Output graph import" parameter.
 - Validate plugin: "Output filename" parameter and Markdown file resource output.
 
+### Fixed
+
+- Reason and Validate plugins: provenance data is now written with every DataIntegration
+  workspace provider. Before, it was only written if the workspace was stored as RDF (workspace
+  provider `backend` or `fileAndDataPlatform`), because it was read from the project graph.
+- Validate plugin: the output graph is now declared a `void:Dataset` instead of an
+  `owl:Ontology`.
+- Reason plugin documentation: corrected the examples for class equivalence (only named
+  classes), object property characteristics (functionality is inherited by sub-properties) and
+  individual property assertions, and documented which axiom generators each reasoner supports
+  (ELK does not support e.g. property assertions, disjointness, ranges and domains).
+
+## [2.4.1] 2026-10-07
+
+### Fixed
+
+- Broken changelog entries
+
+## [2.4.0] 2026-10-07
+
+### Fixed
+
+- Fix robot.jar vulnerability CVE-2026-68497, CVE-2026-19032, CVE-2026-83557.
+
+### Changed
+
+- Updated dependencies and template.
 
 ## [2.3.0] 2026-08-17
 
