@@ -5,18 +5,20 @@ from typing import Any
 
 import pytest
 from cmem_plugin_base.testing import TestExecutionContext
-from rdflib import Graph
+from rdflib import DCTERMS, RDF, RDFS, Graph, Literal, URIRef
 from rdflib.compare import isomorphic
 
 from cmem_plugin_reason.plugin_reason import ReasonPlugin
 from cmem_plugin_reason.utils import REASONERS
 from tests.utils import (
     FIXTURE_DIR,
+    REGISTRY_STATES,
     UID,
     get_remote_graph,
     get_test_client,
     import_graph,
     replace_uuid,
+    simulate_dataintegration_discovery,
 )
 
 REASON_DATA_GRAPH_IRI = f"https://ns.eccenca.com/reasoning/{UID}/data/"
@@ -90,6 +92,41 @@ def test_reason(setup: None, reasoner_parameter: str) -> None:
         data=replace_uuid(f"{FIXTURE_DIR}/test_{reasoner_parameter}.ttl"), format="turtle"
     )
     assert isomorphic(result, test)
+
+
+@REGISTRY_STATES
+def test_reason_provenance(
+    setup: None, monkeypatch: pytest.MonkeyPatch, after_discovery: bool
+) -> None:
+    """Test Reason writes provenance without needing the project graph or the plugin registry"""
+    if after_discovery:
+        simulate_dataintegration_discovery(monkeypatch)
+    ReasonPlugin(
+        data_graph_iri=REASON_DATA_GRAPH_IRI,
+        ontology_graph_iri=REASON_ONTOLOGY_GRAPH_IRI_1,
+        output_graph_iri=REASON_RESULT_GRAPH_IRI,
+        reasoner="structural",
+        class_assertion=True,
+    ).execute(inputs=(), context=TestExecutionContext())
+
+    result = get_remote_graph(get_test_client(), REASON_RESULT_GRAPH_IRI, provenance=True)
+    tasks = list(result.objects(URIRef(REASON_RESULT_GRAPH_IRI), DCTERMS.creator))
+    assert len(tasks) == 1
+    task = tasks[0]
+    # a snapshot of the task, not the task itself
+    assert str(task).startswith("http://dataintegration.eccenca.com/TestProject/TestTask_")
+    functions = "https://vocab.eccenca.com/di/functions/"
+    assert (
+        task,
+        RDF.type,
+        URIRef(f"{functions}Plugin_cmem_plugin_reason-plugin_reason-ReasonPlugin"),
+    ) in result
+    assert (task, RDFS.label, Literal("Reason plugin")) in result
+    assert (
+        task,
+        URIRef(f"{functions}param_cmem_plugin_reason-plugin_reason-ReasonPlugin_reasoner"),
+        Literal("structural"),
+    ) in result
 
 
 def test_reason_input_not_exist(setup: None) -> None:

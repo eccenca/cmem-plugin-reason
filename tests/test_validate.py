@@ -7,18 +7,20 @@ import pytest
 from cmem_client.models.project import Project
 from cmem_plugin_base.dataintegration.entity import Entities
 from cmem_plugin_base.testing import TestExecutionContext
-from rdflib import Graph
+from rdflib import DCTERMS, OWL, RDF, RDFS, VOID, Graph, Literal, URIRef
 from rdflib.compare import isomorphic
 
 from cmem_plugin_reason.plugin_validate import ValidatePlugin
 from cmem_plugin_reason.utils import REASONERS
 from tests.utils import (
     FIXTURE_DIR,
+    REGISTRY_STATES,
     UID,
     get_remote_graph,
     get_test_client,
     import_graph,
     replace_uuid,
+    simulate_dataintegration_discovery,
 )
 
 VALIDATE_ONTOLOGY_GRAPH_IRI_1 = f"https://ns.eccenca.com/validateontology/{UID}/vocab/"
@@ -118,6 +120,44 @@ def test_validate(setup: None, reasoner_parameter: str) -> None:
 
     if val_errors:
         raise OSError(val_errors[:-1])
+
+
+@REGISTRY_STATES
+def test_validate_output_graph_provenance(
+    setup: None, monkeypatch: pytest.MonkeyPatch, after_discovery: bool
+) -> None:
+    """Test Validate declares the output graph a void:Dataset and writes provenance"""
+    if after_discovery:
+        simulate_dataintegration_discovery(monkeypatch)
+    ValidatePlugin(
+        ontology_graph_iri=VALIDATE_ONTOLOGY_GRAPH_IRI_1,
+        output_graph_iri=VALIDATE_RESULT_GRAPH_IRI,
+        reasoner="hermit",
+        md_filename=MD_FILENAME,
+        mode="inconsistency",
+    ).execute(inputs=(), context=TestExecutionContext(PROJECT_ID))
+
+    result = get_remote_graph(get_test_client(), VALIDATE_RESULT_GRAPH_IRI, provenance=True)
+    tasks = list(result.objects(URIRef(VALIDATE_RESULT_GRAPH_IRI), DCTERMS.creator))
+    assert len(tasks) == 1
+    task = tasks[0]
+    # a snapshot of the task, not the task itself
+    assert str(task).startswith(f"http://dataintegration.eccenca.com/{PROJECT_ID}/TestTask_")
+    functions = "https://vocab.eccenca.com/di/functions/"
+    assert (
+        task,
+        RDF.type,
+        URIRef(f"{functions}Plugin_cmem_plugin_reason-plugin_validate-ValidatePlugin"),
+    ) in result
+    assert (task, RDFS.label, Literal("Validate OWL consistency plugin")) in result
+    assert (
+        task,
+        URIRef(f"{functions}param_cmem_plugin_reason-plugin_validate-ValidatePlugin_reasoner"),
+        Literal("hermit"),
+    ) in result
+    output = URIRef(VALIDATE_RESULT_GRAPH_IRI)
+    assert (output, RDF.type, VOID.Dataset) in result
+    assert (output, RDF.type, OWL.Ontology) not in result
 
 
 def test_validate_input_not_exist(setup: None) -> None:

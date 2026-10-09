@@ -12,6 +12,14 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 - Use ROBOT v1.9.11 compiled with [updated dependencies without vulnerablities](https://github.com/eccenca/robot/tree/feature/updateDependenciesV1.9.11)
 - Updated dependencies and template
 
+### Fixed
+
+- Reason and Validate plugins: provenance data is now written with every DataIntegration
+  workspace provider. Before, it was only written if the workspace was stored as RDF (workspace
+  provider `backend` or `fileAndDataPlatform`), because it was read from the project graph.
+- Validate plugin: the output graph is now declared a `void:Dataset` instead of an
+  `owl:Ontology`.
+
 ## [2.4.1] 2026-10-07
 
 ### Fixed

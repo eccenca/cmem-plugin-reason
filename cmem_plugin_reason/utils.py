@@ -1,5 +1,6 @@
 """Common constants and functions"""
 
+import inspect
 import re
 import shlex
 from collections import OrderedDict
@@ -20,6 +21,7 @@ from cmem_plugin_base.dataintegration.parameter.choice import ChoiceParameterTyp
 from cmem_plugin_base.dataintegration.parameter.graph import GraphParameterType
 from cmem_plugin_base.dataintegration.plugins import WorkflowPlugin
 from cmem_plugin_base.dataintegration.types import BoolParameterType, IntParameterType
+from cmem_plugin_base.dataintegration.utils import generate_id
 from defusedxml import minidom
 
 from . import __path__
@@ -27,6 +29,9 @@ from . import __path__
 ROBOT = Path(__path__[0]) / "robot.jar"
 
 NT_EXPORT_CONFIG = GraphExportConfig(serialization=GraphsRepository.formats["n-triples"])
+
+DI_FUNCTIONS = "https://vocab.eccenca.com/di/functions/"
+DI_TASKS = "http://dataintegration.eccenca.com/"
 
 REASONERS = OrderedDict(
     {
@@ -127,7 +132,9 @@ def post_provenance(plugin: WorkflowPlugin) -> None:
     if prov:
         param_sparql = ""
         for name, iri in prov["parameters"].items():
-            param_sparql += f'\n<{prov["plugin_iri"]}> <{iri}> "{plugin.__dict__[name]}" .'
+            # only record parameters that are exposed as plugin attributes
+            if name in plugin.__dict__:
+                param_sparql += f'\n<{prov["plugin_iri"]}> <{iri}> "{plugin.__dict__[name]}" .'
         insert_query = f"""
             INSERT DATA {{
                 GRAPH <{plugin.output_graph_iri}> {{
@@ -145,61 +152,39 @@ def post_provenance(plugin: WorkflowPlugin) -> None:
 
 
 def get_provenance(plugin: WorkflowPlugin) -> dict | None:
-    """Get provenance information"""
-    plugin_iri = (
-        f"http://dataintegration.eccenca.com/{plugin.context.task.project_id()}/"
-        f"{plugin.context.task.task_id()}"
-    )
-    project_graph = f"http://di.eccenca.com/project/{plugin.context.task.project_id()}"
+    """Get provenance information for the running plugin task, as a snapshot of the task.
 
-    type_query = f"""
-        SELECT ?type {{
-            GRAPH <{project_graph}> {{
-                <{plugin_iri}> a ?type .
-                FILTER(STRSTARTS(STR(?type), "https://vocab.eccenca.com/di/functions/"))
-            }}
-        }}
+    Everything is derived from the plugin class and the execution context, not read from the
+    project graph: that graph only exists if the workspace is stored as RDF (workspace provider
+    "backend" or "fileAndDataPlatform").
     """
-
-    type_rows = list(plugin.client.store.sparql.query(type_query))
-
-    if not type_rows:
+    task = getattr(plugin.context, "task", None)
+    if task is None:
         plugin.log.warning("Could not add provenance data to output graph.")
         return None
 
-    plugin_type = str(type_rows[0]["type"])
-
-    param_split = (
-        plugin_type.replace(
-            "https://vocab.eccenca.com/di/functions/Plugin_",
-            "https://vocab.eccenca.com/di/functions/param_",
-        )
-        + "_"
-    )
-
-    parameter_query = f"""
-        SELECT ?parameter {{
-            GRAPH <{project_graph}> {{
-                <{plugin_iri}> ?parameter ?o .
-                FILTER(STRSTARTS(STR(?parameter), "https://vocab.eccenca.com/di/functions/param_"))
-            }}
-        }}
-    """
-
-    new_plugin_iri = f"{'_'.join(plugin_iri.split('_')[:-1])}_{token_hex(8)}"
-    label = f"{plugin.label} plugin"
-    parameters = {}
-
-    for row in plugin.client.store.sparql.query(parameter_query):
-        param_iri = str(row["parameter"])
-        param_name = param_iri.split(param_split)[1]
-        parameters[param_name] = param_iri
+    # The plugin ID and parameters are derived the way cmem-plugin-base does for a @Plugin without
+    # an explicit plugin_id - if one is ever set, use it here too. They are not looked up in
+    # Plugin.plugins: DataIntegration's plugin discovery empties that list for every
+    # cmem_plugin_* package it imports, so at execution time it only holds the last package's.
+    plugin_class = type(plugin)
+    plugin_id = generate_id(f"{plugin_class.__module__}-{plugin_class.__name__}".replace(".", "-"))
+    parameter_names = [
+        name for name in inspect.signature(plugin_class.__init__).parameters if name != "self"
+    ]
+    # The same IRIs DataIntegration uses for the task type and its parameters in the project graph
+    plugin_type = f"{DI_FUNCTIONS}Plugin_{plugin_id}"
+    param_prefix = f"{DI_FUNCTIONS}param_{plugin_id}_"
+    # A snapshot of the task: replace the random suffix of the task ID, so that the provenance
+    # does not merge with the live task
+    task_name = task.task_id().rsplit("_", 1)[0]
+    plugin_iri = f"{DI_TASKS}{task.project_id()}/{task_name}_{token_hex(8)}"
 
     return {
-        "plugin_iri": new_plugin_iri,
-        "plugin_label": label,
+        "plugin_iri": plugin_iri,
+        "plugin_label": f"{plugin.label} plugin",
         "plugin_type": plugin_type,
-        "parameters": parameters,
+        "parameters": {name: f"{param_prefix}{name}" for name in parameter_names},
     }
 
 
