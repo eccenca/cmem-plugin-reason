@@ -186,7 +186,7 @@ def test_reason_same_graph_for_data_and_ontology(
 
     assert isomorphic(same, ontology_only)
     output = URIRef(REASON_RESULT_GRAPH_IRI)
-    comment = f"Reasoning results of ontology <{REASON_ONTOLOGY_GRAPH_IRI_1}>"
+    comment = f"Reasoning results of graph <{REASON_ONTOLOGY_GRAPH_IRI_1}>"
     assert (output, RDFS.comment, Literal(comment, lang="en")) in same
     assert list(same.objects(output, DCTERMS.source)) == [URIRef(REASON_ONTOLOGY_GRAPH_IRI_1)]
     assert (None, RDFS.subClassOf, None) in same
@@ -199,7 +199,7 @@ def test_reason_data_graph_only(setup: None) -> None:
     result = reason_and_fetch(REASON_DATA_GRAPH_IRI, "")
 
     output = URIRef(REASON_RESULT_GRAPH_IRI)
-    comment = f"Reasoning results of data graph <{REASON_DATA_GRAPH_IRI}>"
+    comment = f"Reasoning results of graph <{REASON_DATA_GRAPH_IRI}>"
     assert (output, RDFS.comment, Literal(comment, lang="en")) in result
     assert list(result.objects(output, DCTERMS.source)) == [URIRef(REASON_DATA_GRAPH_IRI)]
 
@@ -209,7 +209,7 @@ def test_reason_ontology_graph_only(setup: None) -> None:
     result = reason_and_fetch("", REASON_ONTOLOGY_GRAPH_IRI_1)
 
     output = URIRef(REASON_RESULT_GRAPH_IRI)
-    comment = f"Reasoning results of ontology <{REASON_ONTOLOGY_GRAPH_IRI_1}>"
+    comment = f"Reasoning results of graph <{REASON_ONTOLOGY_GRAPH_IRI_1}>"
     assert (output, RDFS.comment, Literal(comment, lang="en")) in result
     assert list(result.objects(output, DCTERMS.source)) == [URIRef(REASON_ONTOLOGY_GRAPH_IRI_1)]
     assert (None, RDFS.subClassOf, None) in result

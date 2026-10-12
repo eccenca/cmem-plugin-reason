@@ -14,7 +14,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 - Validate plugin: the output graph is now declared a `void:Dataset` instead of an
   `owl:Ontology`.
 - Reason plugin: only one of "Data graph IRI" and "Ontology graph IRI" is required. With only
-  one, or the same graph in both, that graph is reasoned on its own.
+  one, or the same graph in both, that graph is reasoned on its own, and the result is described as
+  "Reasoning results of graph <X>".
 
 ### Fixed
 

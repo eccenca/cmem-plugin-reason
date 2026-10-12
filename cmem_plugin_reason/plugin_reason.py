@@ -514,9 +514,8 @@ class ReasonPlugin(WorkflowPlugin):
                 f"Reasoning results of data graph <{self.data_graph_iri}> with ontology "
                 f"<{self.ontology_graph_iri}>"
             )
-        if self.ontology_graph_iri:
-            return f"Reasoning results of ontology <{self.ontology_graph_iri}>"
-        return f"Reasoning results of data graph <{self.data_graph_iri}>"
+        # one graph, whichever field it is in: its role is not known
+        return f"Reasoning results of graph <{self.main_graph_iri}>"
 
     def add_ontology_import(self) -> None:
         """Add ontology graph import to output graph"""
