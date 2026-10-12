@@ -18,7 +18,6 @@ from cmem_client.repositories.protocols.import_item import ImportConflictPolicy
 from cmem_plugin_base.dataintegration.context import ExecutionReport
 from cmem_plugin_base.dataintegration.description import PluginParameter
 from cmem_plugin_base.dataintegration.parameter.choice import ChoiceParameterType
-from cmem_plugin_base.dataintegration.parameter.graph import GraphParameterType
 from cmem_plugin_base.dataintegration.plugins import WorkflowPlugin
 from cmem_plugin_base.dataintegration.types import BoolParameterType, IntParameterType
 from cmem_plugin_base.dataintegration.utils import generate_id
@@ -62,13 +61,6 @@ VALIDATE_REASONER_PARAMETER = PluginParameter(
     validation, since they are the only reasoners offered here that are complete OWL DL reasoners
     capable of generating explanations. The remaining options are kept for backwards
     compatibility.""",
-)
-
-ONTOLOGY_GRAPH_IRI_PARAMETER = PluginParameter(
-    param_type=GraphParameterType(classes=["http://www.w3.org/2002/07/owl#Ontology"]),
-    name="ontology_graph_iri",
-    label="Ontology graph IRI",
-    description="The IRI of the input ontology graph.",
 )
 
 MAX_RAM_PERCENTAGE_PARAMETER = PluginParameter(

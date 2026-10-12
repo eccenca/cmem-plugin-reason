@@ -23,7 +23,6 @@ from cmem_plugin_reason.utils import (
     IGNORE_MISSING_IMPORTS_PARAMETER,
     MAX_RAM_PERCENTAGE_DEFAULT,
     MAX_RAM_PERCENTAGE_PARAMETER,
-    ONTOLOGY_GRAPH_IRI_PARAMETER,
     REASONERS,
     VALIDATE_PROFILES_PARAMETER,
     VALIDATE_REASONER_PARAMETER,
@@ -52,7 +51,12 @@ VOID_DATASET = "http://rdfs.org/ns/void#Dataset"
     icon=Icon(file_name="file-icons--owl.svg", package=__package__),
     parameters=[
         IGNORE_MISSING_IMPORTS_PARAMETER,
-        ONTOLOGY_GRAPH_IRI_PARAMETER,
+        PluginParameter(
+            param_type=GraphParameterType(classes=["http://www.w3.org/2002/07/owl#Ontology"]),
+            name="ontology_graph_iri",
+            label="Ontology graph IRI",
+            description="The IRI of the input ontology graph.",
+        ),
         MAX_RAM_PERCENTAGE_PARAMETER,
         VALIDATE_PROFILES_PARAMETER,
         VALIDATE_REASONER_PARAMETER,

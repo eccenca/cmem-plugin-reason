@@ -13,9 +13,13 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 - Updated dependencies and template
 - Validate plugin: the output graph is now declared a `void:Dataset` instead of an
   `owl:Ontology`.
+- Reason plugin: only one of "Data graph IRI" and "Ontology graph IRI" is required. With only
+  one, or the same graph in both, that graph is reasoned on its own.
 
 ### Fixed
 
+- Reason plugin: selecting the same graph as data graph and ontology graph failed with
+  `OWLOntologyDocumentAlreadyExistsException`.
 - Reason and Validate plugins: provenance data is now written with every DataIntegration
   workspace provider. Before, it was only written if the workspace was stored as RDF (workspace
   provider `backend` or `fileAndDataPlatform`), because it was read from the project graph.
