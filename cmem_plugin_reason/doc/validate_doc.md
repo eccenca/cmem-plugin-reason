@@ -20,9 +20,16 @@ The IRI of the input ontology graph. The graph IRI is selected from a list of gr
 
 ### Maximum RAM Percentage
 
-Maximum heap size for the Java virtual machine in the DI container running the reasoning process.
+Maximum heap size for the Java virtual machine in the DI container running the reasoning process,
+as a percentage of the container's memory. The reasoning process runs next to DataIntegration's own
+Java process in the same container, so both share its memory.
 
-⚠️ Setting the percentage too high may result in an out of memory error.
+The reasoner holds the input graphs in memory. As a rough guide, explaining an inconsistency
+in a graph with 200,000 individuals (48 MB of N-Triples) needs about 0.7 GB of heap with HermiT;
+with the default of 20 %, that is a container with about 4 GB of memory. If the task fails with an out of memory error, raise the percentage or the
+container's memory.
+
+⚠️ Setting the percentage too high may result in an out of memory error of DataIntegration itself.
 
 ### Validate OWL2 profiles
 

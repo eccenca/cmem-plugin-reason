@@ -201,8 +201,8 @@ The Structural Reasoner only uses asserted hierarchies, so it does not infer thi
             name="reasoner",
             label="Reasoner",
             description="""Reasoner option. ELK and ELK (EMR) are limited to OWL 2 EL and support
-            fewer axiom generators; the Structural Reasoner only uses asserted hierarchies. See the
-            documentation for details.""",
+            fewer axiom generators; the Structural Reasoner only uses asserted hierarchies. JFact is
+            slow on large datasets. See the documentation for details.""",
         ),
         PluginParameter(
             param_type=GraphParameterType(classes=[OWL_ONTOLOGY, DI_DATASET, VOID_DATASET]),

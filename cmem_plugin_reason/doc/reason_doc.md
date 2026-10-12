@@ -19,9 +19,17 @@ The IRI of the input ontology graph. The graph IRI is selected from a list of gr
 
 ### Maximum RAM Percentage
 
-Maximum heap size for the Java virtual machine in the DI container running the reasoning process.
+Maximum heap size for the Java virtual machine in the DI container running the reasoning process,
+as a percentage of the container's memory. The reasoning process runs next to DataIntegration's own
+Java process in the same container, so both share its memory.
 
-⚠️ Setting the percentage too high may result in an out of memory error.
+The reasoner holds the input graphs and its results in memory. As a rough guide, measured with
+200,000 individuals (48 MB of N-Triples, 1.8 million inferred class assertions): ELK needs about
+1.7 GB of heap and HermiT about 2.4 GB; with the default of 20 %, that is a container with about
+12 GB of memory. If the task fails with an out of memory error, raise the percentage or the
+container's memory.
+
+⚠️ Setting the percentage too high may result in an out of memory error of DataIntegration itself.
 
 ### Replace blank nodes with IRIs
 
@@ -72,6 +80,26 @@ inferences with which reasoner:
 - **Inconsistent ontologies:** reasoning fails with an `InconsistentOntologyException` for ELK,
   HermiT and JFact (Structural produces an empty result). Check the ontology with the "Validate OWL
   consistency" task first.
+
+#### Large datasets
+
+Measured with 200,000 individuals in a 10-level class hierarchy (48 MB of N-Triples, 1.8 million
+inferred class assertions, the default axiom generators):
+
+| Reasoner | Time | Heap |
+|---|---|---|
+| ELK | 30 s | 1.7 GB |
+| HermiT | 46 s | 2.4 GB |
+| JFact | did not finish in 5 minutes | |
+
+- ELK and HermiT scale about linearly with the number of individuals. JFact grows about
+  quadratically (5,000 individuals: 7 s, 20,000: 60 s); avoid it for large datasets.
+- ELK (EMR) creates a helper class for every class and every object property used in class or
+  property axioms, so its memory grows with classes × properties: about 0.7 GB for 5,000 classes
+  and 40 properties, where ELK needs 30 MB. For ontologies with many classes and properties, use
+  ELK unless the existential restrictions are needed.
+- With "Replace blank nodes with IRIs", the task needs temporary disk space of about the size of the
+  result in addition.
 
 ### Data graph IRI
 
