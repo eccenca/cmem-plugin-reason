@@ -382,13 +382,18 @@ class ReasonPlugin(WorkflowPlugin):
 
     @property
     def input_graph_iris(self) -> list[str]:
-        """The specified input graphs: data graph and/or ontology graph"""
-        return [iri for iri in (self.data_graph_iri, self.ontology_graph_iri) if iri]
+        """The specified input graphs, each once: data graph and/or ontology graph"""
+        return list(dict.fromkeys(i for i in (self.data_graph_iri, self.ontology_graph_iri) if i))
 
     @property
     def main_graph_iri(self) -> str:
-        """The graph passed to the reasoner, importing the ontology if both are given"""
+        """The graph passed to the reasoner; with two different inputs, the data graph"""
         return self.input_graph_iris[0]
+
+    @property
+    def two_inputs(self) -> bool:
+        """Whether two different input graphs are given, so the data graph imports the ontology"""
+        return len(self.input_graph_iris) > 1
 
     def graph_parameter_errors(self) -> str:
         """Check the graph IRI parameters, return the problems found"""
@@ -438,7 +443,7 @@ class ReasonPlugin(WorkflowPlugin):
                 continue
             self.log.info(f"Fetching graph {iri}.")
             get_graph_as_file(self.client, iri, path)
-            if iri == self.data_graph_iri and self.ontology_graph_iri:
+            if iri == self.data_graph_iri and self.two_inputs:
                 with path.open("a", encoding="utf-8") as file:
                     file.write(f"\n<{iri}> <{OWL_IMPORTS}> <{self.ontology_graph_iri}> .")
 
@@ -515,14 +520,13 @@ class ReasonPlugin(WorkflowPlugin):
 
     def result_comment(self) -> str:
         """Describe the input graphs of the reasoning result"""
-        if self.data_graph_iri and self.ontology_graph_iri:
+        if self.two_inputs:
             return (
                 f"Reasoning results of data graph <{self.data_graph_iri}> "
                 f"with ontology <{self.ontology_graph_iri}>"
             )
-        if self.data_graph_iri:
-            return f"Reasoning results of data graph <{self.data_graph_iri}>"
-        return f"Reasoning results of ontology <{self.ontology_graph_iri}>"
+        # one graph, whichever field it is in: its role is not known
+        return f"Reasoning results of graph <{self.main_graph_iri}>"
 
     def _execute(self) -> None:
         """`Execute plugin"""

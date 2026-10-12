@@ -1,6 +1,7 @@
 A task performing OWL reasoning. With an OWL ontology and/or a data graph as input the reasoning
-result is written to a specified graph. At least one of the two input graphs must be specified; if
-both are given, the data graph is reasoned with the ontology imported.
+result is written to a specified graph. At least one of the two input graphs must be specified. With
+two different input graphs, the data graph is reasoned with the ontology imported; with only one, or
+the same graph in both, that graph is reasoned on its own.
 
 No parameter is required when the task is created, so parameters can also be set via the config
 port of a workflow. The parameters are validated when the task is executed.

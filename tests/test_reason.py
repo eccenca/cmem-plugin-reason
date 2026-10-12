@@ -1,5 +1,7 @@
 """Plugin tests."""
 
+import os
+import tempfile
 from collections.abc import Generator
 from importlib.metadata import version
 from typing import Any
@@ -219,21 +221,18 @@ def test_reason_missing_parameters() -> None:
     assert "cannot be the same" not in message
 
 
-@pytest.mark.parametrize(
-    ("data_graph_iri", "ontology_graph_iri", "comment"),
-    [
-        (REASON_DATA_GRAPH_IRI, "", f"Reasoning results of data graph <{REASON_DATA_GRAPH_IRI}>"),
-        (
-            "",
-            REASON_ONTOLOGY_GRAPH_IRI_1,
-            f"Reasoning results of ontology <{REASON_ONTOLOGY_GRAPH_IRI_1}>",
-        ),
-    ],
-)
-def test_reason_single_input(
-    setup: None, client: Client, data_graph_iri: str, ontology_graph_iri: str, comment: str
-) -> None:
-    """Test Reason with only a data graph or only an ontology graph"""
+def use_real_temp_path(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Give the plugin a temporary directory whose path contains no symbolic link
+
+    On macOS the default one is under /var, a link to /private/var. A reasoner then sees the input
+    file and the same file resolved through the catalog under two different paths, which hides
+    a document being loaded twice - on Linux (/tmp) it can fail.
+    """
+    monkeypatch.setattr(tempfile, "tempdir", os.path.realpath(tempfile.gettempdir()))
+
+
+def reason_and_fetch(client: Client, data_graph_iri: str, ontology_graph_iri: str) -> Graph:
+    """Run Reason into the result graph and fetch it"""
     ReasonPlugin(
         data_graph_iri=data_graph_iri,
         ontology_graph_iri=ontology_graph_iri,
@@ -241,9 +240,48 @@ def test_reason_single_input(
         reasoner="hermit",
         sub_class=True,
     ).execute(inputs=(), context=TestExecutionContext())
+    return get_remote_graph(client, REASON_RESULT_GRAPH_IRI)
 
-    result = get_remote_graph(client, REASON_RESULT_GRAPH_IRI)
-    assert (URIRef(REASON_RESULT_GRAPH_IRI), RDFS.comment, Literal(comment, lang="en")) in result
+
+@pytest.mark.parametrize(
+    ("data_graph_iri", "ontology_graph_iri"),
+    [
+        (REASON_DATA_GRAPH_IRI, ""),
+        ("", REASON_ONTOLOGY_GRAPH_IRI_1),
+        (REASON_ONTOLOGY_GRAPH_IRI_1, REASON_ONTOLOGY_GRAPH_IRI_1),
+    ],
+    ids=["data graph only", "ontology graph only", "same graph in both"],
+)
+def test_reason_single_input(
+    setup: None,
+    client: Client,
+    monkeypatch: pytest.MonkeyPatch,
+    data_graph_iri: str,
+    ontology_graph_iri: str,
+) -> None:
+    """Test Reason with one input graph, whichever field it is in"""
+    use_real_temp_path(monkeypatch)
+    graph = data_graph_iri or ontology_graph_iri
+    result = reason_and_fetch(client, data_graph_iri, ontology_graph_iri)
+
+    output = URIRef(REASON_RESULT_GRAPH_IRI)
+    comment = f"Reasoning results of graph <{graph}>"
+    assert (output, RDFS.comment, Literal(comment, lang="en")) in result
+    assert list(result.objects(output, DCTERMS.source)) == [URIRef(graph)]
+    # the input graph's own imports are kept, but it does not import itself
+    assert (output, OWL.imports, URIRef(graph)) not in result
+
+
+def test_reason_same_graph_for_data_and_ontology(
+    setup: None, client: Client, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Test Reason with the same graph in both fields reasons over that graph alone"""
+    use_real_temp_path(monkeypatch)
+    same = reason_and_fetch(client, REASON_ONTOLOGY_GRAPH_IRI_1, REASON_ONTOLOGY_GRAPH_IRI_1)
+    ontology_only = reason_and_fetch(client, "", REASON_ONTOLOGY_GRAPH_IRI_1)
+
+    assert isomorphic(same, ontology_only)
+    assert (None, RDFS.subClassOf, None) in same
 
 
 def test_reason_import_not_exist_not_ignore(setup: None) -> None:

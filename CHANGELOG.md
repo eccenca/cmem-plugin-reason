@@ -22,8 +22,6 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 ### Changed
 
-- Reason plugin: only one of "Data graph IRI" and "Ontology graph IRI" is required; with only one
-  given, that graph is reasoned on its own.
 - Reason and Validate plugins: no parameter is required when the task is created (so they can
   also be set via the config port); parameters are validated when the task is executed.
 - Use eccenca reasoner (OWLAPI5) instead of ROBOT (OWLAPI4).
@@ -32,7 +30,6 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 - Validate plugin: reasoner options are now limited to HermiT and JFact.
 - Validate plugin: entities are now always output (no more "Output entities" toggle); valid
   profiles are output as a list instead of a comma-separated string.
-- Update template to 9.8.0.
 
 ### Removed
 
@@ -43,15 +40,29 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 ### Fixed
 
-- Reason and Validate plugins: provenance data is now written with every DataIntegration
-  workspace provider. Before, it was only written if the workspace was stored as RDF (workspace
-  provider `backend` or `fileAndDataPlatform`), because it was read from the project graph.
-- Validate plugin: the output graph is now declared a `void:Dataset` instead of an
-  `owl:Ontology`.
 - Reason plugin documentation: corrected the examples for class equivalence (only named
   classes), object property characteristics (functionality is inherited by sub-properties) and
   individual property assertions, and documented which axiom generators each reasoner supports
   (ELK does not support e.g. property assertions, disjointness, ranges and domains).
+
+## [Unreleased]
+
+### Changed
+
+- Use ROBOT v1.9.11 compiled with [updated dependencies without vulnerablities](https://github.com/eccenca/robot/tree/feature/updateDependenciesV1.9.11)
+- Updated dependencies and template
+- Validate plugin: the output graph is now declared a `void:Dataset` instead of an
+  `owl:Ontology`.
+- Reason plugin: only one of "Data graph IRI" and "Ontology graph IRI" is required. With only
+  one, or the same graph in both, that graph is reasoned on its own.
+
+### Fixed
+
+- Reason plugin: selecting the same graph as data graph and ontology graph failed with
+  `OWLOntologyDocumentAlreadyExistsException`.
+- Reason and Validate plugins: provenance data is now written with every DataIntegration
+  workspace provider. Before, it was only written if the workspace was stored as RDF (workspace
+  provider `backend` or `fileAndDataPlatform`), because it was read from the project graph.
 
 ## [2.4.1] 2026-10-07
 
