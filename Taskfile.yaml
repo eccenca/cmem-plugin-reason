@@ -160,7 +160,7 @@ tasks:
       JUNIT_FILE: ./{{.DIST_DIR}}/junit-mypy.xml
 
   check:trivy:
-    desc: Scan for vulnerabilities using Trivy
+    desc: Scan the dependencies, robot.jar and its SBOM for vulnerabilities using Trivy
     deps:
       - prepare
     cmds:
