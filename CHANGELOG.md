@@ -11,8 +11,9 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 - Reason and Validate plugins: the provenance data in the output graph includes the plugin
   version (`owl:versionInfo`).
-- Reason and Validate plugins: the provenance data in the output graph includes the version and
-  commit of the bundled reasoner jar (`reasonerVersion`, `reasonerCommit`).
+- Reason and Validate plugins: the provenance data in the output graph includes the version of
+  the bundled reasoner jar (`reasonerVersion`), and its commit (`reasonerCommit`) if the version
+  isn't a release version.
 - Reason and Validate plugins: advanced parameter "Replace blank nodes with IRIs". Blank nodes in
   the output graph are replaced by stable UUID IRIs under `/.well-known/genid/` of the output
   graph's domain. In the Validate plugin it applies to the explanation axioms, so only if an

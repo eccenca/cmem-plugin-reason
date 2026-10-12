@@ -17,6 +17,7 @@ from cmem_plugin_reason.utils import (
     REASONER_COMMIT,
     REASONER_VERSION,
     get_reasoner_version,
+    is_release_version,
 )
 from tests.utils import (
     FIXTURE_DIR,
@@ -169,7 +170,10 @@ def test_validate_provenance(
     reasoner_version = get_reasoner_version(MAX_RAM_PERCENTAGE_DEFAULT)
     assert reasoner_version is not None
     assert (task, URIRef(REASONER_VERSION), Literal(reasoner_version[0])) in result
-    assert (task, URIRef(REASONER_COMMIT), Literal(reasoner_version[1])) in result
+    # the commit only for versions that aren't releases
+    assert ((task, URIRef(REASONER_COMMIT), Literal(reasoner_version[1])) in result) != (
+        is_release_version(reasoner_version[0])
+    )
     assert (
         task,
         URIRef(f"{functions}param_cmem_plugin_reason-plugin_validate-ValidatePlugin_reasoner"),

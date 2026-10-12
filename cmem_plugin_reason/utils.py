@@ -215,8 +215,12 @@ def post_provenance(plugin: WorkflowPlugin) -> None:
             reasoner_version, reasoner_commit = prov["reasoner_version"]
             version_sparql += (
                 f'\n<{prov["plugin_iri"]}> <{REASONER_VERSION}> "{reasoner_version}" .'
-                f'\n<{prov["plugin_iri"]}> <{REASONER_COMMIT}> "{reasoner_commit}" .'
             )
+            # a release version identifies the build; a snapshot needs the commit
+            if not is_release_version(reasoner_version):
+                version_sparql += (
+                    f'\n<{prov["plugin_iri"]}> <{REASONER_COMMIT}> "{reasoner_commit}" .'
+                )
         insert_query = f"""
             INSERT DATA {{
                 GRAPH <{plugin.output_graph_iri}> {{
@@ -297,6 +301,14 @@ def skolem_args(output_graph_iri: str) -> list[str]:
 REASONER_VERSION_LINE = re.compile(
     r"^eccenca-reasoner (?P<version>\S+) \(commit (?P<commit>\S+)\)$"
 )
+
+#: A release version of the reasoner, e.g. 0.0.2 (not 0.0.3-develop-SNAPSHOT)
+RELEASE_VERSION = re.compile(r"^\d+\.\d+\.\d+$")
+
+
+def is_release_version(version: str) -> bool:
+    """Return True if the reasoner version is a release version like 1.0.1"""
+    return RELEASE_VERSION.match(version) is not None
 
 
 def get_reasoner_version(max_ram_percentage: int) -> tuple[str, str] | None:
