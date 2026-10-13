@@ -36,6 +36,11 @@ container's memory.
 Validate the input ontology against the OWL 2 profiles (Full, DL, EL, QL, RL) and annotate the
 result.
 
+The profiles refer to the ontology as it is parsed (with OWLAPI). An RDF graph that is only OWL 2
+Full because of RDF-level constructs, such as statements about the OWL vocabulary itself, can be
+reported as DL; reasoning then works on the parsed interpretation, which may leave out such
+statements.
+
 ### Output graph IRI
 
 Optional IRI of an output graph to annotate with the validation result (label, comment, and a
@@ -66,8 +71,10 @@ The following reasoner options are supported:
 - [HermiT](http://www.hermit-reasoner.com/) (hermit)
 - [JFact](http://jfact.sourceforge.net/) (jfact)
 
-Both are complete OWL DL reasoners capable of generating explanations, which is what
-consistency/unsatisfiability validation needs.
+Both are OWL 2 DL reasoners capable of generating explanations, which is what
+consistency/unsatisfiability validation needs. HermiT is recommended: JFact can miss
+inferences, for example with datatypes, keys or a disjointness between complex class
+expressions. HermiT can take very long on some hard ontologies; the task has no time limit.
 
 ### Stop at inconsistencies
 

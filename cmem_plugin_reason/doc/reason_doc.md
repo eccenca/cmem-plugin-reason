@@ -75,6 +75,10 @@ inferences with which reasoner:
   and the task still succeeds; the reasoner only logs a warning.
 - **Outside OWL 2 EL:** ELK only reasons within the OWL 2 EL profile and ignores, for example,
   functional, inverse and symmetric properties, so inferences depending on them are missed.
+  Within OWL 2 EL, it also ignores keys, self restrictions, the bottom properties and clashes
+  between datatype values.
+- **HermiT** is complete for OWL 2 DL, but can take very long on some hard ontologies; the task
+  has no time limit.
 - **Structural** does no real reasoning: it only finds what follows from the asserted class and
   property hierarchies.
 - **JFact** can miss subsumptions that HermiT finds: for some ontologies (e.g. with a

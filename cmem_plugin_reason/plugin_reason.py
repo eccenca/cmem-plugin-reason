@@ -34,6 +34,7 @@ from cmem_plugin_reason.utils import (
     get_graph_as_file,
     get_output_graph_label,
     is_valid_uri,
+    log_reasoner_warnings,
     post_provenance,
     raise_on_error,
     send_result,
@@ -507,6 +508,7 @@ class ReasonPlugin(WorkflowPlugin):
             cmd += skolem_args(self.output_graph_iri)
         response = eccenca_reasoner(cmd, self.max_ram_percentage)
         raise_on_error(response, "Reasoning")
+        log_reasoner_warnings(self, response)
 
         # Append annotation triples to the output file
         annotations = build_annotation_nt(

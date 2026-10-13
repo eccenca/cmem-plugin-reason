@@ -120,6 +120,22 @@ def raise_on_error(response: CompletedProcess, context: str = "Reasoner") -> Non
         raise OSError(f"{context} error (exit code {response.returncode}).")
 
 
+#: A log line of the jar on stderr: "14:42:07.906 [main] WARN  o.s.e.r.c.Incompleteness -- ..."
+REASONER_LOG_LINE = re.compile(
+    r"^\S+ \[[^\]]*\] (?P<level>[A-Z]+)\s+(?P<logger>\S+) -- (?P<message>.*)$"
+)
+
+
+def log_reasoner_warnings(plugin: WorkflowPlugin, response: CompletedProcess) -> None:
+    """Log the jar's warnings in the task log, and what ELK ignores (which it reports at INFO)"""
+    for line in response.stderr.decode(errors="replace").splitlines():
+        match = REASONER_LOG_LINE.match(line)
+        if match and (
+            match["level"] in ("WARN", "ERROR") or match["logger"].endswith("Incompleteness")
+        ):
+            plugin.log.warning(match["message"])
+
+
 def get_graph_as_file(client: Client, iri: str, path: Path) -> Path:
     """Fetch a graph from CMEM and store it locally as N-Triples (owl:imports not resolved)"""
     exported_path: Path = client.graphs.export_item(
