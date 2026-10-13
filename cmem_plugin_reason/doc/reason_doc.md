@@ -84,7 +84,9 @@ inferences with which reasoner:
   property hierarchies.
 - **JFact** can miss subsumptions that HermiT finds: for some ontologies (e.g. with a
   disjointness between complex class expressions), the class hierarchy it computes lacks
-  inferences it confirms when asked directly. Prefer HermiT unless JFact is needed.
+  inferences it confirms when asked directly. Where it misses an equivalence between classes, it
+  places one below the other in an order that can change from run to run, so its results can
+  vary between runs. Prefer HermiT unless JFact is needed.
 - **Inconsistent ontologies:** reasoning fails with an `InconsistentOntologyException` for ELK,
   HermiT and JFact (Structural produces an empty result). Check the ontology with the "Validate OWL
   consistency" task first.
