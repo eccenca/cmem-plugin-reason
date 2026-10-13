@@ -62,73 +62,43 @@
         <https://ns.eccenca.com/reasoning/{uuid}/vocab/> ;
     rdfs:comment "Reasoning results of data graph <https://ns.eccenca.com/reasoning/{uuid}/data/> with ontology <https://ns.eccenca.com/reasoning/{uuid}/vocab/>"@en .
 
-<https://ns.eccenca.com/reasoning/{uuid}/vocab/bus_driver> rdfs:subClassOf _:N99fafe4ea72b4598b88e56029da16adb,
-        [ a owl:Restriction ;
+<https://ns.eccenca.com/reasoning/{uuid}/vocab/bus_driver> rdfs:subClassOf [ a owl:Restriction ;
             owl:onProperty <https://ns.eccenca.com/reasoning/{uuid}/vocab/drives> ;
             owl:someValuesFrom <https://ns.eccenca.com/reasoning/{uuid}/vocab/bus> ] .
 
-<https://ns.eccenca.com/reasoning/{uuid}/vocab/driver> rdfs:subClassOf _:N99fafe4ea72b4598b88e56029da16adb .
+<https://ns.eccenca.com/reasoning/{uuid}/vocab/driver> rdfs:subClassOf [ a owl:Restriction ;
+            owl:onProperty <https://ns.eccenca.com/reasoning/{uuid}/vocab/drives> ;
+            owl:someValuesFrom <https://ns.eccenca.com/reasoning/{uuid}/vocab/vehicle> ] .
 
-<https://ns.eccenca.com/reasoning/{uuid}/vocab/haulage_truck_driver> rdfs:subClassOf _:N99fafe4ea72b4598b88e56029da16adb,
-        [ a owl:Restriction ;
+<https://ns.eccenca.com/reasoning/{uuid}/vocab/haulage_truck_driver> rdfs:subClassOf [ a owl:Restriction ;
             owl:onProperty <https://ns.eccenca.com/reasoning/{uuid}/vocab/drives> ;
             owl:someValuesFrom <https://ns.eccenca.com/reasoning/{uuid}/vocab/truck> ] .
 
-<https://ns.eccenca.com/reasoning/{uuid}/vocab/leaf> rdfs:subClassOf [ a owl:Restriction ;
-            owl:onProperty <https://ns.eccenca.com/reasoning/{uuid}/vocab/part_of> ;
-            owl:someValuesFrom <https://ns.eccenca.com/reasoning/{uuid}/vocab/plant> ] .
-
 <https://ns.eccenca.com/reasoning/{uuid}/vocab/lorry_driver> rdfs:subClassOf [ a owl:Restriction ;
             owl:onProperty <https://ns.eccenca.com/reasoning/{uuid}/vocab/drives> ;
-            owl:someValuesFrom <https://ns.eccenca.com/reasoning/{uuid}/vocab/lorry> ],
-        _:N99fafe4ea72b4598b88e56029da16adb .
+            owl:someValuesFrom <https://ns.eccenca.com/reasoning/{uuid}/vocab/lorry> ] .
 
-<https://ns.eccenca.com/reasoning/{uuid}/vocab/van_driver> rdfs:subClassOf _:N99fafe4ea72b4598b88e56029da16adb,
-        _:Nf8411344f7664ddda980be42e16651eb .
+<https://ns.eccenca.com/reasoning/{uuid}/vocab/van_driver> rdfs:subClassOf [ a owl:Restriction ;
+            owl:onProperty <https://ns.eccenca.com/reasoning/{uuid}/vocab/drives> ;
+            owl:someValuesFrom <https://ns.eccenca.com/reasoning/{uuid}/vocab/van> ] .
 
 <https://ns.eccenca.com/reasoning/{uuid}/vocab/white_van_man> rdfs:subClassOf [ a owl:Restriction ;
             owl:onProperty <https://ns.eccenca.com/reasoning/{uuid}/vocab/drives> ;
-            owl:someValuesFrom <https://ns.eccenca.com/reasoning/{uuid}/vocab/white_thing> ],
-        _:N99fafe4ea72b4598b88e56029da16adb,
-        _:Nf8411344f7664ddda980be42e16651eb .
+            owl:someValuesFrom <https://ns.eccenca.com/reasoning/{uuid}/vocab/white_thing> ] .
 
-<https://ns.eccenca.com/reasoning/{uuid}/vocab/cat_liker> rdfs:subClassOf _:N417ef3547f8146a4b690af2b10ce62c2,
-        _:Na79b87ff7b3343d69bd5c115451b0c5e .
+<https://ns.eccenca.com/reasoning/{uuid}/vocab/cat_liker> rdfs:subClassOf [ a owl:Restriction ;
+            owl:onProperty <https://ns.eccenca.com/reasoning/{uuid}/vocab/likes> ;
+            owl:someValuesFrom <https://ns.eccenca.com/reasoning/{uuid}/vocab/cat> ] .
 
-<https://ns.eccenca.com/reasoning/{uuid}/vocab/cat_owner> rdfs:subClassOf _:N417ef3547f8146a4b690af2b10ce62c2,
-        _:Na79b87ff7b3343d69bd5c115451b0c5e,
-        _:Nf711bd25080940c7b68a90a1b80f6b54 .
+<https://ns.eccenca.com/reasoning/{uuid}/vocab/dog_liker> rdfs:subClassOf [ a owl:Restriction ;
+            owl:onProperty <https://ns.eccenca.com/reasoning/{uuid}/vocab/likes> ;
+            owl:someValuesFrom <https://ns.eccenca.com/reasoning/{uuid}/vocab/dog> ] .
 
-<https://ns.eccenca.com/reasoning/{uuid}/vocab/dog_liker> rdfs:subClassOf _:N1a228f5d1fac48d2a3d9b03a801b1655,
-        _:N417ef3547f8146a4b690af2b10ce62c2 .
+<https://ns.eccenca.com/reasoning/{uuid}/vocab/likes> a owl:ObjectProperty .
 
-<https://ns.eccenca.com/reasoning/{uuid}/vocab/dog_owner> rdfs:subClassOf _:N1a228f5d1fac48d2a3d9b03a801b1655,
-        _:N417ef3547f8146a4b690af2b10ce62c2,
-        _:Nf711bd25080940c7b68a90a1b80f6b54 .
+<https://ns.eccenca.com/reasoning/{uuid}/vocab/pet_owner> rdfs:subClassOf [ a owl:Restriction ;
+            owl:onProperty <https://ns.eccenca.com/reasoning/{uuid}/vocab/likes> ;
+            owl:someValuesFrom <https://ns.eccenca.com/reasoning/{uuid}/vocab/animal> ] .
 
-<https://ns.eccenca.com/reasoning/{uuid}/vocab/pet_owner> rdfs:subClassOf _:N417ef3547f8146a4b690af2b10ce62c2 .
-
-_:N1a228f5d1fac48d2a3d9b03a801b1655 a owl:Restriction ;
-    owl:onProperty <https://ns.eccenca.com/reasoning/{uuid}/vocab/likes> ;
-    owl:someValuesFrom <https://ns.eccenca.com/reasoning/{uuid}/vocab/dog> .
-
-_:Na79b87ff7b3343d69bd5c115451b0c5e a owl:Restriction ;
-    owl:onProperty <https://ns.eccenca.com/reasoning/{uuid}/vocab/likes> ;
-    owl:someValuesFrom <https://ns.eccenca.com/reasoning/{uuid}/vocab/cat> .
-
-_:Nf711bd25080940c7b68a90a1b80f6b54 a owl:Restriction ;
-    owl:onProperty <https://ns.eccenca.com/reasoning/{uuid}/vocab/has_pet> ;
-    owl:someValuesFrom <https://ns.eccenca.com/reasoning/{uuid}/vocab/animal> .
-
-_:Nf8411344f7664ddda980be42e16651eb a owl:Restriction ;
-    owl:onProperty <https://ns.eccenca.com/reasoning/{uuid}/vocab/drives> ;
-    owl:someValuesFrom <https://ns.eccenca.com/reasoning/{uuid}/vocab/van> .
-
-_:N417ef3547f8146a4b690af2b10ce62c2 a owl:Restriction ;
-    owl:onProperty <https://ns.eccenca.com/reasoning/{uuid}/vocab/likes> ;
-    owl:someValuesFrom <https://ns.eccenca.com/reasoning/{uuid}/vocab/animal> .
-
-_:N99fafe4ea72b4598b88e56029da16adb a owl:Restriction ;
-    owl:onProperty <https://ns.eccenca.com/reasoning/{uuid}/vocab/drives> ;
-    owl:someValuesFrom <https://ns.eccenca.com/reasoning/{uuid}/vocab/vehicle> .
+<https://ns.eccenca.com/reasoning/{uuid}/vocab/drives> a owl:ObjectProperty .
 

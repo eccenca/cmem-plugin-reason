@@ -171,3 +171,9 @@
                                                                  <https://ns.eccenca.com/reasoning/{uuid}/data/Huey> ,
                                                                  <https://ns.eccenca.com/reasoning/{uuid}/data/Louie> .
 
+
+<https://ns.eccenca.com/reasoning/{uuid}/vocab/likes> a owl:ObjectProperty .
+
+<https://ns.eccenca.com/reasoning/{uuid}/vocab/has_pet> a owl:ObjectProperty .
+
+<https://ns.eccenca.com/reasoning/{uuid}/vocab/is_pet_of> a owl:ObjectProperty .

@@ -77,6 +77,9 @@ inferences with which reasoner:
   functional, inverse and symmetric properties, so inferences depending on them are missed.
 - **Structural** does no real reasoning: it only finds what follows from the asserted class and
   property hierarchies.
+- **JFact** can miss subsumptions that HermiT finds: for some ontologies (e.g. with a
+  disjointness between complex class expressions), the class hierarchy it computes lacks
+  inferences it confirms when asked directly. Prefer HermiT unless JFact is needed.
 - **Inconsistent ontologies:** reasoning fails with an `InconsistentOntologyException` for ELK,
   HermiT and JFact (Structural produces an empty result). Check the ontology with the "Validate OWL
   consistency" task first.
