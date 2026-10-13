@@ -84,15 +84,34 @@
 
 <https://ns.eccenca.com/reasoning/{uuid}/vocab/white_van_man> rdfs:subClassOf [ a owl:Restriction ;
             owl:onProperty <https://ns.eccenca.com/reasoning/{uuid}/vocab/drives> ;
+            owl:someValuesFrom <https://ns.eccenca.com/reasoning/{uuid}/vocab/van> ],
+        [ a owl:Restriction ;
+            owl:onProperty <https://ns.eccenca.com/reasoning/{uuid}/vocab/drives> ;
             owl:someValuesFrom <https://ns.eccenca.com/reasoning/{uuid}/vocab/white_thing> ] .
 
 <https://ns.eccenca.com/reasoning/{uuid}/vocab/cat_liker> rdfs:subClassOf [ a owl:Restriction ;
             owl:onProperty <https://ns.eccenca.com/reasoning/{uuid}/vocab/likes> ;
             owl:someValuesFrom <https://ns.eccenca.com/reasoning/{uuid}/vocab/cat> ] .
 
+<https://ns.eccenca.com/reasoning/{uuid}/vocab/cat_owner> rdfs:subClassOf [ a owl:Restriction ;
+            owl:onProperty <https://ns.eccenca.com/reasoning/{uuid}/vocab/likes> ;
+            owl:someValuesFrom <https://ns.eccenca.com/reasoning/{uuid}/vocab/cat> ],
+        [ a owl:Restriction ;
+            owl:onProperty <https://ns.eccenca.com/reasoning/{uuid}/vocab/has_pet> ;
+            owl:someValuesFrom <https://ns.eccenca.com/reasoning/{uuid}/vocab/animal> ] .
+
 <https://ns.eccenca.com/reasoning/{uuid}/vocab/dog_liker> rdfs:subClassOf [ a owl:Restriction ;
             owl:onProperty <https://ns.eccenca.com/reasoning/{uuid}/vocab/likes> ;
             owl:someValuesFrom <https://ns.eccenca.com/reasoning/{uuid}/vocab/dog> ] .
+
+<https://ns.eccenca.com/reasoning/{uuid}/vocab/dog_owner> rdfs:subClassOf [ a owl:Restriction ;
+            owl:onProperty <https://ns.eccenca.com/reasoning/{uuid}/vocab/has_pet> ;
+            owl:someValuesFrom <https://ns.eccenca.com/reasoning/{uuid}/vocab/animal> ],
+        [ a owl:Restriction ;
+            owl:onProperty <https://ns.eccenca.com/reasoning/{uuid}/vocab/likes> ;
+            owl:someValuesFrom <https://ns.eccenca.com/reasoning/{uuid}/vocab/dog> ] .
+
+<https://ns.eccenca.com/reasoning/{uuid}/vocab/has_pet> a owl:ObjectProperty .
 
 <https://ns.eccenca.com/reasoning/{uuid}/vocab/likes> a owl:ObjectProperty .
 
