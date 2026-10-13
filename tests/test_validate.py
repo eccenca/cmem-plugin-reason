@@ -301,7 +301,7 @@ def restriction_nodes(output: Graph) -> set:
 def test_validate_without_skolemize_keeps_blank_nodes(skolem_setup: None) -> None:
     """Test Validate writes blank nodes by default"""
     nodes = restriction_nodes(validate_skolem(skolemize=False))
-    assert len(nodes) == 2  # noqa: PLR2004
+    assert len(nodes) == 2
     assert all(isinstance(node, BNode) for node in nodes)
 
 
@@ -311,7 +311,7 @@ def test_validate_skolemize(skolem_setup: None) -> None:
 
     assert not any(isinstance(term, BNode) for triple in output for term in triple)
     nodes = restriction_nodes(output)
-    assert len(nodes) == 2  # noqa: PLR2004
+    assert len(nodes) == 2
     assert all(str(node).startswith(SKOLEM_BASE) for node in nodes)
 
     # re-running replaces the output graph with the same IRIs
