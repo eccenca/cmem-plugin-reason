@@ -25,6 +25,9 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 ### Changed
 
+- Validate plugin: the profile validation also checks what OWL 2 requires of the RDF graph itself:
+  an ontology graph without an ontology header (`owl:Ontology`), or with undeclared classes,
+  properties or datatypes, is only OWL 2 Full; the reason is written to the task log.
 - Reason and Validate plugins: no parameter is required when the task is created (so they can
   also be set via the config port); parameters are validated when the task is executed.
 - Use eccenca reasoner (OWLAPI5) instead of ROBOT (OWLAPI4).

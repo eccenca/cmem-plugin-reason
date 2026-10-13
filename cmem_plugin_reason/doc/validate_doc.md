@@ -36,10 +36,11 @@ container's memory.
 Validate the input ontology against the OWL 2 profiles (Full, DL, EL, QL, RL) and annotate the
 result.
 
-The profiles refer to the ontology as it is parsed (with OWLAPI). An RDF graph that is only OWL 2
-Full because of RDF-level constructs, such as statements about the OWL vocabulary itself, can be
-reported as DL; reasoning then works on the parsed interpretation, which may leave out such
-statements.
+An ontology graph (and each graph it imports) is only OWL 2 Full if it lacks an ontology header
+(a resource of type `owl:Ontology`) or doesn't declare all its classes, properties and datatypes;
+the reason is written to the task log. Other RDF-level constructs, such as statements about the
+OWL vocabulary itself, are not checked: a graph that is only OWL 2 Full because of them can still
+be reported as DL.
 
 ### Output graph IRI
 
