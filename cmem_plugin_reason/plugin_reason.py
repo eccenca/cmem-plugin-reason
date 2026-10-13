@@ -347,7 +347,7 @@ class ReasonPlugin(WorkflowPlugin):
             "ObjectPropertyDomain": object_property_domain,
         }
         errors = self.graph_parameter_errors(
-            data_graph_iri, ontology_graph_iri, output_graph_iri, imports
+            data_graph_iri, ontology_graph_iri, output_graph_iri, imports, validate_profile
         )
         if reasoner not in REASONERS:
             errors += 'Invalid value for parameter "Reasoner". '
@@ -389,7 +389,11 @@ class ReasonPlugin(WorkflowPlugin):
 
     @staticmethod
     def graph_parameter_errors(
-        data_graph_iri: str, ontology_graph_iri: str, output_graph_iri: str | None, imports: str
+        data_graph_iri: str,
+        ontology_graph_iri: str,
+        output_graph_iri: str | None,
+        imports: str,
+        validate_profile: bool,
     ) -> str:
         """Check the graph parameters; only one of data graph and ontology graph is needed"""
         errors = ""
@@ -407,6 +411,8 @@ class ReasonPlugin(WorkflowPlugin):
             errors += "Result graph IRI cannot be the same as the ontology graph IRI. "
         if imports != "none" and not ontology_graph_iri:
             errors += 'Parameter "Output graph import" needs an ontology graph IRI. '
+        if validate_profile and not ontology_graph_iri:
+            errors += 'Parameter "Validate OWL2 profiles" needs an ontology graph IRI. '
         return errors
 
     @property

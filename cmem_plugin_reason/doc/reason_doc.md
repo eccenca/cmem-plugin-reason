@@ -140,7 +140,8 @@ If there are classes `Person`, `Student` and `Professor` as wells as the object 
 
 ### Validate OWL2 profiles
 
-Validate the input ontology against OWL profiles (DL, EL, QL, RL, and Full) and annotate the result graph. 
+Validate the input ontology against OWL profiles (DL, EL, QL, RL, and Full) and annotate the result graph.
+Needs an ontology graph.
 
 ### Process valid OWL profiles from input
 
