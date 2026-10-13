@@ -106,6 +106,15 @@ studentIdentifier` holds, the reasoner will infer `enrollmentNumber SubPropertyO
 **Not supported by ELK or ELK (EMR).**
 """
 
+DATA_PROP_DOMAIN_DESC = """The reasoner will infer axioms about the domains of data properties,
+i.e. `Domain:` statements.\n
+If there are the class `Student` and the data properties `studentNumber` and `enrollmentNumber`,
+such that `studentNumber Domain: Student` and `enrollmentNumber SubPropertyOf: studentNumber`
+holds, the reasoner will infer `enrollmentNumber Domain: Student`.
+**Not supported by ELK or ELK (EMR).**
+The Structural Reasoner does not infer this.
+"""
+
 CLASS_ASSERT_DESC = """The reasoner will infer assertions about the classes of individuals, i.e.
 `Types:` statements.\n
 Assume, there are classes `Person`, `Student` and `University` as well as the property
@@ -124,6 +133,15 @@ SubPropertyChain: enrolledIn o inverse (offers)` holds. For the individuals `Joh
 enrolled LeipzigUniversity`.
 **Not supported by ELK or ELK (EMR).**
 The Structural Reasoner only uses asserted hierarchies, so it does not infer this.
+"""
+
+SAME_INDIVIDUAL_DESC = """The reasoner will infer which individuals are the same, i.e.
+`SameAs:` statements (`owl:sameAs`).\n
+If there is the object property `hasEmail` with `hasEmail Characteristics: InverseFunctional`,
+and the individuals `anna` and `annaSmith` with the assertions `anna Facts: hasEmail mail1` and
+`annaSmith Facts: hasEmail mail1`, the reasoner will infer `anna SameAs: annaSmith`.
+**Not supported by ELK or ELK (EMR).**
+The Structural Reasoner does not infer this.
 """
 
 OBJECT_PROP_CHAR_DESC = """The reasoner will infer characteristics of object properties, i.e.
@@ -267,6 +285,13 @@ The Structural Reasoner only uses asserted hierarchies, so it does not infer thi
         ),
         PluginParameter(
             param_type=BoolParameterType(),
+            name="data_property_domain",
+            label="Data property domains (rdfs:domain)",
+            description=DATA_PROP_DOMAIN_DESC,
+            default_value=False,
+        ),
+        PluginParameter(
+            param_type=BoolParameterType(),
             name="class_assertion",
             label="Individual class assertions (rdf:type)",
             description=CLASS_ASSERT_DESC,
@@ -278,6 +303,13 @@ The Structural Reasoner only uses asserted hierarchies, so it does not infer thi
             label="Individual property assertions",
             description=PROPERTY_ASSERT_DESC,
             default_value=True,
+        ),
+        PluginParameter(
+            param_type=BoolParameterType(),
+            name="same_individual",
+            label="Same individuals (owl:sameAs)",
+            description=SAME_INDIVIDUAL_DESC,
+            default_value=False,
         ),
         PluginParameter(
             param_type=BoolParameterType(),
@@ -347,6 +379,8 @@ class ReasonPlugin(WorkflowPlugin):
         inverse_object_properties: bool = False,
         sub_data_property: bool = False,
         equivalent_data_properties: bool = False,
+        data_property_domain: bool = False,
+        same_individual: bool = False,
         max_ram_percentage: int = MAX_RAM_PERCENTAGE_DEFAULT,
         skolemize: bool = False,
     ) -> None:
@@ -358,8 +392,10 @@ class ReasonPlugin(WorkflowPlugin):
             "data_property_characteristic": data_property_characteristic,
             "equivalent_data_properties": equivalent_data_properties,
             "sub_data_property": sub_data_property,
+            "data_property_domain": data_property_domain,
             "class_assertion": class_assertion,
             "property_assertion": property_assertion,
+            "same_individual": same_individual,
             "equivalent_object_property": equivalent_object_property,
             "inverse_object_properties": inverse_object_properties,
             "object_property_characteristic": object_property_characteristic,

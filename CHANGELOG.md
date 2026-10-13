@@ -9,6 +9,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 ### Added
 
+- Reason plugin: axiom generator parameters "Same individuals (owl:sameAs)" and "Data property
+  domains (rdfs:domain)" (HermiT and JFact).
 - Reason and Validate plugins: warnings of the reasoner are written to the task log, e.g. which
   axioms ELK ignores because it doesn't support them (so the result may be incomplete).
 - Reason and Validate plugins: the provenance data in the output graph includes the plugin

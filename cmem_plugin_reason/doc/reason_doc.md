@@ -69,6 +69,7 @@ inferences with which reasoner:
 | Class inclusion and equivalence, individual class assertions, object property inclusion | ✓ | ✓ | ✓ | partly |
 | Class disjointness, individual property assertions, object property inversion, ranges and domains | **not supported** | ✓ | ✓ | partly |
 | Data property equivalence and inclusion | **not supported** | ✓ | ✓ | partly |
+| Same individuals, data property domains | **not supported** | ✓ | ✓ | no |
 | Data and object property characteristics, object property equivalence | outside OWL 2 EL | ✓ | ✓ | partly |
 
 - **Not supported:** ELK does not implement these inferences. The generator produces no result
@@ -174,6 +175,14 @@ If there are data properties `identifier`, `studentIdentifier` and `enrollmentNu
 studentIdentifier` holds, the reasoner will infer `enrollmentNumber SubPropertyOf: identifier`.
 **Not supported by ELK or ELK (EMR).**
 
+- **Data property domains (rdfs:domain)**
+The reasoner will infer axioms about the domains of data properties, i.e. `Domain:` statements.
+If there are the class `Student` and the data properties `studentNumber` and `enrollmentNumber`,
+such that `studentNumber Domain: Student` and `enrollmentNumber SubPropertyOf: studentNumber`
+holds, the reasoner will infer `enrollmentNumber Domain: Student`.
+**Not supported by ELK or ELK (EMR).**
+The Structural Reasoner does not infer this.
+
 
 #### Individual axiom generators
 - **Individual class assertions (rdf:type)**
@@ -195,6 +204,14 @@ SubPropertyChain: enrolledIn o inverse (offers)` holds. For the individuals `Joh
 enrolled LeipzigUniversity`.
 **Not supported by ELK or ELK (EMR).**
 The Structural Reasoner only uses asserted hierarchies, so it does not infer this.
+
+- **Same individuals (owl:sameAs)**
+The reasoner will infer which individuals are the same, i.e. `SameAs:` statements.
+If there is the object property `hasEmail` with `hasEmail Characteristics: InverseFunctional`, and
+the individuals `anna` and `annaSmith` with the assertions `anna Facts: hasEmail mail1` and
+`annaSmith Facts: hasEmail mail1`, the reasoner will infer `anna SameAs: annaSmith`.
+**Not supported by ELK or ELK (EMR).**
+The Structural Reasoner does not infer this.
 
 
 #### Object property axiom generators
