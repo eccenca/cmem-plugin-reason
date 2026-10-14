@@ -8,6 +8,7 @@ from typing import Any
 
 import pytest
 from cmem_client.client import Client
+from cmem_plugin_base.dataintegration.description import Plugin
 from cmem_plugin_base.testing import TestExecutionContext
 from rdflib import DCTERMS, OWL, RDF, RDFS, BNode, Graph, Literal, Node, URIRef
 from rdflib.compare import isomorphic
@@ -213,8 +214,15 @@ def test_reason_invalid_parameters() -> None:
 
 
 @pytest.mark.parametrize("reasoner", ["elk", "elk_emr"])
-def test_reason_generators_elk_does_not_support(reasoner: str) -> None:
-    """Test Reason rejects axiom generators ELK doesn't support, naming them"""
+def test_reason_generators_elk_does_not_support(
+    reasoner: str, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Test Reason rejects axiom generators ELK doesn't support, naming them
+
+    The labels must not come from Plugin.plugins: at execution time, DataIntegration's plugin
+    discovery may have emptied it.
+    """
+    monkeypatch.setattr(Plugin, "plugins", [])
     plugin = ReasonPlugin(
         data_graph_iri="https://example.org/data/",
         output_graph_iri="https://example.org/result/",

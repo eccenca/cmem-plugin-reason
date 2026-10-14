@@ -212,162 +212,167 @@ The Structural Reasoner only uses asserted hierarchies, so it does not infer thi
 """
 
 
+#: The parameters of the Reason plugin. Kept here, not only in the @Plugin description: at
+#: execution time DataIntegration's plugin discovery may have emptied Plugin.plugins.
+REASON_PARAMETERS = [
+    IGNORE_MISSING_IMPORTS_PARAMETER,
+    ONTOLOGY_GRAPH_IRI_PARAMETER,
+    MAX_RAM_PERCENTAGE_PARAMETER,
+    PluginParameter(
+        param_type=BoolParameterType(),
+        name="skolemize",
+        label="Replace blank nodes with IRIs",
+        description=SKOLEMIZE_DESC,
+        default_value=False,
+        advanced=True,
+    ),
+    PluginParameter(
+        param_type=ChoiceParameterType(REASON_REASONERS),
+        name="reasoner",
+        label="Reasoner",
+        description="""Reasoner option. ELK and ELK (EMR) are limited to OWL 2 EL and support
+        fewer axiom generators; the Structural Reasoner only uses asserted hierarchies. JFact is
+        slow on large datasets and can miss inferences HermiT finds. See the documentation for
+        details.""",
+    ),
+    PluginParameter(
+        param_type=GraphParameterType(classes=[OWL_ONTOLOGY, DI_DATASET, VOID_DATASET]),
+        name="data_graph_iri",
+        label="Data graph IRI",
+        description="""The IRI of the input data graph. At least one of data graph and
+        ontology graph must be specified.""",
+    ),
+    PluginParameter(
+        param_type=GraphParameterType(
+            allow_only_autocompleted_values=False,
+            classes=[OWL_ONTOLOGY],
+        ),
+        name="output_graph_iri",
+        label="Output graph IRI",
+        description="""The IRI of the output graph for the reasoning result. ⚠️ Existing graphs
+        will be overwritten.""",
+    ),
+    PluginParameter(
+        param_type=BoolParameterType(),
+        name="sub_class",
+        label="Class inclusion (rdfs:subClassOf)",
+        description=SUBCLASS_DESC,
+        default_value=False,
+    ),
+    PluginParameter(
+        param_type=BoolParameterType(),
+        name="equivalent_class",
+        label="Class equivalence (owl:equivalentClass)",
+        description=EQUIVALENCE_DESC,
+        default_value=False,
+    ),
+    PluginParameter(
+        param_type=BoolParameterType(),
+        name="disjoint_classes",
+        label="Class disjointness (owl:disjointWith)",
+        description=DISJOINT_DESC,
+        default_value=False,
+    ),
+    PluginParameter(
+        param_type=BoolParameterType(),
+        name="data_property_characteristic",
+        label="Data property characteristics",
+        description=DATA_PROP_CHAR_DESC,
+        default_value=False,
+    ),
+    PluginParameter(
+        param_type=BoolParameterType(),
+        name="equivalent_data_properties",
+        label="Data property equivalence (owl:equivalentProperty)",
+        description=DATA_PROP_EQUIV_DESC,
+        default_value=False,
+    ),
+    PluginParameter(
+        param_type=BoolParameterType(),
+        name="sub_data_property",
+        label="Data property inclusion (rdfs:subPropertyOf)",
+        description=DATA_PROP_SUB_DESC,
+        default_value=False,
+    ),
+    PluginParameter(
+        param_type=BoolParameterType(),
+        name="data_property_domain",
+        label="Data property domains (rdfs:domain)",
+        description=DATA_PROP_DOMAIN_DESC,
+        default_value=False,
+    ),
+    PluginParameter(
+        param_type=BoolParameterType(),
+        name="class_assertion",
+        label="Individual class assertions (rdf:type)",
+        description=CLASS_ASSERT_DESC,
+        default_value=True,
+    ),
+    PluginParameter(
+        param_type=BoolParameterType(),
+        name="property_assertion",
+        label="Individual property assertions",
+        description=PROPERTY_ASSERT_DESC,
+        default_value=True,
+    ),
+    PluginParameter(
+        param_type=BoolParameterType(),
+        name="same_individual",
+        label="Same individuals (owl:sameAs)",
+        description=SAME_INDIVIDUAL_DESC,
+        default_value=False,
+    ),
+    PluginParameter(
+        param_type=BoolParameterType(),
+        name="equivalent_object_property",
+        label="Object property equivalence (owl:equivalentProperty)",
+        description=OBJECT_PROP_EQUIV_DESC,
+        default_value=False,
+    ),
+    PluginParameter(
+        param_type=BoolParameterType(),
+        name="inverse_object_properties",
+        label="Object property inversion (owl:inverseOf)",
+        description=OBJECT_PROP_INV_DESC,
+        default_value=False,
+    ),
+    PluginParameter(
+        param_type=BoolParameterType(),
+        name="object_property_characteristic",
+        label="Object property characteristics",
+        description=OBJECT_PROP_CHAR_DESC,
+        default_value=False,
+    ),
+    PluginParameter(
+        param_type=BoolParameterType(),
+        name="sub_object_property",
+        label="Object property inclusion (rdfs:subPropertyOf)",
+        description=OBJECT_PROP_SUB_DESC,
+        default_value=False,
+    ),
+    PluginParameter(
+        param_type=BoolParameterType(),
+        name="object_property_range",
+        label="Object property ranges (rdfs:range)",
+        description=OBJECT_PROP_RANGE_DESC,
+        default_value=False,
+    ),
+    PluginParameter(
+        param_type=BoolParameterType(),
+        name="object_property_domain",
+        label="Object property domains (rdfs:domain)",
+        description=OBJECT_PROP_DOMAIN_DESC,
+        default_value=False,
+    ),
+]
+
+
 @Plugin(
     label=LABEL,
     icon=Icon(file_name="fluent--brain-circuit-24-regular.svg", package=__package__),
     description="Performs OWL reasoning.",
     documentation=REASON_DOC,
-    parameters=[
-        IGNORE_MISSING_IMPORTS_PARAMETER,
-        ONTOLOGY_GRAPH_IRI_PARAMETER,
-        MAX_RAM_PERCENTAGE_PARAMETER,
-        PluginParameter(
-            param_type=BoolParameterType(),
-            name="skolemize",
-            label="Replace blank nodes with IRIs",
-            description=SKOLEMIZE_DESC,
-            default_value=False,
-            advanced=True,
-        ),
-        PluginParameter(
-            param_type=ChoiceParameterType(REASON_REASONERS),
-            name="reasoner",
-            label="Reasoner",
-            description="""Reasoner option. ELK and ELK (EMR) are limited to OWL 2 EL and support
-            fewer axiom generators; the Structural Reasoner only uses asserted hierarchies. JFact is
-            slow on large datasets and can miss inferences HermiT finds. See the documentation for
-            details.""",
-        ),
-        PluginParameter(
-            param_type=GraphParameterType(classes=[OWL_ONTOLOGY, DI_DATASET, VOID_DATASET]),
-            name="data_graph_iri",
-            label="Data graph IRI",
-            description="""The IRI of the input data graph. At least one of data graph and
-            ontology graph must be specified.""",
-        ),
-        PluginParameter(
-            param_type=GraphParameterType(
-                allow_only_autocompleted_values=False,
-                classes=[OWL_ONTOLOGY],
-            ),
-            name="output_graph_iri",
-            label="Output graph IRI",
-            description="""The IRI of the output graph for the reasoning result. ⚠️ Existing graphs
-            will be overwritten.""",
-        ),
-        PluginParameter(
-            param_type=BoolParameterType(),
-            name="sub_class",
-            label="Class inclusion (rdfs:subClassOf)",
-            description=SUBCLASS_DESC,
-            default_value=False,
-        ),
-        PluginParameter(
-            param_type=BoolParameterType(),
-            name="equivalent_class",
-            label="Class equivalence (owl:equivalentClass)",
-            description=EQUIVALENCE_DESC,
-            default_value=False,
-        ),
-        PluginParameter(
-            param_type=BoolParameterType(),
-            name="disjoint_classes",
-            label="Class disjointness (owl:disjointWith)",
-            description=DISJOINT_DESC,
-            default_value=False,
-        ),
-        PluginParameter(
-            param_type=BoolParameterType(),
-            name="data_property_characteristic",
-            label="Data property characteristics",
-            description=DATA_PROP_CHAR_DESC,
-            default_value=False,
-        ),
-        PluginParameter(
-            param_type=BoolParameterType(),
-            name="equivalent_data_properties",
-            label="Data property equivalence (owl:equivalentProperty)",
-            description=DATA_PROP_EQUIV_DESC,
-            default_value=False,
-        ),
-        PluginParameter(
-            param_type=BoolParameterType(),
-            name="sub_data_property",
-            label="Data property inclusion (rdfs:subPropertyOf)",
-            description=DATA_PROP_SUB_DESC,
-            default_value=False,
-        ),
-        PluginParameter(
-            param_type=BoolParameterType(),
-            name="data_property_domain",
-            label="Data property domains (rdfs:domain)",
-            description=DATA_PROP_DOMAIN_DESC,
-            default_value=False,
-        ),
-        PluginParameter(
-            param_type=BoolParameterType(),
-            name="class_assertion",
-            label="Individual class assertions (rdf:type)",
-            description=CLASS_ASSERT_DESC,
-            default_value=True,
-        ),
-        PluginParameter(
-            param_type=BoolParameterType(),
-            name="property_assertion",
-            label="Individual property assertions",
-            description=PROPERTY_ASSERT_DESC,
-            default_value=True,
-        ),
-        PluginParameter(
-            param_type=BoolParameterType(),
-            name="same_individual",
-            label="Same individuals (owl:sameAs)",
-            description=SAME_INDIVIDUAL_DESC,
-            default_value=False,
-        ),
-        PluginParameter(
-            param_type=BoolParameterType(),
-            name="equivalent_object_property",
-            label="Object property equivalence (owl:equivalentProperty)",
-            description=OBJECT_PROP_EQUIV_DESC,
-            default_value=False,
-        ),
-        PluginParameter(
-            param_type=BoolParameterType(),
-            name="inverse_object_properties",
-            label="Object property inversion (owl:inverseOf)",
-            description=OBJECT_PROP_INV_DESC,
-            default_value=False,
-        ),
-        PluginParameter(
-            param_type=BoolParameterType(),
-            name="object_property_characteristic",
-            label="Object property characteristics",
-            description=OBJECT_PROP_CHAR_DESC,
-            default_value=False,
-        ),
-        PluginParameter(
-            param_type=BoolParameterType(),
-            name="sub_object_property",
-            label="Object property inclusion (rdfs:subPropertyOf)",
-            description=OBJECT_PROP_SUB_DESC,
-            default_value=False,
-        ),
-        PluginParameter(
-            param_type=BoolParameterType(),
-            name="object_property_range",
-            label="Object property ranges (rdfs:range)",
-            description=OBJECT_PROP_RANGE_DESC,
-            default_value=False,
-        ),
-        PluginParameter(
-            param_type=BoolParameterType(),
-            name="object_property_domain",
-            label="Object property domains (rdfs:domain)",
-            description=OBJECT_PROP_DOMAIN_DESC,
-            default_value=False,
-        ),
-    ],
+    parameters=REASON_PARAMETERS,
 )
 class ReasonPlugin(WorkflowPlugin):
     """Reason plugin"""
@@ -487,11 +492,10 @@ class ReasonPlugin(WorkflowPlugin):
         if errors:
             raise ValueError(errors[:-1])
 
-    @classmethod
-    def parameter_label(cls, name: str) -> str:
+    @staticmethod
+    def parameter_label(name: str) -> str:
         """Get the label of a parameter, as the task's form shows it"""
-        description = next(p for p in Plugin.plugins if p.plugin_class is cls)
-        return next((p.label for p in description.parameters if p.name == name), name)
+        return next((p.label for p in REASON_PARAMETERS if p.name == name), name)
 
     @staticmethod
     def camel_case(word: str) -> str:
