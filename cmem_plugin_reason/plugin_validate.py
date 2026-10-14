@@ -250,6 +250,8 @@ class ValidatePlugin(WorkflowPlugin):
             ontology_location,
             "--catalog",
             catalog_location,
+            # the catalog has every import: never fetch one from its IRI
+            "--local-imports-only",
         ]
         response = eccenca_reasoner(cmd, self.max_ram_percentage)
         raise_on_error(response, "Profile validation")
@@ -306,6 +308,8 @@ class ValidatePlugin(WorkflowPlugin):
             str(self.max_explanations),
             "--catalog",
             catalog_location,
+            # the catalog has every import: never fetch one from its IRI
+            "--local-imports-only",
             "--explanation",
             f"{self.temp}/{MD_FILENAME}",
         ]

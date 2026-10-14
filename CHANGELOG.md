@@ -32,6 +32,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
   generator used to give no result, with only a warning in the task log.
 - Reason plugin: an error of the reasoner while generating axioms fails the task; it used to be
   only a warning in the task log, and the output graph lacked that generator's axioms.
+- Reason and Validate plugins: the reasoner reads imported ontologies only from Corporate Memory
+  and never fetches one from its IRI (e.g. from the web).
 - Reason and Validate plugins: the bundled reasoner uses a version of JFact 5.0.3 with fixes:
   JFact no longer misses subsumptions and equivalences, infers wrong subsumptions with datatype
   restrictions, or finds consistent ontologies inconsistent because of equal numbers of different

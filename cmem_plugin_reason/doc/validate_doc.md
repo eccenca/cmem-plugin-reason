@@ -11,7 +11,8 @@ port of a workflow. The parameters are validated when the task is executed.
 
 ### Ignore missing imports
 
-If enabled, missing imports (`owl:imports`) in the input graphs are ignored.
+If enabled, missing imports (`owl:imports`) in the input graphs are ignored. Imports are only
+read from Corporate Memory: the reasoner never fetches one from its IRI (e.g. from the web).
 
 ### Ontology graph IRI
 

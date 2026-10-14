@@ -567,6 +567,8 @@ class ReasonPlugin(WorkflowPlugin):
             "--exclude-external-entities",
             "--catalog",
             catalog_location,
+            # the catalog has every import: never fetch one from its IRI
+            "--local-imports-only",
             "--output",
             result_path,
             "--reduce",
