@@ -27,6 +27,12 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 ### Changed
 
+- Reason and Validate plugins: the bundled reasoner uses a version of JFact 5.0.3 with fixes:
+  JFact no longer misses subsumptions and equivalences, infers wrong subsumptions with datatype
+  restrictions, or finds consistent ontologies inconsistent because of equal numbers of different
+  datatypes (e.g. `"3"^^xsd:int` and `"3"^^xsd:integer`), and its results no longer vary between
+  runs.
+
 - Validate plugin: the profile validation also checks what OWL 2 requires of the RDF graph itself:
   an ontology graph without an ontology header (`owl:Ontology`), or with undeclared classes,
   properties or datatypes, is only OWL 2 Full; the reason is written to the task log.

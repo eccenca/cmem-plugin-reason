@@ -82,11 +82,10 @@ inferences with which reasoner:
   has no time limit.
 - **Structural** does no real reasoning: it only finds what follows from the asserted class and
   property hierarchies.
-- **JFact** can miss subsumptions that HermiT finds: for some ontologies (e.g. with a
-  disjointness between complex class expressions), the class hierarchy it computes lacks
-  inferences it confirms when asked directly. Where it misses an equivalence between classes, it
-  places one below the other in an order that can change from run to run, so its results can
-  vary between runs. Prefer HermiT unless JFact is needed.
+- **JFact** lacks some reasoning that HermiT has: keys (`HasKey`), disjoint data properties and
+  parts of datatype reasoning give no inferences or inconsistencies, and `rdf:XMLLiteral` values
+  that differ only in formatting are taken for different values. Its running time can vary widely
+  between runs of the same ontology. Prefer HermiT unless JFact is needed.
 - **Inconsistent ontologies:** reasoning fails with an `InconsistentOntologyException` for ELK,
   HermiT and JFact (Structural produces an empty result). Check the ontology with the "Validate OWL
   consistency" task first.

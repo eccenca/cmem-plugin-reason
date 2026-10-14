@@ -73,9 +73,11 @@ The following reasoner options are supported:
 - [JFact](http://jfact.sourceforge.net/) (jfact)
 
 Both are OWL 2 DL reasoners capable of generating explanations, which is what
-consistency/unsatisfiability validation needs. HermiT is recommended: JFact can miss
-inferences, for example with datatypes, keys or a disjointness between complex class
-expressions. HermiT can take very long on some hard ontologies; the task has no time limit.
+consistency/unsatisfiability validation needs. HermiT is recommended: JFact lacks some reasoning
+that HermiT has, so it can miss inconsistencies with keys (`HasKey`), disjoint data properties or
+datatypes, and it takes `rdf:XMLLiteral` values that differ only in formatting for different
+values, which can make a consistent ontology inconsistent. HermiT can take very long on some hard
+ontologies; the task has no time limit.
 
 ### Stop at inconsistencies
 
