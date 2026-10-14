@@ -72,8 +72,8 @@ inferences with which reasoner:
 | Same individuals, data property domains | **not supported** | ✓ | ✓ | no |
 | Data and object property characteristics, object property equivalence | outside OWL 2 EL | ✓ | ✓ | partly |
 
-- **Not supported:** ELK does not implement these inferences. The generator produces no result
-  and the task still succeeds; the reasoner only logs a warning.
+- **Not supported:** ELK does not implement these inferences, so the task fails with an error
+  naming the generators if one of them is selected with ELK or ELK (EMR).
 - **Outside OWL 2 EL:** ELK only reasons within the OWL 2 EL profile and ignores, for example,
   functional, inverse and symmetric properties, so inferences depending on them are missed.
   Within OWL 2 EL, it also ignores keys, self restrictions, the bottom properties and clashes

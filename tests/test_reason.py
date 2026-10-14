@@ -114,7 +114,8 @@ def test_reason(setup: None, client: Client, reasoner_parameter: str) -> None:
         reasoner=reasoner_parameter,
         sub_class=False,
         class_assertion=True,
-        property_assertion=True,
+        # ELK doesn't support property assertions
+        property_assertion=reasoner_parameter not in ("elk", "elk_emr"),
     ).execute(inputs=(), context=TestExecutionContext())
 
     result = get_remote_graph(client, REASON_RESULT_GRAPH_IRI)
@@ -209,6 +210,38 @@ def test_reason_invalid_parameters() -> None:
         'Invalid value for parameter "Maximum RAM Percentage".',
     ):
         assert error in message
+
+
+@pytest.mark.parametrize("reasoner", ["elk", "elk_emr"])
+def test_reason_generators_elk_does_not_support(reasoner: str) -> None:
+    """Test Reason rejects axiom generators ELK doesn't support, naming them"""
+    plugin = ReasonPlugin(
+        data_graph_iri="https://example.org/data/",
+        output_graph_iri="https://example.org/result/",
+        reasoner=reasoner,
+        class_assertion=True,
+        property_assertion=True,
+        disjoint_classes=True,
+    )
+    with pytest.raises(ValueError) as exc_info:  # noqa: PT011
+        plugin.execute(inputs=(), context=TestExecutionContext())
+    message = str(exc_info.value)
+    assert "does not support these axiom generators:" in message
+    assert "Individual property assertions" in message
+    assert "Class disjointness (owl:disjointWith)" in message
+    assert "Individual class assertions" not in message
+
+
+def test_reason_generators_hermit_supports() -> None:
+    """Test Reason accepts with HermiT the axiom generators ELK doesn't support"""
+    plugin = ReasonPlugin(
+        data_graph_iri="https://example.org/data/",
+        output_graph_iri="https://example.org/result/",
+        reasoner="hermit",
+        property_assertion=True,
+        disjoint_classes=True,
+    )
+    plugin.validate_parameters()
 
 
 def test_reason_missing_parameters() -> None:

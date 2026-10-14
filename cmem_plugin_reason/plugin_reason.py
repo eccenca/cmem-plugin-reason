@@ -49,6 +49,20 @@ processed by tools that do not keep blank nodes. The IRIs are UUIDs computed fro
 the output graph, so re-running the task produces the same IRIs. ⚠️ The result is then no longer
 valid OWL 2 in RDF; tools that read it as an ontology may misinterpret these nodes."""
 
+#: Axiom generators ELK and ELK (EMR) don't support (see their descriptions): with them, the
+#: reasoner gives no axioms, so selecting one is an error.
+NOT_SUPPORTED_BY_ELK = (
+    "disjoint_classes",
+    "equivalent_data_properties",
+    "sub_data_property",
+    "data_property_domain",
+    "property_assertion",
+    "same_individual",
+    "inverse_object_properties",
+    "object_property_range",
+    "object_property_domain",
+)
+
 REASON_REASONERS = OrderedDict(
     {
         "elk": "ELK",
@@ -461,10 +475,23 @@ class ReasonPlugin(WorkflowPlugin):
             errors += 'Invalid value for parameter "Reasoner". '
         if True not in self.axioms.values():
             errors += "No axiom generator selected. "
+        if self.reasoner in ("elk", "elk_emr"):
+            unsupported = [self.parameter_label(k) for k in NOT_SUPPORTED_BY_ELK if self.axioms[k]]
+            if unsupported:
+                errors += (
+                    f"{REASON_REASONERS[self.reasoner]} does not support these axiom generators: "
+                    f"{', '.join(unsupported)}. "
+                )
         if self.max_ram_percentage not in range(1, 101):
             errors += 'Invalid value for parameter "Maximum RAM Percentage". '
         if errors:
             raise ValueError(errors[:-1])
+
+    @classmethod
+    def parameter_label(cls, name: str) -> str:
+        """Get the label of a parameter, as the task's form shows it"""
+        description = next(p for p in Plugin.plugins if p.plugin_class is cls)
+        return next((p.label for p in description.parameters if p.name == name), name)
 
     @staticmethod
     def camel_case(word: str) -> str:
