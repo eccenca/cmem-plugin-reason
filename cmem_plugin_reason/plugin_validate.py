@@ -23,7 +23,6 @@ from cmem_plugin_reason.utils import (
     IGNORE_MISSING_IMPORTS_PARAMETER,
     MAX_RAM_PERCENTAGE_DEFAULT,
     MAX_RAM_PERCENTAGE_PARAMETER,
-    ONTOLOGY_GRAPH_IRI_PARAMETER,
     REASONERS,
     VALIDATE_PROFILES_PARAMETER,
     VALIDATE_REASONER_PARAMETER,
@@ -41,6 +40,8 @@ from cmem_plugin_reason.utils import (
 )
 
 LABEL = "Validate OWL consistency"
+OWL_ONTOLOGY = "http://www.w3.org/2002/07/owl#Ontology"
+VOID_DATASET = "http://rdfs.org/ns/void#Dataset"
 
 
 @Plugin(
@@ -50,7 +51,12 @@ LABEL = "Validate OWL consistency"
     icon=Icon(file_name="file-icons--owl.svg", package=__package__),
     parameters=[
         IGNORE_MISSING_IMPORTS_PARAMETER,
-        ONTOLOGY_GRAPH_IRI_PARAMETER,
+        PluginParameter(
+            param_type=GraphParameterType(classes=["http://www.w3.org/2002/07/owl#Ontology"]),
+            name="ontology_graph_iri",
+            label="Ontology graph IRI",
+            description="The IRI of the input ontology graph.",
+        ),
         MAX_RAM_PERCENTAGE_PARAMETER,
         VALIDATE_PROFILES_PARAMETER,
         VALIDATE_REASONER_PARAMETER,
@@ -239,6 +245,25 @@ class ValidatePlugin(WorkflowPlugin):
                 raise OSError(response.stderr.decode())
             raise OSError("ROBOT error")
 
+    def declare_dataset(self) -> None:
+        """Declare the output graph a void:Dataset instead of the owl:Ontology ROBOT declares it
+
+        The output graph describes the validated ontology, it is not an ontology of its own.
+        """
+        query = f"""
+            DELETE DATA {{
+                GRAPH <{self.output_graph_iri}> {{
+                    <{self.output_graph_iri}> a <{OWL_ONTOLOGY}> .
+                }}
+            }};
+            INSERT DATA {{
+                GRAPH <{self.output_graph_iri}> {{
+                    <{self.output_graph_iri}> a <{VOID_DATASET}> .
+                }}
+            }}
+        """
+        self.client.store.sparql.update(query)
+
     def make_resource(self, context: ExecutionContext) -> None:
         """Make MD resource in project"""
         self.client.files.import_item(
@@ -283,6 +308,7 @@ class ValidatePlugin(WorkflowPlugin):
             return None
         if self.output_graph_iri:
             send_result(self.client, self.output_graph_iri, get_file_with_datetime(self))
+            self.declare_dataset()
             post_provenance(self)
         if cancel_workflow(self):
             return None

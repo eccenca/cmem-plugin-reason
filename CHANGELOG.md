@@ -7,7 +7,25 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 ## [Unreleased]
 
-### TODO: add at least one Added, Changed, Deprecated, Removed, Fixed or Security section
+### Changed
+
+- Use ROBOT v1.9.11 compiled with [updated dependencies without vulnerabilities](https://github.com/eccenca/robot/tree/feature/updateDependenciesV1.9.11)
+- Scan the SBOM of robot.jar (`robot.cdx.json`) with Trivy, since the jar scan cannot identify all bundled libraries
+- Updated dependencies and template
+- Validate plugin: the output graph is now declared a `void:Dataset` instead of an
+  `owl:Ontology`.
+- Reason plugin: only one of "Data graph IRI" and "Ontology graph IRI" is required. With only
+  one, or the same graph in both, that graph is reasoned on its own, and the result is described as
+  "Reasoning results of graph <X>".
+
+### Fixed
+
+- Fix robot.jar vulnerabilities CVE-2024-7254, CVE-2026-43869, CVE-2026-43871.
+- Reason plugin: selecting the same graph as data graph and ontology graph failed with
+  `OWLOntologyDocumentAlreadyExistsException`.
+- Reason and Validate plugins: provenance data is now written with every DataIntegration
+  workspace provider. Before, it was only written if the workspace was stored as RDF (workspace
+  provider `backend` or `fileAndDataPlatform`), because it was read from the project graph.
 
 ## [2.4.1] 2026-10-07
 

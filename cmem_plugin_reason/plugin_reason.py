@@ -22,7 +22,6 @@ from cmem_plugin_reason.utils import (
     IGNORE_MISSING_IMPORTS_PARAMETER,
     MAX_RAM_PERCENTAGE_DEFAULT,
     MAX_RAM_PERCENTAGE_PARAMETER,
-    ONTOLOGY_GRAPH_IRI_PARAMETER,
     REASON_REASONER_PARAMETER,
     REASONERS,
     VALIDATE_PROFILES_PARAMETER,
@@ -149,7 +148,13 @@ Person`.
     documentation=REASON_DOC,
     parameters=[
         IGNORE_MISSING_IMPORTS_PARAMETER,
-        ONTOLOGY_GRAPH_IRI_PARAMETER,
+        PluginParameter(
+            param_type=GraphParameterType(classes=["http://www.w3.org/2002/07/owl#Ontology"]),
+            name="ontology_graph_iri",
+            label="Ontology graph IRI",
+            description="""The IRI of the input ontology graph. At least one of data graph and
+            ontology graph must be specified.""",
+        ),
         VALIDATE_PROFILES_PARAMETER,
         REASON_REASONER_PARAMETER,
         MAX_RAM_PERCENTAGE_PARAMETER,
@@ -163,7 +168,8 @@ Person`.
             ),
             name="data_graph_iri",
             label="Data graph IRI",
-            description="The IRI of the input data graph.",
+            description="""The IRI of the input data graph. At least one of data graph and
+            ontology graph must be specified.""",
         ),
         PluginParameter(
             param_type=GraphParameterType(
@@ -285,7 +291,7 @@ Person`.
             label="Output graph import",
             description="""Add the triple <output_graph_iri> owl:imports <ontology_graph_iri> to the
             output graph or add the triple <ontology_graph_iri> owl:imports <output_graph_iri> to
-            the ontology graph.""",
+            the ontology graph. Needs an ontology graph.""",
             default_value="none",
         ),
         PluginParameter(
@@ -301,10 +307,10 @@ Person`.
 class ReasonPlugin(WorkflowPlugin):
     """Reason plugin"""
 
-    def __init__(  # noqa: PLR0913 C901 PLR0917
+    def __init__(  # noqa: PLR0913, PLR0917
         self,
-        data_graph_iri: str,
-        ontology_graph_iri: str,
+        data_graph_iri: str = "",
+        ontology_graph_iri: str = "",
         ignore_missing_imports: bool = False,
         output_graph_iri: str | None = None,
         reasoner: str | None = None,
@@ -340,17 +346,9 @@ class ReasonPlugin(WorkflowPlugin):
             "ObjectPropertyRange": object_property_range,
             "ObjectPropertyDomain": object_property_domain,
         }
-        errors = ""
-        if not is_valid_uri(data_graph_iri):
-            errors += 'Invalid IRI for parameter "Data graph IRI". '
-        if not is_valid_uri(ontology_graph_iri):
-            errors += 'Invalid IRI for parameter "Ontology graph IRI". '
-        if not is_valid_uri(output_graph_iri):
-            errors += 'Invalid IRI for parameter "Result graph IRI". '
-        if output_graph_iri == data_graph_iri:
-            errors += "Result graph IRI cannot be the same as the data graph IRI. "
-        if output_graph_iri == ontology_graph_iri:
-            errors += "Result graph IRI cannot be the same as the ontology graph IRI. "
+        errors = self.graph_parameter_errors(
+            data_graph_iri, ontology_graph_iri, output_graph_iri, imports, validate_profile
+        )
         if reasoner not in REASONERS:
             errors += 'Invalid value for parameter "Reasoner". '
         if True not in self.axioms.values():
@@ -390,6 +388,49 @@ class ReasonPlugin(WorkflowPlugin):
         self.output_port = None
 
     @staticmethod
+    def graph_parameter_errors(
+        data_graph_iri: str,
+        ontology_graph_iri: str,
+        output_graph_iri: str | None,
+        imports: str,
+        validate_profile: bool,
+    ) -> str:
+        """Check the graph parameters; only one of data graph and ontology graph is needed"""
+        errors = ""
+        if not data_graph_iri and not ontology_graph_iri:
+            errors += "At least one of data graph IRI and ontology graph IRI must be specified. "
+        if data_graph_iri and not is_valid_uri(data_graph_iri):
+            errors += 'Invalid IRI for parameter "Data graph IRI". '
+        if ontology_graph_iri and not is_valid_uri(ontology_graph_iri):
+            errors += 'Invalid IRI for parameter "Ontology graph IRI". '
+        if not is_valid_uri(output_graph_iri):
+            errors += 'Invalid IRI for parameter "Result graph IRI". '
+        if data_graph_iri and output_graph_iri == data_graph_iri:
+            errors += "Result graph IRI cannot be the same as the data graph IRI. "
+        if ontology_graph_iri and output_graph_iri == ontology_graph_iri:
+            errors += "Result graph IRI cannot be the same as the ontology graph IRI. "
+        if imports != "none" and not ontology_graph_iri:
+            errors += 'Parameter "Output graph import" needs an ontology graph IRI. '
+        if validate_profile and not ontology_graph_iri:
+            errors += 'Parameter "Validate OWL2 profiles" needs an ontology graph IRI. '
+        return errors
+
+    @property
+    def input_graph_iris(self) -> list[str]:
+        """The specified input graphs, each once: data graph and/or ontology graph"""
+        return list(dict.fromkeys(i for i in (self.data_graph_iri, self.ontology_graph_iri) if i))
+
+    @property
+    def main_graph_iri(self) -> str:
+        """The graph passed to ROBOT; with two different inputs, the data graph"""
+        return self.input_graph_iris[0]
+
+    @property
+    def two_inputs(self) -> bool:
+        """Whether two different input graphs are given, so the data graph imports the ontology"""
+        return len(self.input_graph_iris) > 1
+
+    @staticmethod
     def underscore(word: str) -> str:
         """Make an underscored, lowercase form from the expression in the string"""
         word = re.sub(r"([A-Z]+)([A-Z][a-z])", r"\1_\2", word)
@@ -406,7 +447,7 @@ class ReasonPlugin(WorkflowPlugin):
                 continue
             self.log.info(f"Fetching graph {iri}.")
             fetch_graph(self.client, iri, path)
-            if iri == self.data_graph_iri:
+            if iri == self.data_graph_iri and self.two_inputs:
                 with path.open("a", encoding="utf-8") as file:
                     file.write(
                         f"\n<{iri}> "
@@ -418,7 +459,7 @@ class ReasonPlugin(WorkflowPlugin):
         """Get graph import tree. Last item in graph_iris is output_graph_iri which is excluded"""
         missing = []
         graphs = {}
-        for graph_iri in [self.data_graph_iri, self.ontology_graph_iri]:
+        for graph_iri in self.input_graph_iris:
             if graph_iri not in graphs:
                 graphs[graph_iri] = f"{uuid4().hex}.nt"
                 tree = self.client.graph_imports.get_import_tree(graph_iri)
@@ -443,8 +484,9 @@ class ReasonPlugin(WorkflowPlugin):
     def reason(self, graphs: dict) -> None:
         """Reason"""
         axioms = " ".join(k for k, v in self.axioms.items() if v)
-        data_location = f"{self.temp}/{graphs[self.data_graph_iri]}"
-        label = get_output_graph_label(self, self.data_graph_iri, "Reasoning Results")
+        data_location = f"{self.temp}/{graphs[self.main_graph_iri]}"
+        label = get_output_graph_label(self, self.main_graph_iri, "Reasoning Results")
+        sources = " ".join(f'--link-annotation dc:source "{iri}"' for iri in self.input_graph_iris)
         cmd = (
             f'reason --input "{data_location}" '
             f"--reasoner {self.reasoner} "
@@ -459,11 +501,8 @@ class ReasonPlugin(WorkflowPlugin):
             f'annotate --ontology-iri "{self.output_graph_iri}" '
             f"--remove-annotations "
             f'--language-annotation rdfs:label "{label}" en '
-            f"--language-annotation rdfs:comment "
-            f'"Reasoning results of data graph <{self.data_graph_iri}> with ontology '
-            f'<{self.ontology_graph_iri}>" en '
-            f'--link-annotation dc:source "{self.data_graph_iri}" '
-            f'--link-annotation dc:source "{self.ontology_graph_iri}" '
+            f'--language-annotation rdfs:comment "{self.result_comment()}" en '
+            f"{sources} "
             f'--output "{self.temp}/result.ttl"'
         )
         response = robot(cmd, self.max_ram_percentage)
@@ -473,6 +512,28 @@ class ReasonPlugin(WorkflowPlugin):
             if response.stderr:
                 raise OSError(response.stderr.decode())
             raise OSError("ROBOT error")
+
+    def result_comment(self) -> str:
+        """Describe the input graphs of the reasoning result"""
+        if self.two_inputs:
+            return (
+                f"Reasoning results of data graph <{self.data_graph_iri}> with ontology "
+                f"<{self.ontology_graph_iri}>"
+            )
+        # one graph, whichever field it is in: its role is not known
+        return f"Reasoning results of graph <{self.main_graph_iri}>"
+
+    def add_ontology_import(self) -> None:
+        """Add ontology graph import to output graph"""
+        query = f"""
+            INSERT DATA {{
+                GRAPH <{self.output_graph_iri}> {{
+                    <{self.output_graph_iri}> <http://www.w3.org/2002/07/owl#imports>
+                        <{self.ontology_graph_iri}>
+                }}
+            }}
+        """
+        self.client.store.sparql.update(query)
 
     def add_result_import(self) -> None:
         """Add result graph import to ontology graph"""
@@ -519,7 +580,10 @@ class ReasonPlugin(WorkflowPlugin):
 
         if self.imports == "import_result":
             self.add_result_import()
-        if self.imports != "import_ontology" and not self.data_imports_ontology:
+        if self.imports == "import_ontology" and not self.two_inputs:
+            # with two inputs, the import added to the data graph is carried into the output
+            self.add_ontology_import()
+        if self.two_inputs and self.imports != "import_ontology" and not self.data_imports_ontology:
             self.remove_ontology_import()
 
         self.context.report.update(
@@ -534,11 +598,7 @@ class ReasonPlugin(WorkflowPlugin):
         """Execute plugin with temporary directory"""
         self.context = context
         self.client = get_client(context)
-        not_exist = [
-            iri
-            for iri in (self.data_graph_iri, self.ontology_graph_iri)
-            if iri not in self.client.graphs
-        ]
+        not_exist = [iri for iri in self.input_graph_iris if iri not in self.client.graphs]
         if not_exist:
             raise ValueError(f"Graphs do not exist: {', '.join(not_exist)}")
 
