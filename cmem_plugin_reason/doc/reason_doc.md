@@ -102,8 +102,13 @@ inferred class assertions, the default axiom generators):
 | HermiT | 46 s | 2.4 GB |
 | JFact | did not finish in 5 minutes | |
 
-- ELK and HermiT scale about linearly with the number of individuals. JFact grows about
-  quadratically (5,000 individuals: 7 s, 20,000: 60 s); avoid it for large datasets.
+- How HermiT and JFact scale depends on the ontology. In a plain class hierarchy like the one
+  above, HermiT grows about linearly and JFact about quadratically (5,000 individuals: 7 s, 20,000:
+  60 s). When the individuals are linked by properties in an ontology with existential
+  restrictions, both grow much faster. With the pizza ontology and pizzas linked to their toppings,
+  HermiT's consistency check alone takes 2 s for 100 pizzas, 14 s for 200 and 45 s for 400.
+  Neither HermiT nor JFact finishes 20,000 pizzas in 30 minutes, where ELK takes 9 s. Use ELK for
+  large datasets.
 - ELK (EMR) creates a helper class for every class and every object property used in class or
   property axioms, so its memory grows with classes × properties: about 0.7 GB for 5,000 classes
   and 40 properties, where ELK needs 30 MB. For ontologies with many classes and properties, use

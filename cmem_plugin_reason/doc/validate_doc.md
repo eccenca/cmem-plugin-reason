@@ -30,6 +30,13 @@ in a graph with 200,000 individuals (48 MB of N-Triples) needs about 0.7 GB of h
 with the default of 20 %, that is a container with about 4 GB of memory. If the task fails with an out of memory error, raise the percentage or the
 container's memory.
 
+The running time depends on the ontology more than on the size of the graph. Every explanation
+starts with a consistency check of the whole graph, and when its individuals are linked by
+properties in an ontology with existential restrictions, that check grows much faster than the
+number of individuals: with the pizza ontology and pizzas linked to their toppings, HermiT takes
+2 s for 100 pizzas, 14 s for 200 and 45 s for 400, and does not finish 20,000 pizzas in 30
+minutes.
+
 ⚠️ Setting the percentage too high may result in an out of memory error of DataIntegration itself.
 
 ### Validate OWL2 profiles
