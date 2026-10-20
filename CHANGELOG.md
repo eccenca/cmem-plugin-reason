@@ -37,8 +37,12 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 - Reason and Validate plugins: the bundled reasoner uses a version of JFact 5.0.3 with fixes:
   JFact no longer misses subsumptions and equivalences, infers wrong subsumptions with datatype
   restrictions, or finds consistent ontologies inconsistent because of equal numbers of different
-  datatypes (e.g. `"3"^^xsd:int` and `"3"^^xsd:integer`), and its results no longer vary between
-  runs.
+  datatypes (e.g. `"3"^^xsd:int` and `"3"^^xsd:integer`), and neither its results nor its running
+  time vary between runs any more (wine took between 5 seconds and many minutes; now about 5
+  seconds).
+- Reason plugin: faster with HermiT and JFact. The redundant subclass axioms are removed with the
+  class hierarchy the reasoning computed, instead of classifying the ontology a second time (HermiT
+  on food: 6.9 s → 3.8 s).
 
 - Validate plugin: the profile validation also checks what OWL 2 requires of the RDF graph itself:
   an ontology graph without an ontology header (`owl:Ontology`), or with undeclared classes,

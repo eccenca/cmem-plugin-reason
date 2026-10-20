@@ -85,8 +85,8 @@ inferences with which reasoner:
   property hierarchies.
 - **JFact** lacks some reasoning that HermiT has: keys (`HasKey`), disjoint data properties and
   parts of datatype reasoning give no inferences or inconsistencies, and `rdf:XMLLiteral` values
-  that differ only in formatting are taken for different values. Its running time can vary widely
-  between runs of the same ontology. Prefer HermiT unless JFact is needed.
+  that differ only in formatting are taken for different values. Prefer HermiT unless JFact is
+  needed.
 - **Inconsistent ontologies:** reasoning fails with an `InconsistentOntologyException` for ELK,
   HermiT and JFact (Structural produces an empty result). Check the ontology with the "Validate OWL
   consistency" task first.
