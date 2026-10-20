@@ -231,9 +231,9 @@ REASON_PARAMETERS = [
         name="reasoner",
         label="Reasoner",
         description="""Reasoner option. ELK and ELK (EMR) are limited to OWL 2 EL and support
-        fewer axiom generators; the Structural Reasoner only uses asserted hierarchies. JFact is
-        slow on large datasets and can miss inferences HermiT finds. See the documentation for
-        details.""",
+        fewer axiom generators; the Structural Reasoner only uses asserted hierarchies. JFact can
+        miss inferences HermiT finds, but is much faster on large datasets whose individuals are
+        linked by properties. See the documentation for details.""",
     ),
     PluginParameter(
         param_type=GraphParameterType(classes=[OWL_ONTOLOGY, DI_DATASET, VOID_DATASET]),

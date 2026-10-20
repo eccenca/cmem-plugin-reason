@@ -33,9 +33,9 @@ container's memory.
 The running time depends on the ontology more than on the size of the graph. Every explanation
 starts with a consistency check of the whole graph, and when its individuals are linked by
 properties in an ontology with existential restrictions, that check grows much faster than the
-number of individuals: with the pizza ontology and pizzas linked to their toppings, HermiT takes
-2 s for 100 pizzas, 14 s for 200, 45 s for 400 and more than 5 minutes for 800, and it did not
-finish 1,000 pizzas in 14 hours.
+number of individuals with HermiT: with the pizza ontology and pizzas linked to their toppings,
+HermiT takes 2 s for 100 pizzas, 14 s for 200, 45 s for 400 and more than 5 minutes for 800, and it
+did not finish 1,000 pizzas in 14 hours. JFact checks 20,000 such pizzas in 4 s.
 
 ⚠️ Setting the percentage too high may result in an out of memory error of DataIntegration itself.
 
@@ -78,14 +78,16 @@ blank nodes.
 
 The following reasoner options are supported:
 - [HermiT](http://www.hermit-reasoner.com/) (hermit)
-- [JFact](http://jfact.sourceforge.net/) (jfact)
+- [JFact](https://github.com/owlcs/jfact) (jfact), in a version with fixes for wrong and missing
+  inferences and for its speed with many individuals
 
 Both are OWL 2 DL reasoners capable of generating explanations, which is what
 consistency/unsatisfiability validation needs. HermiT is recommended: JFact lacks some reasoning
 that HermiT has, so it can miss inconsistencies with keys (`HasKey`), disjoint data properties or
 datatypes, and it takes `rdf:XMLLiteral` values that differ only in formatting for different
 values, which can make a consistent ontology inconsistent. HermiT can take very long on some hard
-ontologies; the task has no time limit.
+ontologies and on large graphs whose individuals are linked by properties, where JFact is much
+faster (see "Maximum RAM Percentage"); the task has no time limit.
 
 ### Stop at inconsistencies
 

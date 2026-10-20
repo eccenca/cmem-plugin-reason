@@ -32,6 +32,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
   generator used to give no result, with only a warning in the task log.
 - Reason plugin: an error of the reasoner while generating axioms fails the task; it used to be
   only a warning in the task log, and the output graph lacked that generator's axioms.
+- Reason plugin: unsatisfiable classes no longer fail the task. With "Class inclusion", each is
+  inferred to be a subclass of `owl:Nothing`.
 - Reason and Validate plugins: the reasoner reads imported ontologies only from Corporate Memory
   and never fetches one from its IRI (e.g. from the web).
 - Reason and Validate plugins: the bundled reasoner uses a version of JFact 5.0.3 with fixes:
@@ -39,7 +41,9 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
   restrictions, or finds consistent ontologies inconsistent because of equal numbers of different
   datatypes (e.g. `"3"^^xsd:int` and `"3"^^xsd:integer`), and neither its results nor its running
   time vary between runs any more (wine took between 5 seconds and many minutes; now about 5
-  seconds).
+  seconds). Its running time no longer grows quadratically with the number of individuals: 40,000
+  individuals that only have types took 4 minutes, now 9 seconds; 20,000 pizzas linked to their
+  toppings did not finish in 30 minutes, now take 51 seconds (HermiT does not finish 1,000).
 - Reason plugin: faster with HermiT and JFact. The redundant subclass axioms are removed with the
   class hierarchy the reasoning computed, instead of classifying the ontology a second time (HermiT
   on food: 6.9 s → 3.8 s).
@@ -56,8 +60,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 - Validate plugin: entities are now always output (no more "Output entities" toggle); valid
   profiles are output as a list instead of a comma-separated string.
 - Reason and Validate plugins: the documentation gives memory sizes for large datasets and how to
-  set "Maximum RAM Percentage"; the Reason plugin documents that JFact is slow on large datasets
-  and how ELK (EMR)'s memory grows.
+  set "Maximum RAM Percentage"; the Reason plugin documents how HermiT and JFact scale with the
+  number of individuals and how ELK (EMR)'s memory grows.
 
 ### Removed
 

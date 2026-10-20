@@ -11,7 +11,7 @@ Perform reasoning tasks and validate OWL consistency.
 - Use [pre-commit](https://pre-commit.com/) to avoid errors before commit.
 - The plugin runs `cmem_plugin_reason/eccenca-reasoner.jar`, scanned together with its SBOM
   `eccenca-reasoner.cdx.json` in the project root. Neither is in git: copy both from an
-  eccenca-reasoner build. This branch uses a build with JFact 5.0.4-eccenca.4, a fork of JFact
+  eccenca-reasoner build. This branch uses a build with JFact 5.0.4-eccenca.5, a fork of JFact
   5.0.3 with fixes (eccenca-reasoner branch `feature/jfact-fork`); the documentation of JFact
   and the test fixtures assume it.
 - Agent instructions and skills for this project are in `.claude/` - your own
