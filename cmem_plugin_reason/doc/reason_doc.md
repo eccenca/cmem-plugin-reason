@@ -93,8 +93,8 @@ inferences with which reasoner:
 
 #### Large datasets
 
-Measured with 200,000 individuals in a 10-level class hierarchy (48 MB of N-Triples, 1.8 million
-inferred class assertions, the default axiom generators):
+Measured with 200,000 individuals of the lowest class of a chain of 10 classes (48 MB of N-Triples,
+1.8 million inferred class assertions, the default axiom generators):
 
 | Reasoner | Time | Heap |
 |---|---|---|
@@ -102,13 +102,15 @@ inferred class assertions, the default axiom generators):
 | HermiT | 46 s | 2.4 GB |
 | JFact | did not finish in 5 minutes | |
 
-- How HermiT and JFact scale depends on the ontology. In a plain class hierarchy like the one
-  above, HermiT grows about linearly and JFact about quadratically (5,000 individuals: 7 s, 20,000:
-  60 s). When the individuals are linked by properties in an ontology with existential
+- How HermiT and JFact scale depends on the ontology. With individuals that only have types,
+  spread over the 512 lowest classes of a tree of 1,023 classes, HermiT grows linearly (5,000
+  individuals: 36 s, 40,000: 4.5 minutes) and JFact quadratically (5,000: 4 s, 20,000: 1 minute,
+  40,000: 4 minutes). In the chain above, where all individuals have the same type, HermiT is much
+  faster. When the individuals are linked by properties in an ontology with existential
   restrictions, both grow much faster. With the pizza ontology and pizzas linked to their toppings,
-  HermiT's consistency check alone takes 2 s for 100 pizzas, 14 s for 200 and 45 s for 400.
-  Neither HermiT nor JFact finishes 20,000 pizzas in 30 minutes, where ELK takes 9 s. Use ELK for
-  large datasets.
+  HermiT's consistency check alone takes 2 s for 100 pizzas, 14 s for 200, 45 s for 400 and more
+  than 5 minutes for 800, and it did not finish 1,000 pizzas in 14 hours. JFact does not finish
+  20,000 pizzas in 30 minutes, where ELK takes 9 s. Use ELK for large datasets.
 - ELK (EMR) creates a helper class for every class and every object property used in class or
   property axioms, so its memory grows with classes × properties: about 0.7 GB for 5,000 classes
   and 40 properties, where ELK needs 30 MB. For ontologies with many classes and properties, use
