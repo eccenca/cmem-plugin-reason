@@ -80,6 +80,12 @@ inferences with which reasoner:
   functional, inverse and symmetric properties, so inferences depending on them are missed.
   Within OWL 2 EL, it also ignores keys, self restrictions, the bottom properties and clashes
   between datatype values.
+- **Data values in ELK:** ELK compares the values of data property restrictions (`DataHasValue`)
+  by their lexical form only, ignoring datatype and language tag: `"Paris"@en`, `"Paris"@fr` and
+  `"Paris"` are the same value for it, and so are `"3"^^xsd:integer` and `"3"^^xsd:string`. With
+  such restrictions it can infer wrong subclass and equivalence axioms or find a consistent
+  ontology inconsistent ([ELK issue #71](https://github.com/liveontologies/elk-reasoner/issues/71));
+  use HermiT or JFact for them.
 - **HermiT** is complete for OWL 2 DL, but can take very long on some hard ontologies; the task
   has no time limit.
 - **Structural** does no real reasoning: it only finds what follows from the asserted class and
