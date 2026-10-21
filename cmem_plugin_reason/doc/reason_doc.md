@@ -105,7 +105,7 @@ Measured with 200,000 individuals of the lowest class of a chain of 10 classes (
 |---|---|---|
 | ELK | 28 s | 1.8 GB |
 | HermiT | 41 s | 2.3 GB |
-| JFact | 3.7 minutes | 2.6 GB |
+| JFact | 4 minutes | 2.6 GB |
 
 - How HermiT and JFact scale depends on the ontology. With individuals that only have types,
   spread over the 512 lowest classes of a tree of 1,023 classes, both grow linearly, JFact much
@@ -113,8 +113,8 @@ Measured with 200,000 individuals of the lowest class of a chain of 10 classes (
   chain above, where all individuals have the same type, HermiT is much faster. When the
   individuals are linked by properties in an ontology with existential restrictions, HermiT grows
   much faster: with the pizza ontology and pizzas linked to their toppings, its consistency check
-  alone takes about 2 s for 100 pizzas, 4 s for 200, 30 s for 400 and 1 to 3 minutes for 800,
-  varying a lot between runs, and the task with class assertions takes 4 minutes for 100 pizzas.
+  alone takes 1 s for 100 pizzas, 3.5 s for 200, 13 s for 400 and 51 s for 800, and the task with
+  class assertions takes 3.5 minutes for 100 pizzas.
   JFact takes 2 s for 800 pizzas, 5 s for 4,000 and 51 s for 20,000, where ELK takes 9 s. Use ELK
   for large datasets if the ontology is within OWL 2 EL, otherwise JFact.
 - ELK (EMR) creates a helper class for every class and every object property used in class or

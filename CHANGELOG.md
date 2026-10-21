@@ -45,14 +45,15 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
   time vary between runs any more (wine took between 5 seconds and many minutes; now about 5
   seconds). Its running time no longer grows quadratically with the number of individuals: 40,000
   individuals that only have types took 4 minutes, now 9 seconds; 20,000 pizzas linked to their
-  toppings did not finish in 30 minutes, now take 51 seconds.
+  toppings did not finish in 30 minutes, now take 51 seconds. It no longer misses types of
+  individuals that the ontology uses as nominals, or individuals that are the same (`owl:sameAs`).
 - Reason and Validate plugins: the bundled reasoner uses a version of HermiT 1.4.5.519 with fixes:
   HermiT no longer gives individuals types that aren't entailed, or misses types, with results
   that varied between runs, no longer misses same individuals (`owl:sameAs`), and no longer fails
   on an ontology stating that `owl:Thing` is empty or with a union that simplifies to an empty one.
   It is faster with many individuals: 40,000 individuals that only have types took 4.5 minutes,
-  now 22 seconds, and its consistency check of pizzas linked to their toppings takes about half
-  the time.
+  now 22 seconds, and its consistency check of 400 pizzas linked to their toppings, which took
+  between 40 seconds and 16 minutes depending on the run, takes 13 seconds in every run.
 - Reason plugin: faster with HermiT and JFact. The redundant subclass axioms are removed with the
   class hierarchy the reasoning computed, instead of classifying the ontology a second time (HermiT
   on food: 6.9 s → 3.8 s).
