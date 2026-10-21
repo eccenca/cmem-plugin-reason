@@ -34,8 +34,8 @@ The running time depends on the ontology more than on the size of the graph. Eve
 starts with a consistency check of the whole graph, and when its individuals are linked by
 properties in an ontology with existential restrictions, that check grows much faster than the
 number of individuals with HermiT: with the pizza ontology and pizzas linked to their toppings,
-HermiT takes 2 s for 100 pizzas, 14 s for 200, 45 s for 400 and more than 5 minutes for 800, and it
-did not finish 1,000 pizzas in 14 hours. JFact checks 20,000 such pizzas in 4 s.
+HermiT takes about 2 s for 100 pizzas, 4 s for 200, 30 s for 400 and 1 to 3 minutes for 800,
+varying a lot between runs. JFact checks 20,000 such pizzas in 4 s.
 
 ⚠️ Setting the percentage too high may result in an out of memory error of DataIntegration itself.
 
