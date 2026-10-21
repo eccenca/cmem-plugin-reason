@@ -86,7 +86,8 @@ inferences with which reasoner:
   property hierarchies.
 - **JFact** lacks some reasoning that HermiT has: keys (`HasKey`), disjoint data properties and
   parts of datatype reasoning give no inferences or inconsistencies, and `rdf:XMLLiteral` values
-  that differ only in formatting are taken for different values. Prefer HermiT unless JFact is
+  that differ only in formatting are taken for different values. On some ontologies with
+  nominals, its search can take very long where HermiT is fast. Prefer HermiT unless JFact is
   needed, e.g. for large datasets whose individuals are linked by properties, where HermiT
   becomes very slow (see below).
 - **Unsatisfiable classes:** a class that can have no instances is inferred to be a subclass of
