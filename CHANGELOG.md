@@ -54,6 +54,9 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
   It is faster with many individuals: 40,000 individuals that only have types took 4.5 minutes,
   now 22 seconds, and its consistency check of 400 pizzas linked to their toppings, which took
   between 40 seconds and 16 minutes depending on the run, takes 13 seconds in every run.
+  `rdf:XMLLiteral` values no longer lose attributes or characters outside the Basic Multilingual
+  Plane (e.g. emoji). The bundled reasoner no longer contains Axiom and the libraries it needed,
+  among them the old woodstox-core-asl and jaxen.
 - Reason plugin: faster with HermiT and JFact. The redundant subclass axioms are removed with the
   class hierarchy the reasoning computed, instead of classifying the ontology a second time (HermiT
   on food: 6.9 s → 3.8 s).
