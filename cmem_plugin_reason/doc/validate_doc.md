@@ -87,7 +87,9 @@ that HermiT has, so it can miss inconsistencies with keys (`HasKey`), disjoint d
 datatypes, and it takes `rdf:XMLLiteral` values that differ only in formatting for different
 values, which can make a consistent ontology inconsistent. HermiT can take very long on some hard
 ontologies and on large graphs whose individuals are linked by properties, where JFact is much
-faster (see "Maximum RAM Percentage"); the task has no time limit.
+faster (see "Maximum RAM Percentage"). The advanced parameter "Timeout (minutes)" stops the task
+with an error if the reasoner hasn't finished by then; by default there is no limit. Cancelling
+the workflow also stops the reasoner.
 
 ### Stop at inconsistencies
 

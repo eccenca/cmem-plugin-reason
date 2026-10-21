@@ -9,6 +9,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 ### Added
 
+- Reason and Validate plugins: advanced parameter "Timeout (minutes)". If the reasoner hasn't
+  finished by then, the task stops with an error. By default (0) there is no limit, as before.
 - Reason plugin: axiom generator parameters "Same individuals (owl:sameAs)" and "Data property
   domains (rdfs:domain)" (HermiT and JFact).
 - Reason and Validate plugins: warnings of the reasoner are written to the task log, e.g. which
@@ -84,6 +86,9 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 ### Fixed
 
+- Reason and Validate plugins: cancelling the workflow while the reasoner ran didn't stop the
+  reasoner: it ran on, with its CPU and memory, until it finished. It is now stopped within a few
+  seconds.
 - Reason plugin documentation: corrected the examples for class equivalence (only named
   classes), object property characteristics (functionality is inherited by sub-properties) and
   individual property assertions, and documented which axiom generators each reasoner supports

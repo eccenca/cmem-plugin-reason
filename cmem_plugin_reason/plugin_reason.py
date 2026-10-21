@@ -26,7 +26,9 @@ from cmem_plugin_reason.utils import (
     OWL_IMPORTS,
     OWL_ONTOLOGY,
     RESULT_FILENAME,
+    TIMEOUT_PARAMETER,
     VOID_DATASET,
+    ReasonerCancelledError,
     build_annotation_nt,
     cancel_workflow,
     create_xml_catalog_file,
@@ -37,8 +39,10 @@ from cmem_plugin_reason.utils import (
     log_reasoner_warnings,
     post_provenance,
     raise_on_error,
+    resource_parameter_errors,
     send_result,
     skolem_args,
+    workflow_cancelled,
 )
 
 LABEL = "Reason"
@@ -218,6 +222,7 @@ REASON_PARAMETERS = [
     IGNORE_MISSING_IMPORTS_PARAMETER,
     ONTOLOGY_GRAPH_IRI_PARAMETER,
     MAX_RAM_PERCENTAGE_PARAMETER,
+    TIMEOUT_PARAMETER,
     PluginParameter(
         param_type=BoolParameterType(),
         name="skolemize",
@@ -402,6 +407,7 @@ class ReasonPlugin(WorkflowPlugin):
         same_individual: bool = False,
         max_ram_percentage: int = MAX_RAM_PERCENTAGE_DEFAULT,
         skolemize: bool = False,
+        timeout: int = 0,
     ) -> None:
         #: Keyed by parameter name; camel_case() turns a key into the reasoner's generator name.
         self.axioms = {
@@ -427,6 +433,7 @@ class ReasonPlugin(WorkflowPlugin):
         self.output_graph_iri = output_graph_iri
         self.reasoner = reasoner
         self.max_ram_percentage = max_ram_percentage
+        self.timeout = timeout
         self.ignore_missing_imports = ignore_missing_imports
         self.skolemize = skolemize
         self.label = LABEL
@@ -487,8 +494,7 @@ class ReasonPlugin(WorkflowPlugin):
                     f"{REASON_REASONERS[self.reasoner]} does not support these axiom generators: "
                     f"{', '.join(unsupported)}. "
                 )
-        if self.max_ram_percentage not in range(1, 101):
-            errors += 'Invalid value for parameter "Maximum RAM Percentage". '
+        errors += resource_parameter_errors(self.max_ram_percentage, self.timeout)
         if errors:
             raise ValueError(errors[:-1])
 
@@ -575,7 +581,13 @@ class ReasonPlugin(WorkflowPlugin):
         ]
         if self.skolemize:
             cmd += skolem_args(self.output_graph_iri)
-        response = eccenca_reasoner(cmd, self.max_ram_percentage)
+        try:
+            response = eccenca_reasoner(
+                cmd, self.max_ram_percentage, self.timeout, lambda: workflow_cancelled(self)
+            )
+        except ReasonerCancelledError:
+            # _execute() reports the cancellation
+            return
         raise_on_error(response, "Reasoning")
         log_reasoner_warnings(self, response)
 

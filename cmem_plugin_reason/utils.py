@@ -9,11 +9,12 @@ Organized in four sections:
 
 import inspect
 import re
+from collections.abc import Callable
 from datetime import UTC, datetime
 from importlib.metadata import PackageNotFoundError, version
 from pathlib import Path
 from secrets import token_hex
-from subprocess import CompletedProcess, run
+from subprocess import PIPE, CompletedProcess, Popen, TimeoutExpired
 from urllib.parse import urlparse
 from xml.etree.ElementTree import Element, SubElement, tostring
 
@@ -83,6 +84,23 @@ MAX_RAM_PERCENTAGE_PARAMETER = PluginParameter(
     advanced=True,
 )
 
+#: The exit code of the reasoner jar when --timeout stopped it
+TIMEOUT_EXIT_CODE = 3
+
+TIMEOUT_PARAMETER = PluginParameter(
+    param_type=IntParameterType(),
+    name="timeout",
+    label="Timeout (minutes)",
+    description="""Stop the task with an error if the reasoner hasn't finished after this many
+    minutes, e.g. because HermiT takes very long on a large dataset whose individuals are linked
+    by properties. 0 means no limit.""",
+    default_value=0,
+    advanced=True,
+)
+
+#: How often a running reasoner checks whether the workflow was cancelled, in seconds
+CANCEL_POLL_SECONDS = 2.0
+
 IGNORE_MISSING_IMPORTS_PARAMETER = PluginParameter(
     param_type=BoolParameterType(),
     name="ignore_missing_imports",
@@ -101,17 +119,50 @@ def is_valid_uri(uri: str | None) -> bool:
     return validators.url(uri) is True
 
 
+def resource_parameter_errors(max_ram_percentage: int, timeout: int) -> str:
+    """Return the errors of the parameters for the maximum RAM percentage and the timeout"""
+    errors = ""
+    if max_ram_percentage not in range(1, 101):
+        errors += 'Invalid value for parameter "Maximum RAM Percentage". '
+    if timeout < 0:
+        errors += 'Invalid value for parameter "Timeout (minutes)". '
+    return errors
+
+
+class ReasonerCancelledError(Exception):
+    """The workflow was cancelled while the reasoner was running"""
+
+
+def workflow_cancelled(plugin: WorkflowPlugin) -> bool:
+    """Return True if the surrounding workflow was cancelled"""
+    return hasattr(plugin.context, "workflow") and plugin.context.workflow.status() != "Running"
+
+
 def cancel_workflow(plugin: WorkflowPlugin) -> bool:
     """Return True (and report) if the surrounding workflow was cancelled"""
-    if hasattr(plugin.context, "workflow") and plugin.context.workflow.status() != "Running":
+    if workflow_cancelled(plugin):
         plugin.log.info("End task (cancelled workflow).")
         plugin.context.report.update(ExecutionReport(entity_count=0, operation_desc="(cancelled)"))
         return True
     return False
 
 
+#: The jar's message when --timeout stopped it
+TIMEOUT_MESSAGE = re.compile(
+    r"Not finished within the time limit of (?P<limit>[^(]+?) \(--timeout\)"
+)
+
+
 def raise_on_error(response: CompletedProcess, context: str = "Reasoner") -> None:
     """Raise an OSError carrying the engine output if the process failed"""
+    if response.returncode == TIMEOUT_EXIT_CODE:
+        match = TIMEOUT_MESSAGE.search((response.stderr or b"").decode(errors="replace"))
+        limit = f" of {match['limit']}" if match else ""
+        raise OSError(
+            f'{context} did not finish within the time limit{limit} (parameter "Timeout") and '
+            "was stopped. For large datasets whose individuals are linked by properties, JFact "
+            "is much faster than HermiT."
+        )
     if response.returncode != 0:
         if response.stderr:
             raise OSError(f"{context} error: {response.stderr.decode().strip()}")
@@ -340,10 +391,43 @@ def get_reasoner_version(max_ram_percentage: int) -> tuple[str, str] | None:
     return match["version"], match["commit"]
 
 
-def eccenca_reasoner(cmd: list[str], max_ram_percentage: int) -> CompletedProcess[bytes]:
-    """Run eccenca_reasoner.jar"""
-    full_cmd = ["java", f"-XX:MaxRAMPercentage={max_ram_percentage}", "-jar", REASONER, *cmd]
-    return run(full_cmd, check=False, capture_output=True)  # noqa: S603
+def eccenca_reasoner(
+    cmd: list[str],
+    max_ram_percentage: int,
+    timeout: int = 0,
+    cancelled: Callable[[], bool] | None = None,
+) -> CompletedProcess[bytes]:
+    """Run eccenca_reasoner.jar
+
+    With a timeout (minutes, 0 for none), the jar stops itself when the time is up, with
+    TIMEOUT_EXIT_CODE. If cancelled() becomes true while it runs, e.g. because the workflow was
+    cancelled, the process is ended and ReasonerCancelledError raised.
+    """
+    args = [*cmd, "--timeout", str(timeout)] if timeout > 0 else cmd
+    full_cmd = ["java", f"-XX:MaxRAMPercentage={max_ram_percentage}", "-jar", REASONER, *args]
+    return run_process(full_cmd, cancelled)
+
+
+def run_process(
+    full_cmd: list[str], cancelled: Callable[[], bool] | None = None
+) -> CompletedProcess[bytes]:
+    """Run a process to its end, unless cancelled() becomes true
+
+    Then the process is ended and ReasonerCancelledError raised. It used to run to its end also
+    when the workflow was cancelled.
+    """
+    with Popen(full_cmd, stdout=PIPE, stderr=PIPE) as process:  # noqa: S603
+        while True:
+            try:
+                stdout, stderr = process.communicate(timeout=CANCEL_POLL_SECONDS)
+                break
+            except TimeoutExpired:
+                # communicate() keeps what it has read so far, so it can be called again
+                if cancelled is not None and cancelled():
+                    process.kill()
+                    process.communicate()
+                    raise ReasonerCancelledError from None
+    return CompletedProcess(full_cmd, process.returncode, stdout, stderr)
 
 
 # ============================================================================

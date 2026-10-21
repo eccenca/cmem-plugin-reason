@@ -86,8 +86,10 @@ inferences with which reasoner:
   such restrictions it can infer wrong subclass and equivalence axioms or find a consistent
   ontology inconsistent ([ELK issue #71](https://github.com/liveontologies/elk-reasoner/issues/71));
   use HermiT or JFact for them.
-- **HermiT** is complete for OWL 2 DL, but can take very long on some hard ontologies; the task
-  has no time limit.
+- **HermiT** is complete for OWL 2 DL, but can take very long on some hard ontologies and on large
+  datasets whose individuals are linked by properties. The advanced parameter "Timeout
+  (minutes)" stops the task with an error if the reasoner hasn't finished by then; by default
+  there is no limit. Cancelling the workflow also stops the reasoner.
 - **Structural** does no real reasoning: it only finds what follows from the asserted class and
   property hierarchies.
 - **JFact** lacks some reasoning that HermiT has: keys (`HasKey`), disjoint data properties and

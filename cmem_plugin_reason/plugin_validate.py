@@ -27,7 +27,9 @@ from cmem_plugin_reason.utils import (
     OWL_ONTOLOGY,
     RDF_TYPE,
     RESULT_FILENAME,
+    TIMEOUT_PARAMETER,
     VOID_DATASET,
+    ReasonerCancelledError,
     build_annotation_nt,
     cancel_workflow,
     create_xml_catalog_file,
@@ -38,8 +40,10 @@ from cmem_plugin_reason.utils import (
     log_reasoner_warnings,
     post_provenance,
     raise_on_error,
+    resource_parameter_errors,
     send_result,
     skolem_args,
+    workflow_cancelled,
 )
 
 LABEL = "Validate OWL consistency"
@@ -72,6 +76,7 @@ MD_FILENAME = "mdfile.md"
         IGNORE_MISSING_IMPORTS_PARAMETER,
         ONTOLOGY_GRAPH_IRI_PARAMETER,
         MAX_RAM_PERCENTAGE_PARAMETER,
+        TIMEOUT_PARAMETER,
         PluginParameter(
             param_type=BoolParameterType(),
             name="skolemize",
@@ -156,6 +161,7 @@ class ValidatePlugin(WorkflowPlugin):
         stop_at_inconsistencies: bool = False,
         max_ram_percentage: int = MAX_RAM_PERCENTAGE_DEFAULT,
         skolemize: bool = False,
+        timeout: int = 0,
     ) -> None:
         self.ontology_graph_iri = ontology_graph_iri
         self.reasoner = reasoner
@@ -165,6 +171,7 @@ class ValidatePlugin(WorkflowPlugin):
         self.stop_at_inconsistencies = stop_at_inconsistencies
         self.validate_profile = validate_profile
         self.max_ram_percentage = max_ram_percentage
+        self.timeout = timeout
         self.skolemize = skolemize
         self.ignore_missing_imports = ignore_missing_imports
 
@@ -191,8 +198,7 @@ class ValidatePlugin(WorkflowPlugin):
             errors += 'Invalid IRI for parameter "Output graph IRI". '
         if self.output_graph_iri and self.output_graph_iri == self.ontology_graph_iri:
             errors += "Output graph IRI cannot be the same as the Ontology graph IRI. "
-        if self.max_ram_percentage not in range(1, 101):
-            errors += 'Invalid value for parameter "Maximum RAM Percentage". '
+        errors += resource_parameter_errors(self.max_ram_percentage, self.timeout)
         if errors:
             raise ValueError(errors[:-1])
 
@@ -253,7 +259,13 @@ class ValidatePlugin(WorkflowPlugin):
             # the catalog has every import: never fetch one from its IRI
             "--local-imports-only",
         ]
-        response = eccenca_reasoner(cmd, self.max_ram_percentage)
+        try:
+            response = eccenca_reasoner(
+                cmd, self.max_ram_percentage, self.timeout, lambda: workflow_cancelled(self)
+            )
+        except ReasonerCancelledError:
+            # _execute() reports the cancellation
+            return []
         raise_on_error(response, "Profile validation")
         log_reasoner_warnings(self, response)
         return response.stdout.decode().split()
@@ -320,7 +332,13 @@ class ValidatePlugin(WorkflowPlugin):
             cmd += ["--output", f"{self.temp}/{RESULT_FILENAME}", "--format", "nt"]
             if self.skolemize:
                 cmd += skolem_args(self.output_graph_iri)
-        response = eccenca_reasoner(cmd, self.max_ram_percentage)
+        try:
+            response = eccenca_reasoner(
+                cmd, self.max_ram_percentage, self.timeout, lambda: workflow_cancelled(self)
+            )
+        except ReasonerCancelledError:
+            # _execute() reports the cancellation
+            return
         raise_on_error(response, "Explanation")
         log_reasoner_warnings(self, response)
 
