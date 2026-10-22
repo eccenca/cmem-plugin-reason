@@ -53,9 +53,12 @@ def test_eccenca_reasoner_passes_the_timeout(
 ) -> None:
     """--timeout goes to the jar only with a limit"""
     calls = []
-    monkeypatch.setattr(
-        utils, "run_process", lambda cmd, cancelled: calls.append(cmd) or CompletedProcess(cmd, 0)
-    )
+
+    def run_process(cmd: list[str], cancelled: object) -> CompletedProcess:
+        calls.append(cmd)
+        return CompletedProcess(cmd, 0)
+
+    monkeypatch.setattr(utils, "run_process", run_process)
     eccenca_reasoner(["reason", "--input", "in.nt"], 20, timeout)
     assert (calls[0][-2:] == ["--timeout", "5"]) is passed
 
