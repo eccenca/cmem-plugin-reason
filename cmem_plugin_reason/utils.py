@@ -92,8 +92,7 @@ TIMEOUT_PARAMETER = PluginParameter(
     name="timeout",
     label="Timeout (minutes)",
     description="""Stop the task with an error if the reasoner hasn't finished after this many
-    minutes, e.g. because HermiT takes very long on a large dataset whose individuals are linked
-    by properties. 0 means no limit.""",
+    minutes, e.g. on a hard ontology or a very large dataset. 0 means no limit.""",
     default_value=0,
     advanced=True,
 )
@@ -161,7 +160,7 @@ def raise_on_error(response: CompletedProcess, context: str = "Reasoner") -> Non
         raise OSError(
             f'{context} did not finish within the time limit{limit} (parameter "Timeout") and '
             "was stopped. For large datasets whose individuals are linked by properties, JFact "
-            "is much faster than HermiT."
+            "is several times faster than HermiT."
         )
     if response.returncode != 0:
         if response.stderr:

@@ -31,11 +31,10 @@ with the default of 20 %, that is a container with about 4 GB of memory. If the 
 container's memory.
 
 The running time depends on the ontology more than on the size of the graph. Every explanation
-starts with a consistency check of the whole graph, and when its individuals are linked by
-properties in an ontology with existential restrictions, that check grows much faster than the
-number of individuals with HermiT: with the pizza ontology and pizzas linked to their toppings,
-HermiT takes 1 s for 100 pizzas, 3.5 s for 200, 13 s for 400 and 51 s for 800. JFact checks 20,000
-such pizzas in 4 s.
+starts with a consistency check of the whole graph, which is slower when its individuals are
+linked by properties in an ontology with existential restrictions: with the pizza ontology and
+pizzas linked to their toppings, HermiT takes 0.1 s for 100 pizzas, 0.6 s for 800, 3.3 s for 4,000
+and 18 s for 20,000. JFact checks 20,000 such pizzas in 4 s.
 
 ⚠️ Setting the percentage too high may result in an out of memory error of DataIntegration itself.
 
