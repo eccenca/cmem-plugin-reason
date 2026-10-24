@@ -46,24 +46,29 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
   datatypes (e.g. `"3"^^xsd:int` and `"3"^^xsd:integer`), and neither its results nor its running
   time vary between runs any more (wine took between 5 seconds and many minutes; now about 5
   seconds). Its running time no longer grows quadratically with the number of individuals: 40,000
-  individuals that only have types took 4 minutes, now 9 seconds; 20,000 pizzas linked to their
-  toppings did not finish in 30 minutes, now take 51 seconds. It no longer misses types of
-  individuals that the ontology uses as nominals, or individuals that are the same (`owl:sameAs`).
+  individuals that only have types took 4 minutes, now 6 seconds; 20,000 pizzas linked to their
+  toppings did not finish in 30 minutes, now take 15 seconds; 200,000 individuals of one class
+  did not finish in 5 minutes, now take 20 seconds. Individuals with data values, and an
+  individual related to tens of thousands of others, are no longer slow either. It no longer
+  misses types of individuals that the ontology uses as nominals, or individuals that are the same
+  (`owl:sameAs`).
 - Reason and Validate plugins: the bundled reasoner uses a version of HermiT 1.4.5.519 with fixes:
   HermiT no longer gives individuals types that aren't entailed, or misses types, with results
   that varied between runs, no longer misses same individuals (`owl:sameAs`), and no longer fails
   on an ontology stating that `owl:Thing` is empty or with a union that simplifies to an empty one.
   It is faster with many individuals: 40,000 individuals that only have types took 4.5 minutes,
-  now 22 seconds. With individuals linked by properties, its running time no longer grows
+  now 6 seconds, and with many classes (8,000 subclasses of one class with an instance each: 28
+  seconds, now 0.6). With individuals linked by properties, its running time no longer grows
   quadratically with their number and is the same in every run: the Reason task with class
-  assertions on 100 pizzas linked to their toppings took 3.5 minutes, now 1.5 seconds, and 20,000
-  pizzas, which didn't finish in 30 minutes, take 4.5 minutes, with the same result as JFact.
+  assertions on 100 pizzas linked to their toppings took 3.5 minutes, now 1.2 seconds, and 20,000
+  pizzas, which didn't finish in 30 minutes, take 2.4 minutes, with the same result as JFact.
   `rdf:XMLLiteral` values no longer lose attributes or characters outside the Basic Multilingual
   Plane (e.g. emoji). The bundled reasoner no longer contains Axiom and the libraries it needed,
   among them the old woodstox-core-asl and jaxen.
 - Reason plugin: faster with HermiT and JFact. The redundant subclass axioms are removed with the
   class hierarchy the reasoning computed, instead of classifying the ontology a second time (HermiT
-  on food: 6.9 s → 3.8 s).
+  on food: 6.9 s → 3.8 s), and the object property hierarchy is only computed when an axiom
+  generator needs it (HermiT on 4,000 pizzas linked to their toppings: about a third less time).
 
 - Validate plugin: the profile validation also checks what OWL 2 requires of the RDF graph itself:
   an ontology graph without an ontology header (`owl:Ontology`), or with undeclared classes,
@@ -88,6 +93,9 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 ### Fixed
 
+- Reason and Validate plugins: JFact failed with a `StackOverflowError` on a chain of about 2,000
+  subclasses or a `DisjointClasses` axiom with about 1,000 classes. The bundled reasoner now runs
+  with a larger stack, which uses memory only as deep as it gets.
 - Reason and Validate plugins: cancelling the workflow while the reasoner ran didn't stop the
   reasoner: it ran on, with its CPU and memory, until it finished. It is now stopped within a few
   seconds.
