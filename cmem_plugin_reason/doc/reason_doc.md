@@ -122,7 +122,7 @@ Measured with 200,000 individuals of the lowest class of a chain of 10 classes (
   the same time (5,000 individuals: 2 s, 40,000: 6 s). When the individuals are linked by
   properties in an ontology with existential restrictions, JFact is several times faster: with
   the pizza ontology and pizzas linked to their toppings, the task with class assertions takes
-  1.0 s for 100 pizzas with HermiT, 3.1 s for 800, 14 s for 4,000 and 69 s for 20,000; JFact
+  1.0 s for 100 pizzas with HermiT, 3.1 s for 800, 14 s for 4,000 and 67 s for 20,000; JFact
   takes 1.4 s for 800, 4 s for 4,000 and 15 s for 20,000, where ELK takes 9 s; all three give the
   same result. Use ELK for large datasets if the ontology is within OWL 2
   EL, otherwise JFact, or HermiT for reasoning that JFact lacks (see above).

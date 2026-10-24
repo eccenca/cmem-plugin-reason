@@ -62,7 +62,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
   members: 31 and 13 seconds, now 0.3). With individuals linked by properties, its running time no longer grows
   quadratically with their number and is the same in every run: the Reason task with class
   assertions on 100 pizzas linked to their toppings took 3.5 minutes, now 1.0 seconds, and 20,000
-  pizzas, which didn't finish in 30 minutes, take 69 seconds, with the same result as JFact.
+  pizzas, which didn't finish in 30 minutes, take 67 seconds, with the same result as JFact.
   `rdf:XMLLiteral` values no longer lose attributes or characters outside the Basic Multilingual
   Plane (e.g. emoji). The bundled reasoner no longer contains Axiom and the libraries it needed,
   among them the old woodstox-core-asl and jaxen.
