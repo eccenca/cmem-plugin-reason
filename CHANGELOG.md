@@ -57,8 +57,9 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
   that varied between runs, no longer misses same individuals (`owl:sameAs`), and no longer fails
   on an ontology stating that `owl:Thing` is empty or with a union that simplifies to an empty one.
   It is faster with many individuals: 40,000 individuals that only have types took 4.5 minutes,
-  now 6 seconds, and with many classes (8,000 subclasses of one class with an instance each: 28
-  seconds, now 0.6). With individuals linked by properties, its running time no longer grows
+  now 6 seconds, with many classes (8,000 subclasses of one class with an instance each: 28
+  seconds, now 0.6), and with large `DisjointClasses` or `DifferentIndividuals` axioms (2,000
+  members: 31 and 13 seconds, now 0.3). With individuals linked by properties, its running time no longer grows
   quadratically with their number and is the same in every run: the Reason task with class
   assertions on 100 pizzas linked to their toppings took 3.5 minutes, now 1.1 seconds, and 20,000
   pizzas, which didn't finish in 30 minutes, take 81 seconds, with the same result as JFact.

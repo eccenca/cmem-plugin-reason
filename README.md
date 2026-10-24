@@ -12,7 +12,7 @@ Perform reasoning tasks and validate OWL consistency.
 - The plugin runs `cmem_plugin_reason/eccenca-reasoner.jar`, scanned together with its SBOM
   `eccenca-reasoner.cdx.json` in the project root. Neither is in git: copy both from an
   eccenca-reasoner build. This branch uses a build with JFact 5.0.4-eccenca.8 and HermiT
-  1.4.6.519-eccenca.6, forks of JFact 5.0.3 and HermiT 1.4.5.519 with fixes (eccenca-reasoner
+  1.4.6.519-eccenca.7, forks of JFact 5.0.3 and HermiT 1.4.5.519 with fixes (eccenca-reasoner
   branch `feature/reasoner-forks`); the documentation of the reasoners and the test fixtures
   assume it.
 - Agent instructions and skills for this project are in `.claude/` - your own
