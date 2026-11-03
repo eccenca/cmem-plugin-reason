@@ -40,7 +40,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
   inferred to be a subclass of `owl:Nothing`.
 - Reason and Validate plugins: the reasoner reads imported ontologies only from Corporate Memory
   and never fetches one from its IRI (e.g. from the web).
-- Reason and Validate plugins: the bundled reasoner uses a version of JFact 5.0.3 with fixes:
+- Reason and Validate plugins: the bundled reasoner uses JFact 5.0.4-eccenca.12, a version of JFact
+  5.0.3 with fixes:
   JFact no longer misses subsumptions and equivalences, infers wrong subsumptions with datatype
   restrictions, or finds consistent ontologies inconsistent because of equal numbers of different
   datatypes (e.g. `"3"^^xsd:int` and `"3"^^xsd:integer`), and neither its results nor its running
@@ -51,8 +52,12 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
   did not finish in 5 minutes, now take 20 seconds. Individuals with data values, and an
   individual related to tens of thousands of others, are no longer slow either. It no longer
   misses types of individuals that the ontology uses as nominals, or individuals that are the same
-  (`owl:sameAs`).
-- Reason and Validate plugins: the bundled reasoner uses a version of HermiT 1.4.5.519 with fixes:
+  (`owl:sameAs`). It no longer finds inconsistent ontologies consistent when individuals are merged
+  or linked to themselves, no longer misses property characteristics, property values or disjoint
+  classes, and no longer runs out of memory or searches without end on some ontologies with
+  individuals in class expressions.
+- Reason and Validate plugins: the bundled reasoner uses HermiT 1.4.6.519-eccenca.13, a version of
+  HermiT 1.4.5.519 with fixes:
   HermiT no longer gives individuals types that aren't entailed, or misses types, with results
   that varied between runs, no longer misses same individuals (`owl:sameAs`), and no longer fails
   on an ontology stating that `owl:Thing` is empty or with a union that simplifies to an empty one.
@@ -61,8 +66,13 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
   seconds, now 0.6), and with large `DisjointClasses` or `DifferentIndividuals` axioms (2,000
   members: 31 and 13 seconds, now 0.3). With individuals linked by properties, its running time no longer grows
   quadratically with their number and is the same in every run: the Reason task with class
-  assertions on 100 pizzas linked to their toppings took 3.5 minutes, now 1.0 seconds, and 20,000
-  pizzas, which didn't finish in 30 minutes, take 67 seconds, with the same result as JFact.
+  assertions on 100 pizzas linked to their toppings took 3.5 minutes, now 0.8 seconds, and 20,000
+  pizzas, which didn't finish in 30 minutes, take 19 seconds (31 seconds with all axiom
+  generators), with the same result as JFact. It no longer misses inferences through property
+  chains and transitive properties when a property is equivalent to or the inverse of another one,
+  or property values, and no longer searches for minutes on some ontologies with individuals in
+  class expressions and number restrictions: on 5,000 random test ontologies, it gives the same
+  results as JFact and finishes each within 20 seconds.
   `rdf:XMLLiteral` values no longer lose attributes or characters outside the Basic Multilingual
   Plane (e.g. emoji). The bundled reasoner no longer contains Axiom and the libraries it needed,
   among them the old woodstox-core-asl and jaxen.
