@@ -235,35 +235,35 @@
       "hashes" : [
         {
           "alg" : "MD5",
-          "content" : "4d503a73ca04dc41f6b5dde19751e106"
+          "content" : "63beaf7bed8fec49e9a571ec2d3d169f"
         },
         {
           "alg" : "SHA-1",
-          "content" : "8aa4ed2082540021f1bf97ac8bd123bc66f78d31"
+          "content" : "ad076d9d43ccd28d487e924ccaeb7a8e40bca74e"
         },
         {
           "alg" : "SHA-256",
-          "content" : "fe44f1b6f60218e0ef78c782c439c9ae1aedb9759452aa94519431249bd23165"
+          "content" : "e29f73e85f5dca70a0cd3d87be459bc6be12f56f86c242eb6a0ec26ec842d1d8"
         },
         {
           "alg" : "SHA-512",
-          "content" : "3786e552234515a9abbd2430a1e144e7ba9f90ca8827dc6388861d9d470d2d732fea4d56410d9cfaae1c9cb11f5e8353635fae5c4cc6381a0223fda62d255566"
+          "content" : "0bdd6d2f7c3c2e75b93c253ea9085e015d629f8e448f0d425ce371a898db1277ee6b3505c36e26fa46ce09226f4584bef4756c4e914f9c99a215fc4cace5a8df"
         },
         {
           "alg" : "SHA-384",
-          "content" : "6d4c72058732eb0a53af7228592e7713221fdf7041765c8f7e105e28075d41ec3685663b907fce6cd7f79356956c5bb7"
+          "content" : "5cc3de725e416f6756da9690b5e6a1418e2ea944b12fbf347129eb29e5ba4795f53505251c7b4c53505fc8ed424126b1"
         },
         {
           "alg" : "SHA3-384",
-          "content" : "beacca2a982e858df35ae81ec39a883f11623009612bc1a8b7a6bb4324ec8466f89778f9f6ef606276091bb3c318fe8b"
+          "content" : "d3cd887a8864da5c964baa570ec94e8e0ab69ba39cf48204d84f95cc69be69ea0e9baa75bdaa699716a789d5accb7c56"
         },
         {
           "alg" : "SHA3-256",
-          "content" : "16dd434e107148d9a89ee2eedc8abb3e4b50325bb2d555f515be14dbc324b5d8"
+          "content" : "d7ccad3f6af92eadb2cd301e901f824614c85de9c47bdd8d86324a63f242d8eb"
         },
         {
           "alg" : "SHA3-512",
-          "content" : "d79bb34be1b112580728353189eeef90641b2794b579692a66e3d06061d25f4c949db078959b52208901a1e3666c878bbc518a078fd7985faf3fa5834fb4e7b9"
+          "content" : "33219de8167dd0ce1c5c00437cec58ce589e1adcb37065a6324db101cdd5f1640053e3a9ea40d89ec66b924cacc0b76f2cb504c2947d555e19ba88e67e45b9ef"
         }
       ],
       "licenses" : [
@@ -5214,44 +5214,44 @@
     },
     {
       "type" : "library",
-      "bom-ref" : "pkg:maven/com.google.guava/guava@33.5.0-jre?type=jar",
+      "bom-ref" : "pkg:maven/com.google.guava/guava@33.7.2-jre?type=jar",
       "group" : "com.google.guava",
       "name" : "guava",
-      "version" : "33.5.0-jre",
+      "version" : "33.7.2-jre",
       "description" : "Guava is a suite of core and expanded libraries that include utility classes, Google's collections, I/O classes, and much more.",
       "scope" : "required",
       "hashes" : [
         {
           "alg" : "MD5",
-          "content" : "d9fbf39a41a5bab891348f07668e18c5"
+          "content" : "b07f61705f717d9ae7946c7fdb1efd7a"
         },
         {
           "alg" : "SHA-1",
-          "content" : "8699de25f2f979108d6c1b804a7ba38cda1116bc"
+          "content" : "e70def5b06cfb109ea050de99870e79c8ce80dbc"
         },
         {
           "alg" : "SHA-256",
-          "content" : "1e301f0c52ac248b0b14fdc3d12283c77252d4d6f48521d572e7d8c4c2cc4ac7"
+          "content" : "b530942257fb935f8b2cfaa5f8eb5bd59c555fd8e8d01b8ce98912e077ea606c"
         },
         {
           "alg" : "SHA-512",
-          "content" : "994a4dbcbd8e528ad3b4a7acf49b631a40dcebb03d9a8f5e1d3b74351f805f77774e9a19f7233e42036cb415b7838710f207ac1e18335e4a219b7f99ea22a44f"
+          "content" : "bd663dc02f2293a552d82829518435b8cfcd77b7c73eeb638aef93918ef7613ad2a869003b09d1afb4446fa74308041daa7a6aea85c1bedb17db1f5f0c2c5c0b"
         },
         {
           "alg" : "SHA-384",
-          "content" : "9dabff6e543ead881b20d38a533e9151aaa83999239cf0ace3e712cf678e7976c3a50d79e3f3c57afc05a3b9ff14ad90"
+          "content" : "7c1d8db6504620e2feb70d56e4bffb479e5ba292c1d911da060cb66f2ac3d4050c718a72e6cfd6c82a36fd840c499942"
         },
         {
           "alg" : "SHA3-384",
-          "content" : "9f65d4d942113facb2eb25229c1530b79dd3b8994574034b8d4a1c2b39ed8ee5bb4d415ec690d3d87cee0d8cb2283564"
+          "content" : "13dcb7e8318a75368b33e1abc3a5b9b674bed950d6cfe1e7ca8be8f42f642816e69ae5d39d5ddbe998fe2c9acbf6ee28"
         },
         {
           "alg" : "SHA3-256",
-          "content" : "fedafab2279bdf6eff66314fc61b056e92312695678e66dc1e25fe1d18af5a36"
+          "content" : "adee2b0b99a4777a1fb04eb1a26d6b44aa47457c850dbf43d743d17801615c18"
         },
         {
           "alg" : "SHA3-512",
-          "content" : "e64f3c49f9030358554bb0b8abdff729394988f1e3247b05a86302014eeff4a2855acf46d9bf1c683cbecc33a24173a20a103d3c82c94f8cabd6676a01b40fb6"
+          "content" : "5bff0e702aaa6bfbf3fdd8fb963b6242d5dbecd8b7601afc0bfe158314887352d48c79c4ef9e256a0510474ac39493c59ca277bd1989a04705a723c6045fe4b7"
         }
       ],
       "licenses" : [
@@ -5261,7 +5261,7 @@
           }
         }
       ],
-      "purl" : "pkg:maven/com.google.guava/guava@33.5.0-jre?type=jar",
+      "purl" : "pkg:maven/com.google.guava/guava@33.7.2-jre?type=jar",
       "externalReferences" : [
         {
           "type" : "website",
@@ -5429,44 +5429,44 @@
     },
     {
       "type" : "library",
-      "bom-ref" : "pkg:maven/org.jspecify/jspecify@1.0.0?type=jar",
+      "bom-ref" : "pkg:maven/org.jspecify/jspecify@1.0.1?type=jar",
       "group" : "org.jspecify",
       "name" : "jspecify",
-      "version" : "1.0.0",
+      "version" : "1.0.1",
       "description" : "An artifact of well-named and well-specified annotations to power static analysis checks",
       "scope" : "required",
       "hashes" : [
         {
           "alg" : "MD5",
-          "content" : "9133aba420d0ca3b001dbb6ae9992cf6"
+          "content" : "d4fe1ea4d953b66fcb1d6043c22bffcf"
         },
         {
           "alg" : "SHA-1",
-          "content" : "7425a601c1c7ec76645a78d22b8c6a627edee507"
+          "content" : "3d60fd98eb8ade73004f4195c37b6317e02cf3d7"
         },
         {
           "alg" : "SHA-256",
-          "content" : "1fad6e6be7557781e4d33729d49ae1cdc8fdda6fe477bb0cc68ce351eafdfbab"
+          "content" : "070d75f261fe4c5b8202508366715f7f2d4660f88c8ef7e6d3575e48c9683b66"
         },
         {
           "alg" : "SHA-512",
-          "content" : "efded31ef5b342f09422935076e599789076431e93a746685c0607e7de5592719ba6aacde0be670b3f064d1e85630d58d5bce6b34aed2a288fdb34f745efb7bc"
+          "content" : "8f5ca6f5c25ee353bfbe3e5e5cd9847b3b3ed1e954a14a52c9aa016c673e02bfbc2e0f9308ad576c2a58720f8bf2139ad9883c7a881050fe96a2f87e2e623711"
         },
         {
           "alg" : "SHA-384",
-          "content" : "814f860e5a44ead6c457676841eef471a8b87be31b84c60a8a4477a18a9cbcb6e3c2ae700969d5c5e52309d961e0537a"
+          "content" : "f7c6aea402675ed6d9286e6107d4bf6c2d1f757f9fce4c74807cbd43d426569324cf4c7faed28dc777e90ddb3a63db68"
         },
         {
           "alg" : "SHA3-384",
-          "content" : "c8844e5b71e5ecfbb7366097ce34af2f5863d86d5ccc3f9ec384d8ade4b60ccc8124c7fc88664f1afd2b0962fc8775bf"
+          "content" : "d462ead4749cc7b404b1699aedf472664e9bb38db769f2ec78a6457d2d080602f673af8b3114724dd92ee2262f464c41"
         },
         {
           "alg" : "SHA3-256",
-          "content" : "4b4f08ad7606a3ac62997779484919a302267b26d26ee19125f8a7eea60e8a71"
+          "content" : "f9392a7b674c37a7617d7e5ab4a6197c235c0a036244eaf550291d6756c0f1c9"
         },
         {
           "alg" : "SHA3-512",
-          "content" : "65c6845ebae981cb81b61107707ced39f5b377dae970b47606ef482aaf10e3729def0da40d9377c43abbfb483a5ceae039b0d51c129c50a6d36ad351a5d6b01e"
+          "content" : "3154b4940937103d74b77eede7abc7034168dc986284ef00ab4e4d5b537ed6370c6856787ae50711e62906b3011243c9a656b659ddd025c1e6b828c44b980855"
         }
       ],
       "licenses" : [
@@ -5476,11 +5476,11 @@
           }
         }
       ],
-      "purl" : "pkg:maven/org.jspecify/jspecify@1.0.0?type=jar",
+      "purl" : "pkg:maven/org.jspecify/jspecify@1.0.1?type=jar",
       "externalReferences" : [
         {
           "type" : "website",
-          "url" : "http://jspecify.org/"
+          "url" : "https://jspecify.dev/"
         },
         {
           "type" : "vcs",
@@ -5490,45 +5490,45 @@
     },
     {
       "type" : "library",
-      "bom-ref" : "pkg:maven/com.google.errorprone/error_prone_annotations@2.41.0?type=jar",
+      "bom-ref" : "pkg:maven/com.google.errorprone/error_prone_annotations@2.50.0?type=jar",
       "publisher" : "Google LLC",
       "group" : "com.google.errorprone",
       "name" : "error_prone_annotations",
-      "version" : "2.41.0",
+      "version" : "2.50.0",
       "description" : "Error Prone is a static analysis tool for Java that catches common programming mistakes at compile-time.",
       "scope" : "required",
       "hashes" : [
         {
           "alg" : "MD5",
-          "content" : "75e3b25da8b8a2136463c4674f5e49bf"
+          "content" : "1ded1848cfd4f5167e00824faf9c4d3b"
         },
         {
           "alg" : "SHA-1",
-          "content" : "4381275efdef6ddfae38f002c31e84cd001c97f0"
+          "content" : "74ba43e49ab1184d41634af2ef0047e82c4064b0"
         },
         {
           "alg" : "SHA-256",
-          "content" : "a56e782b5b50811ac204073a355a21d915a2107fce13ec711331ad036f660fcc"
+          "content" : "4667724877f1d37a689202da191e23efa7657c62eef93ccdac406eccfe5cdd0a"
         },
         {
           "alg" : "SHA-512",
-          "content" : "e2eb4bf9f36f95a4d4c5ea344db5cd90a456e63bef8e52932b8f6f4ecfdd59cb2f6c2ce9e67b0070c82177e42885688b95afef591b16001f789b378f18afdf30"
+          "content" : "f867b1a1fbc057fcfc37c2fa86082f5965ad6a1c45373eac6cfa6ec058cedbf7b348ab4f3d4fea2d4d105ecc401c14f24d9b16f344507e126a221d50532cb8b2"
         },
         {
           "alg" : "SHA-384",
-          "content" : "43700b378624aa37197ef03a6b5ea40b5fbb6c0aa667eadf810ad36f0707dffaf3ea23471f2553327c3f5644cc875ee7"
+          "content" : "2986b161379c30e9805f3bcff197d7861b8c0690a021e2d7464707e57028b1953d24eefd1a36722f3c04665190b3cb48"
         },
         {
           "alg" : "SHA3-384",
-          "content" : "8bf3293cf4b72c9a999948f8812190636ef3b0c35bab8dbf9a54c263eeab2a3b3d0774fdcab52c6d114551ff74a8aea2"
+          "content" : "597fe452ff7e21149da3c537b61d8e1b17df792f67bcd80fbccd6647acca571a94fa8bbcf4840826a37814bb2ef0249a"
         },
         {
           "alg" : "SHA3-256",
-          "content" : "2ca1a59f4fdc37a3c83501542c63842fa4fe40c06f69a59a2a072e4af442a16a"
+          "content" : "5447d9786f79d7dc20e8f75ac93f3a05181f3707faf6e91696dd326cdd5f5754"
         },
         {
           "alg" : "SHA3-512",
-          "content" : "6d1f419996b15e5a2bd9b268d166046e38fe9cc6c58fe56aaacbe71b95e3db8c8fe1d226e7f549ea227956feaf3087706bdfa79930fe432298bba9ec06c26a90"
+          "content" : "b51065218c88f5ce0b94e6607dee42d6c01aeb69a87b6e1c656dd406f2196cc999150ce87f56fbeeecbed7e1e354ed285589fa560012e9fb5858a97dc17d2129"
         }
       ],
       "licenses" : [
@@ -5538,7 +5538,7 @@
           }
         }
       ],
-      "purl" : "pkg:maven/com.google.errorprone/error_prone_annotations@2.41.0?type=jar",
+      "purl" : "pkg:maven/com.google.errorprone/error_prone_annotations@2.50.0?type=jar",
       "externalReferences" : [
         {
           "type" : "website",
@@ -9702,7 +9702,7 @@
         "pkg:maven/commons-cli/commons-cli@1.4?type=jar",
         "pkg:maven/commons-io/commons-io@2.14.0?type=jar",
         "pkg:maven/org.apache.commons/commons-lang3@3.20.0?type=jar",
-        "pkg:maven/com.google.guava/guava@33.5.0-jre?type=jar",
+        "pkg:maven/com.google.guava/guava@33.7.2-jre?type=jar",
         "pkg:maven/net.sourceforge.owlapi/owlapi-api@4.5.29?type=jar",
         "pkg:maven/net.sourceforge.owlapi/owlapi-apibinding@4.5.29?type=jar",
         "pkg:maven/net.sourceforge.owlapi/owlapi-rio@4.5.29?type=jar",
@@ -9725,7 +9725,7 @@
     {
       "ref" : "pkg:maven/org.obolibrary.robot/robot-core@1.10.0-SNAPSHOT?type=jar",
       "dependsOn" : [
-        "pkg:maven/com.google.guava/guava@33.5.0-jre?type=jar",
+        "pkg:maven/com.google.guava/guava@33.7.2-jre?type=jar",
         "pkg:maven/net.sourceforge.owlapi/owlapi-api@4.5.29?type=jar",
         "pkg:maven/net.sourceforge.owlapi/owlapi-apibinding@4.5.29?type=jar",
         "pkg:maven/net.sourceforge.owlapi/owlapi-rio@4.5.29?type=jar",
@@ -9762,12 +9762,12 @@
       ]
     },
     {
-      "ref" : "pkg:maven/com.google.guava/guava@33.5.0-jre?type=jar",
+      "ref" : "pkg:maven/com.google.guava/guava@33.7.2-jre?type=jar",
       "dependsOn" : [
         "pkg:maven/com.google.guava/failureaccess@1.0.3?type=jar",
         "pkg:maven/com.google.guava/listenablefuture@9999.0-empty-to-avoid-conflict-with-guava?type=jar",
-        "pkg:maven/org.jspecify/jspecify@1.0.0?type=jar",
-        "pkg:maven/com.google.errorprone/error_prone_annotations@2.41.0?type=jar",
+        "pkg:maven/org.jspecify/jspecify@1.0.1?type=jar",
+        "pkg:maven/com.google.errorprone/error_prone_annotations@2.50.0?type=jar",
         "pkg:maven/com.google.j2objc/j2objc-annotations@3.1?type=jar"
       ]
     },
@@ -9780,11 +9780,11 @@
       "dependsOn" : [ ]
     },
     {
-      "ref" : "pkg:maven/org.jspecify/jspecify@1.0.0?type=jar",
+      "ref" : "pkg:maven/org.jspecify/jspecify@1.0.1?type=jar",
       "dependsOn" : [ ]
     },
     {
-      "ref" : "pkg:maven/com.google.errorprone/error_prone_annotations@2.41.0?type=jar",
+      "ref" : "pkg:maven/com.google.errorprone/error_prone_annotations@2.50.0?type=jar",
       "dependsOn" : [ ]
     },
     {
@@ -9798,7 +9798,7 @@
         "pkg:maven/com.github.ben-manes.caffeine/caffeine@2.5.6?type=jar",
         "pkg:maven/javax.inject/javax.inject@1?type=jar",
         "pkg:maven/com.github.vsonnier/hppcrt@0.7.5?type=jar",
-        "pkg:maven/com.google.guava/guava@33.5.0-jre?type=jar",
+        "pkg:maven/com.google.guava/guava@33.7.2-jre?type=jar",
         "pkg:maven/org.slf4j/slf4j-api@2.0.11?type=jar",
         "pkg:maven/commons-io/commons-io@2.14.0?type=jar"
       ]
@@ -9830,7 +9830,7 @@
         "pkg:maven/net.sourceforge.owlapi/owlapi-fixers@4.5.29?type=jar",
         "pkg:maven/net.sourceforge.owlapi/owlapi-rio@4.5.29?type=jar",
         "pkg:maven/com.github.vsonnier/hppcrt@0.7.5?type=jar",
-        "pkg:maven/com.google.guava/guava@33.5.0-jre?type=jar",
+        "pkg:maven/com.google.guava/guava@33.7.2-jre?type=jar",
         "pkg:maven/org.slf4j/slf4j-api@2.0.11?type=jar",
         "pkg:maven/commons-io/commons-io@2.14.0?type=jar"
       ]
@@ -9842,7 +9842,7 @@
         "pkg:maven/com.github.ben-manes.caffeine/caffeine@2.5.6?type=jar",
         "pkg:maven/javax.inject/javax.inject@1?type=jar",
         "pkg:maven/com.github.vsonnier/hppcrt@0.7.5?type=jar",
-        "pkg:maven/com.google.guava/guava@33.5.0-jre?type=jar",
+        "pkg:maven/com.google.guava/guava@33.7.2-jre?type=jar",
         "pkg:maven/org.slf4j/slf4j-api@2.0.11?type=jar",
         "pkg:maven/commons-io/commons-io@2.14.0?type=jar"
       ]
@@ -9852,7 +9852,7 @@
       "dependsOn" : [
         "pkg:maven/net.sourceforge.owlapi/owlapi-api@4.5.29?type=jar",
         "pkg:maven/com.github.vsonnier/hppcrt@0.7.5?type=jar",
-        "pkg:maven/com.google.guava/guava@33.5.0-jre?type=jar",
+        "pkg:maven/com.google.guava/guava@33.7.2-jre?type=jar",
         "pkg:maven/org.slf4j/slf4j-api@2.0.11?type=jar",
         "pkg:maven/commons-io/commons-io@2.14.0?type=jar"
       ]
@@ -9862,7 +9862,7 @@
       "dependsOn" : [
         "pkg:maven/net.sourceforge.owlapi/owlapi-parsers@4.5.29?type=jar",
         "pkg:maven/com.github.vsonnier/hppcrt@0.7.5?type=jar",
-        "pkg:maven/com.google.guava/guava@33.5.0-jre?type=jar",
+        "pkg:maven/com.google.guava/guava@33.7.2-jre?type=jar",
         "pkg:maven/org.slf4j/slf4j-api@2.0.11?type=jar",
         "pkg:maven/commons-io/commons-io@2.14.0?type=jar"
       ]
@@ -9872,7 +9872,7 @@
       "dependsOn" : [
         "pkg:maven/net.sourceforge.owlapi/owlapi-api@4.5.29?type=jar",
         "pkg:maven/com.github.vsonnier/hppcrt@0.7.5?type=jar",
-        "pkg:maven/com.google.guava/guava@33.5.0-jre?type=jar",
+        "pkg:maven/com.google.guava/guava@33.7.2-jre?type=jar",
         "pkg:maven/org.slf4j/slf4j-api@2.0.11?type=jar",
         "pkg:maven/commons-io/commons-io@2.14.0?type=jar"
       ]
@@ -9882,7 +9882,7 @@
       "dependsOn" : [
         "pkg:maven/net.sourceforge.owlapi/owlapi-api@4.5.29?type=jar",
         "pkg:maven/com.github.vsonnier/hppcrt@0.7.5?type=jar",
-        "pkg:maven/com.google.guava/guava@33.5.0-jre?type=jar",
+        "pkg:maven/com.google.guava/guava@33.7.2-jre?type=jar",
         "pkg:maven/org.slf4j/slf4j-api@2.0.11?type=jar",
         "pkg:maven/commons-io/commons-io@2.14.0?type=jar"
       ]
@@ -9907,7 +9907,7 @@
         "pkg:maven/org.eclipse.rdf4j/rdf4j-rio-jsonld@3.7.7?type=jar",
         "pkg:maven/com.github.jsonld-java/jsonld-java@0.13.2?type=jar",
         "pkg:maven/com.github.vsonnier/hppcrt@0.7.5?type=jar",
-        "pkg:maven/com.google.guava/guava@33.5.0-jre?type=jar",
+        "pkg:maven/com.google.guava/guava@33.7.2-jre?type=jar",
         "pkg:maven/org.slf4j/slf4j-api@2.0.11?type=jar",
         "pkg:maven/commons-io/commons-io@2.14.0?type=jar"
       ]
@@ -9918,7 +9918,7 @@
         "pkg:maven/org.eclipse.rdf4j/rdf4j-model-api@3.7.7?type=jar",
         "pkg:maven/org.eclipse.rdf4j/rdf4j-model-vocabulary@3.7.7?type=jar",
         "pkg:maven/org.eclipse.rdf4j/rdf4j-util@3.7.7?type=jar",
-        "pkg:maven/com.google.guava/guava@33.5.0-jre?type=jar"
+        "pkg:maven/com.google.guava/guava@33.7.2-jre?type=jar"
       ]
     },
     {
@@ -10562,7 +10562,7 @@
       "dependsOn" : [
         "pkg:maven/org.liveontologies/puli@0.1.0?type=jar",
         "pkg:maven/org.liveontologies/owlapi-proof@0.1.0?type=jar",
-        "pkg:maven/com.google.guava/guava@33.5.0-jre?type=jar",
+        "pkg:maven/com.google.guava/guava@33.7.2-jre?type=jar",
         "pkg:maven/io.github.liveontologies/elk-owl-model@0.6.0?type=jar",
         "pkg:maven/io.github.liveontologies/elk-reasoner@0.6.0?type=jar",
         "pkg:maven/io.github.liveontologies/elk-proofs@0.6.0?type=jar",
@@ -10575,7 +10575,7 @@
     {
       "ref" : "pkg:maven/org.liveontologies/puli@0.1.0?type=jar",
       "dependsOn" : [
-        "pkg:maven/com.google.guava/guava@33.5.0-jre?type=jar",
+        "pkg:maven/com.google.guava/guava@33.7.2-jre?type=jar",
         "pkg:maven/org.slf4j/slf4j-api@2.0.11?type=jar"
       ]
     },
@@ -10605,7 +10605,7 @@
         "pkg:maven/io.github.liveontologies/elk-util-hashing@0.6.0?type=jar",
         "pkg:maven/io.github.liveontologies/elk-util-logging@0.6.0?type=jar",
         "pkg:maven/io.github.liveontologies/elk-util-common@0.6.0?type=jar",
-        "pkg:maven/com.google.guava/guava@33.5.0-jre?type=jar",
+        "pkg:maven/com.google.guava/guava@33.7.2-jre?type=jar",
         "pkg:maven/org.slf4j/slf4j-api@2.0.11?type=jar"
       ]
     },
@@ -10631,7 +10631,7 @@
     {
       "ref" : "pkg:maven/io.github.liveontologies/elk-util-collections@0.6.0?type=jar",
       "dependsOn" : [
-        "pkg:maven/com.google.guava/guava@33.5.0-jre?type=jar"
+        "pkg:maven/com.google.guava/guava@33.7.2-jre?type=jar"
       ]
     },
     {
@@ -10655,7 +10655,7 @@
         "pkg:maven/io.github.liveontologies/elk-owl-model@0.6.0?type=jar",
         "pkg:maven/io.github.liveontologies/elk-owl-implementation@0.6.0?type=jar",
         "pkg:maven/org.liveontologies/puli@0.1.0?type=jar",
-        "pkg:maven/com.google.guava/guava@33.5.0-jre?type=jar",
+        "pkg:maven/com.google.guava/guava@33.7.2-jre?type=jar",
         "pkg:maven/org.slf4j/slf4j-api@2.0.11?type=jar"
       ]
     },
