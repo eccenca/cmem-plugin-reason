@@ -26,8 +26,8 @@ Java process in the same container, so both share its memory.
 
 The reasoner holds the input graphs and its results in memory. As a rough guide, measured with
 200,000 individuals (48 MB of N-Triples, 1.8 million inferred class assertions): ELK needs about
-1.8 GB of heap, HermiT about 2.3 GB and JFact about 2.6 GB; with the default of 20 %, that is a
-container with about 13 GB of memory. If the task fails with an out of memory error, raise the percentage or the
+1.7 GB of heap and HermiT about 2.4 GB; with the default of 20 %, that is a container with about
+12 GB of memory. If the task fails with an out of memory error, raise the percentage or the
 container's memory.
 
 ⚠️ Setting the percentage too high may result in an out of memory error of DataIntegration itself.
@@ -57,8 +57,7 @@ The following reasoner options are supported:
 - ELK wrapped in the geneontology `ExpressionMaterializingReasoner` (elk_emr), which additionally
   infers existential restrictions (`SubClassOf: R some C`) as superclasses
 - [HermiT](http://www.hermit-reasoner.com/) (hermit)
-- [JFact](https://github.com/owlcs/jfact) (jfact), in a version with fixes for wrong and missing
-  inferences and for its speed with many individuals
+- [JFact](https://github.com/owlcs/jfact) (jfact)
 - [Structural Reasoner](http://owlcs.github.io/owlapi/apidocs_4/org/semanticweb/owlapi/reasoner/structural/StructuralReasoner.html) (structural)
 
 #### Reasoner limitations
@@ -86,18 +85,23 @@ inferences with which reasoner:
   such restrictions it can infer wrong subclass and equivalence axioms or find a consistent
   ontology inconsistent ([ELK issue #71](https://github.com/liveontologies/elk-reasoner/issues/71));
   use HermiT or JFact for them.
-- **HermiT** is complete for OWL 2 DL, but can take very long on some hard ontologies; on large
-  datasets whose individuals are linked by properties it is a little slower than JFact. The
-  advanced parameter "Timeout
-  (minutes)" stops the task with an error if the reasoner hasn't finished by then; by default
-  there is no limit. Cancelling the workflow also stops the reasoner.
+- **HermiT** is complete for OWL 2 DL, but can take very long on some hard ontologies and on large
+  datasets whose individuals are linked by properties (see below). It fails on a union whose
+  operands all simplify to `owl:Nothing`, e.g. `p some (owl:Nothing or (q some owl:Nothing))`: the
+  task stops with an error naming the cause; replace such a union with `owl:Nothing`, or use JFact.
+  The advanced parameter "Timeout (minutes)" stops the task with an error if the reasoner hasn't
+  finished by then; by default there is no limit. Cancelling the workflow also stops the reasoner.
 - **Structural** does no real reasoning: it only finds what follows from the asserted class and
   property hierarchies.
-- **JFact** lacks some reasoning that HermiT has: keys (`HasKey`), disjoint data properties and
-  parts of datatype reasoning give no inferences or inconsistencies, and `rdf:XMLLiteral` values
-  that differ only in formatting are taken for different values. On some ontologies with
-  nominals, its search can take very long where HermiT is fast. Prefer HermiT unless JFact is
-  needed; on large datasets JFact is a little faster (see below).
+- **JFact** can miss subsumptions that HermiT finds: e.g. with a disjointness between complex
+  class expressions, JFact 5.0.3 confirms `giraffe SubClassOf vegetarian` when asked directly, but
+  leaves it out of the class hierarchy it computes. Where it misses an equivalence between classes,
+  it places one below the other in an order that can change from run to run, so its results, and
+  its running time, can vary between runs. It also lacks some reasoning that HermiT has: keys
+  (`HasKey`), disjoint data properties and parts of datatype reasoning give no inferences or
+  inconsistencies, and `rdf:XMLLiteral` values that differ only in formatting are taken for
+  different values. Prefer HermiT unless JFact is needed, and avoid JFact for large datasets (see
+  below).
 - **Unsatisfiable classes:** a class that can have no instances is inferred to be a subclass of
   `owl:Nothing` (with "Class inclusion"), and the task continues. Check such classes with the
   "Validate OWL consistency" task in mode _unsatisfiability_.
@@ -108,23 +112,24 @@ inferences with which reasoner:
 #### Large datasets
 
 Measured with 200,000 individuals of the lowest class of a chain of 10 classes (48 MB of N-Triples,
-1.8 million inferred class assertions, axiom generator "Individual class assertions"):
+1.8 million inferred class assertions):
 
 | Reasoner | Time | Heap |
 |---|---|---|
-| ELK | 22 s | 1.8 GB |
-| HermiT | 30 s | 2.4 GB |
-| JFact | 25 s | 2.7 GB |
+| ELK | 30 s | 1.7 GB |
+| HermiT | 46 s | 2.4 GB |
+| JFact | did not finish in 5 minutes | |
 
 - How HermiT and JFact scale depends on the ontology. With individuals that only have types,
-  spread over the 512 lowest classes of a tree of 1,023 classes, both grow linearly and take about
-  the same time (5,000 individuals: 2 s, 40,000: 6 s). When the individuals are linked by
-  properties in an ontology with existential restrictions, both still grow about linearly, JFact a
-  little faster: with the pizza ontology and pizzas linked to their toppings, the task with class
-  assertions takes 0.8 s for 100 pizzas with HermiT, 1.6 s for 800, 4.4 s for 4,000 and 19 s for
-  20,000; JFact takes 1.5 s for 800, 4 s for 4,000 and 15 s for 20,000, where ELK takes 9 s; all
-  three give the same result. Use ELK for large datasets if the ontology is within OWL 2 EL,
-  otherwise HermiT or JFact.
+  spread over the 512 lowest classes of a tree of 1,023 classes, HermiT grows linearly (5,000
+  individuals: 36 s, 40,000: 4.5 minutes) and JFact quadratically (5,000: 4 s, 20,000: 1 minute,
+  40,000: 4 minutes). In the chain above, where all individuals have the same type, HermiT is much
+  faster. When the individuals are linked by properties in an ontology with existential
+  restrictions, both grow much faster. With the pizza ontology and pizzas linked to their
+  toppings, HermiT's consistency check alone takes 2 s for 100 pizzas, 14 s for 200, 45 s for 400
+  and more than 5 minutes for 800, and it did not finish 1,000 pizzas in 14 hours. JFact does not
+  finish 20,000 pizzas in 30 minutes, where ELK takes 9 s. Use ELK for large datasets if the
+  ontology is within OWL 2 EL.
 - ELK (EMR) creates a helper class for every class and every object property used in class or
   property axioms, so its memory grows with classes × properties: about 0.7 GB for 5,000 classes
   and 40 properties, where ELK needs 30 MB. For ontologies with many classes and properties, use

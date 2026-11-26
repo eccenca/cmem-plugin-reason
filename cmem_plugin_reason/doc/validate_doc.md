@@ -31,10 +31,11 @@ with the default of 20 %, that is a container with about 4 GB of memory. If the 
 container's memory.
 
 The running time depends on the ontology more than on the size of the graph. Every explanation
-starts with a consistency check of the whole graph, which is slower when its individuals are
+starts with a consistency check of the whole graph, which is much slower when its individuals are
 linked by properties in an ontology with existential restrictions: with the pizza ontology and
-pizzas linked to their toppings, HermiT takes 0.1 s for 100 pizzas, 0.6 s for 800, 3.3 s for 4,000
-and 18 s for 20,000. JFact checks 20,000 such pizzas in 4 s.
+pizzas linked to their toppings, HermiT takes 2 s for 100 pizzas, 14 s for 200, 45 s for 400 and
+more than 5 minutes for 800, and it did not finish 1,000 pizzas in 14 hours. JFact does not finish
+20,000 such pizzas in 30 minutes.
 
 ⚠️ Setting the percentage too high may result in an out of memory error of DataIntegration itself.
 
@@ -77,18 +78,17 @@ blank nodes.
 
 The following reasoner options are supported:
 - [HermiT](http://www.hermit-reasoner.com/) (hermit)
-- [JFact](https://github.com/owlcs/jfact) (jfact), in a version with fixes for wrong and missing
-  inferences and for its speed with many individuals
+- [JFact](https://github.com/owlcs/jfact) (jfact)
 
 Both are OWL 2 DL reasoners capable of generating explanations, which is what
 consistency/unsatisfiability validation needs. HermiT is recommended: JFact lacks some reasoning
 that HermiT has, so it can miss inconsistencies with keys (`HasKey`), disjoint data properties or
-datatypes, and it takes `rdf:XMLLiteral` values that differ only in formatting for different
-values, which can make a consistent ontology inconsistent. HermiT can take very long on some hard
-ontologies and on large graphs whose individuals are linked by properties, where JFact is much
-faster (see "Maximum RAM Percentage"). The advanced parameter "Timeout (minutes)" stops the task
-with an error if the reasoner hasn't finished by then; by default there is no limit. Cancelling
-the workflow also stops the reasoner.
+datatypes, and it takes `rdf:XMLLiteral` values that differ only in formatting for different values,
+which can make a consistent ontology inconsistent; its running time can vary between runs. Both can
+take very long on some hard ontologies and on large graphs whose individuals are linked by
+properties (see "Maximum RAM Percentage"). The advanced parameter "Timeout (minutes)" stops the task
+with an error if the reasoner hasn't finished by then; by default there is no limit. Cancelling the
+workflow also stops the reasoner.
 
 ### Stop at inconsistencies
 

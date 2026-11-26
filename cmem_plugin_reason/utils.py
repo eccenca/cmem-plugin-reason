@@ -159,8 +159,8 @@ def raise_on_error(response: CompletedProcess, context: str = "Reasoner") -> Non
         limit = f" of {match['limit']}" if match else ""
         raise OSError(
             f'{context} did not finish within the time limit{limit} (parameter "Timeout") and '
-            "was stopped. For large datasets whose individuals are linked by properties, JFact "
-            "is several times faster than HermiT."
+            "was stopped. For large datasets whose ontology is within OWL 2 EL, ELK is much "
+            "faster than HermiT and JFact."
         )
     if response.returncode != 0:
         if response.stderr:

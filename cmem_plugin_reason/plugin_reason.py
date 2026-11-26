@@ -158,6 +158,9 @@ SAME_INDIVIDUAL_DESC = """The reasoner will infer which individuals are the same
 If there is the object property `hasEmail` with `hasEmail Characteristics: InverseFunctional`,
 and the individuals `anna` and `annaSmith` with the assertions `anna Facts: hasEmail mail1` and
 `annaSmith Facts: hasEmail mail1`, the reasoner will infer `anna SameAs: annaSmith`.
+HermiT and JFact can miss some individuals that are the same: they test an individual only
+against the one it was merged into while building their model, so two individuals merged into a
+third one are not compared with each other.
 **Not supported by ELK or ELK (EMR).**
 The Structural Reasoner does not infer this.
 """
@@ -237,8 +240,9 @@ REASON_PARAMETERS = [
         label="Reasoner",
         description="""Reasoner option. ELK and ELK (EMR) are limited to OWL 2 EL and support
         fewer axiom generators; the Structural Reasoner only uses asserted hierarchies. JFact can
-        miss inferences HermiT finds, but is several times faster on large datasets whose
-        individuals are linked by properties. See the documentation for details.""",
+        miss inferences HermiT finds, and its results can vary between runs. On large datasets
+        whose individuals are linked by properties, HermiT and JFact can be very slow. See the
+        documentation for details.""",
     ),
     PluginParameter(
         param_type=GraphParameterType(classes=[OWL_ONTOLOGY, DI_DATASET, VOID_DATASET]),
