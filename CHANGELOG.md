@@ -29,7 +29,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 ### Changed
 
-- updated template to v9.10.0
+- updated template to v10.0.1 (uv instead of Poetry)
 - Use eccenca reasoner (OWLAPI5) instead of ROBOT (OWLAPI4)
 - Reason plugin: selecting an axiom generator that ELK doesn't support (e.g. "Individual
   property assertions") with ELK or ELK (EMR) is an error naming the generators; such a
@@ -40,14 +40,10 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
   inferred to be a subclass of `owl:Nothing`.
 - Reason and Validate plugins: the reasoner reads imported ontologies only from Corporate Memory
   and never fetches one from its IRI (e.g. from the web).
-  `rdf:XMLLiteral` values no longer lose attributes or characters outside the Basic Multilingual
-  Plane (e.g. emoji). The bundled reasoner no longer contains Axiom and the libraries it needed,
-  among them the old woodstox-core-asl and jaxen.
 - Reason plugin: faster with HermiT and JFact. The redundant subclass axioms are removed with the
   class hierarchy the reasoning computed, instead of classifying the ontology a second time (HermiT
   on food: 6.9 s → 3.8 s), and the object property hierarchy is only computed when an axiom
-  generator needs it (HermiT on 4,000 pizzas linked to their toppings: about a third less time).
-
+  generator needs it.
 - Validate plugin: the profile validation also checks what OWL 2 requires of the RDF graph itself:
   an ontology graph without an ontology header (`owl:Ontology`), or with undeclared classes,
   properties or datatypes, is only OWL 2 Full; the reason is written to the task log.
@@ -81,6 +77,16 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
   classes), object property characteristics (functionality is inherited by sub-properties) and
   individual property assertions, and documented which axiom generators each reasoner supports
   (ELK does not support e.g. property assertions, disjointness, ranges and domains).
+
+## [2.6.0] 2026-11-03
+
+### Fixed
+
+- Fix robot.jar vulnerability CVE-2026-102554
+
+### Changed
+
+- Updated dependencies and template
 
 ## [2.5.0] 2026-10-14
 
@@ -134,7 +140,6 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 - Remove cmem-cmempy dependency and `setup_cmempy_user_access` calls
 
-
 ## [2.2.7] 2026-07-22
 
 ### Fixed
@@ -155,11 +160,13 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 - Update template to 8.5.0.
 
+
 ## [2.2.5] 2026-03-01
 
 ### Fixed
 
 - Fix robot.jar vulnerability GHSA-72hv-8253-57qq
+
 
 ## [2.2.4] 2026-02-20
 
@@ -167,12 +174,14 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 - use ROBOT v1.9.10 compiled with [updated dependencies without vulnerablities](https://github.com/eccenca/robot/tree/feature/updateDependenciesV1.9.10)
 
+
 ## [2.2.3] 2026-02-17
 
 ### Changed
 
 - Update template to 8.3.1.
 - Relax URN URI validation.
+
 
 ## [2.2.2] 2026-01-27
 
@@ -184,6 +193,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 - Update template to 8.3.0.
 - Allow URN URIs in graph parameters.
+
 
 ## [2.2.1] 2025-11-27
 
