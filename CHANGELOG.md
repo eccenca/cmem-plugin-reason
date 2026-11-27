@@ -30,7 +30,12 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 ### Changed
 
 - updated template to v10.0.1 (uv instead of Poetry)
-- Use eccenca reasoner (OWLAPI5) instead of ROBOT (OWLAPI4)
+- Use eccenca-reasoner 0.0.4 (OWLAPI 5, with HermiT 1.4.5.519 and JFact 5.0.3) instead of ROBOT
+  (OWLAPI 4)
+- Reason and Validate plugins: with HermiT, a union whose operands all simplify to `owl:Nothing`,
+  e.g. `p some (owl:Nothing or (q some owl:Nothing))`, stops the task with an error naming the
+  cause; replace it with `owl:Nothing`, or use JFact. An ontology stating that `owl:Thing` is empty
+  (`owl:Thing SubClassOf owl:Nothing`) is reported as inconsistent.
 - Reason plugin: selecting an axiom generator that ELK doesn't support (e.g. "Individual
   property assertions") with ELK or ELK (EMR) is an error naming the generators; such a
   generator used to give no result, with only a warning in the task log.
